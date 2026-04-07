@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Solo Leveling"/>
+<title>Solo Leveling — Val</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --rank-color: #9ca3af; --rank-glow: #9ca3af55; --rank-accent: #6b7280; --bg: #0a0a0f;
+  --surface: rgba(255,255,255,0.03); --surface2: rgba(255,255,255,0.06);
+  --text: #e2e8f0; --text-dim: #64748b;
+}
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; overflow-x: hidden; }
+#root { height: 100%; }
+.app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; padding-bottom: 80px; }
+.app::before { content: ''; position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 430px; max-width: 100vw; height: 100vh; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px); pointer-events: none; z-index: 1000; }
+.particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+.particle { position: absolute; border-radius: 50%; animation: float linear infinite; }
+@keyframes float { 0%{transform:translateY(100vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(-100px) scale(1);opacity:0} }
+.header { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--rank-color,#9ca3af)33; padding: 16px 20px 12px; }
+.header-top { display: flex; justify-content: space-between; align-items: center; }
+.player-name { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; color: var(--rank-color); text-shadow: 0 0 20px var(--rank-glow); letter-spacing: 3px; }
+.gear-btn { background: none; border: 1px solid var(--rank-color)44; border-radius: 50%; width: 43px; height: 43px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 19px; color: var(--rank-color); transition: all .3s; }
+.rank-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--rank-color)11; border: 1px solid var(--rank-color)55; border-radius: 20px; padding: 4px 14px; margin-top: 8px; }
+.rank-letter { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; color: var(--rank-color); text-shadow: 0 0 15px var(--rank-glow); }
+.rank-label { font-size: 13px; color: var(--rank-color)cc; letter-spacing: 2px; text-transform: uppercase; }
+.xp-bar-wrap { margin-top: 10px; }
+.xp-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-bottom: 4px; font-family: 'Orbitron', sans-serif; }
+.xp-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+.xp-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--rank-accent), var(--rank-color)); box-shadow: 0 0 8px var(--rank-glow); transition: width .6s cubic-bezier(.4,0,.2,1); }
+.header-stats { display: flex; gap: 20px; margin-top: 10px; }
+.h-stat { text-align: center; }
+.h-stat-val { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; color: var(--rank-color); }
+.h-stat-lbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+.nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 430px; max-width: 100vw; background: var(--bg); border-top: 1px solid var(--rank-color)33; display: flex; z-index: 200; }
+.nav-btn { flex: 1; padding: 12px 0; background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-dim); transition: all .2s; font-family: 'Rajdhani', sans-serif; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+.nav-btn.active { color: var(--rank-color); }
+.nav-btn.active .nav-icon { filter: drop-shadow(0 0 6px var(--rank-glow)); }
+.nav-icon { font-size: 20px; }
+.tab { padding: 16px 16px 0; position: relative; z-index: 1; }
+.card { background: var(--surface); border: 1px solid var(--rank-color)22; border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative; overflow: hidden; }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--rank-color)66, transparent); }
+.card-title { font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 2px; color: var(--rank-color); text-transform: uppercase; margin-bottom: 12px; }
+.quest-item { background: var(--surface2); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+.quest-item.completed { border-color: var(--rank-color)44; background: var(--rank-color)08; }
+.quest-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.quest-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.quest-icon { font-size: 18px; }
+.quest-progress-row { display: flex; align-items: center; gap: 10px; }
+.quest-bar { flex: 1; height: 5px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+.quest-bar-fill { height: 100%; border-radius: 3px; transition: width .4s; background: linear-gradient(90deg, var(--rank-accent), var(--rank-color)); }
+.quest-bar-fill.over { background: linear-gradient(90deg, #fbbf24, #f59e0b); box-shadow: 0 0 6px #f59e0b88; }
+.quest-input-row { display: flex; gap: 8px; margin-top: 8px; }
+.quest-input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--rank-color)33; border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 16px; outline: none; }
+.quest-input:focus { border-color: var(--rank-color)88; box-shadow: 0 0 8px var(--rank-glow); }
+.quest-add-btn { background: var(--rank-color)22; border: 1px solid var(--rank-color)66; border-radius: 8px; padding: 8px 14px; color: var(--rank-color); cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 11px; transition: all .2s; }
+.quest-xp { font-family: 'Orbitron', sans-serif; font-size: 11px; color: var(--rank-color); min-width: 50px; text-align: right; }
+.stat-char { margin-bottom: 12px; }
+.stat-char-name { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; letter-spacing: 1px; color: var(--text); margin-bottom: 5px; }
+.stat-char-level { font-family: 'Orbitron', sans-serif; font-size: 11px; color: var(--rank-color); }
+.stat-char-bar { height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+.stat-char-fill { height: 100%; border-radius: 4px; transition: width .6s; }
+.rank-path { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
+.rank-node { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.rank-node-circle { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: 900; border: 2px solid; transition: all .3s; }
+.rank-node-name { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; }
+.rank-connector { flex: 1; height: 2px; margin: 0 4px; margin-bottom: 16px; }
+.weekly-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.week-day { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.week-day-label { font-size: 9px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+.week-day-dot { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: 'Orbitron', sans-serif; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 500; display: flex; align-items: flex-end; justify-content: center; }
+.modal { background: #0d0d18; border: 1px solid var(--rank-color)44; border-radius: 20px 20px 0 0; width: 430px; max-width: 100vw; max-height: 85vh; overflow-y: auto; padding: 24px 20px; }
+.modal-title { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; color: var(--rank-color); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+.modal-section { margin-bottom: 20px; }
+.modal-label { font-size: 12px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.modal-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--rank-color)33; border-radius: 8px; padding: 10px 14px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 16px; outline: none; margin-bottom: 8px; }
+.modal-row { display: flex; gap: 8px; }
+.modal-btn { flex: 1; padding: 12px; border-radius: 8px; font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: all .2s; text-transform: uppercase; }
+.btn-primary { background: var(--rank-color)22; border: 1px solid var(--rank-color)77; color: var(--rank-color); }
+.btn-danger { background: #ef444422; border: 1px solid #ef444466; color: #ef4444; }
+.btn-cancel { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-dim); }
+.rankup-overlay { position: fixed; inset: 0; z-index: 900; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.95); animation: fadeInOverlay .3s; }
+@keyframes fadeInOverlay { from{opacity:0} to{opacity:1} }
+.rankup-lines { position: absolute; inset: 0; overflow: hidden; }
+.rankup-line { position: absolute; height: 2px; width: 200px; background: linear-gradient(90deg, transparent, var(--rank-color), transparent); animation: shootLine 1.5s linear infinite; }
+@keyframes shootLine { 0%{transform:translateX(-220px) rotate(var(--angle));opacity:0} 50%{opacity:1} 100%{transform:translateX(calc(100vw + 220px)) rotate(var(--angle));opacity:0} }
+.rankup-content { text-align: center; z-index: 1; animation: scaleIn .5s cubic-bezier(.34,1.56,.64,1); }
+@keyframes scaleIn { from{transform:scale(0.3);opacity:0} to{transform:scale(1);opacity:1} }
+.rankup-rank { font-family: 'Orbitron', sans-serif; font-size: 100px; font-weight: 900; color: var(--rank-color); text-shadow: 0 0 60px var(--rank-glow), 0 0 120px var(--rank-glow); animation: pulseRank 1s ease-in-out infinite alternate; }
+@keyframes pulseRank { from{text-shadow:0 0 40px var(--rank-glow),0 0 80px var(--rank-glow)} to{text-shadow:0 0 80px var(--rank-glow),0 0 160px var(--rank-glow),0 0 30px var(--rank-color)} }
+.rankup-label { font-family: 'Orbitron', sans-serif; font-size: 20px; letter-spacing: 6px; color: var(--rank-color); margin-top: 8px; text-transform: uppercase; }
+.rankup-title { font-family: 'Orbitron', sans-serif; font-size: 13px; letter-spacing: 5px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 12px; }
+.rankup-dismiss { margin-top: 40px; background: var(--rank-color)22; border: 1px solid var(--rank-color)66; border-radius: 8px; padding: 12px 32px; color: var(--rank-color); font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 3px; cursor: pointer; text-transform: uppercase; }
+.xp-float { position: fixed; pointer-events: none; z-index: 800; font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; color: var(--rank-color); text-shadow: 0 0 10px var(--rank-glow); animation: floatUp 1.2s ease-out forwards; }
+@keyframes floatUp { 0%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-80px)} }
+.warning-banner { background: #ef444411; border: 1px solid #ef444466; border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.warning-icon { font-size: 20px; }
+.warning-text { font-size: 13px; color: #ef4444; }
+.add-obj-form { background: var(--surface); border: 1px dashed var(--rank-color)44; border-radius: 10px; padding: 14px; margin-top: 8px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.form-full { grid-column: 1 / -1; }
+.form-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--rank-color)33; border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 16px; outline: none; }
+.form-select { width: 100%; background: #0d0d18; border: 1px solid var(--rank-color)33; border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 16px; outline: none; }
+.form-check { font-size: 12px; display: flex; align-items: center; gap: 6px; color: var(--text-dim); }
+.delete-btn { background: none; border: none; cursor: pointer; font-size: 14px; color: #ef444488; padding: 2px 6px; border-radius: 4px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.add-toggle-btn { background: var(--rank-color)11; border: 1px solid var(--rank-color)44; border-radius: 8px; padding: 5px 12px; color: var(--rank-color); font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 1px; cursor: pointer; }
+.today-xp { font-family: 'Orbitron', sans-serif; font-size: 28px; font-weight: 900; color: var(--rank-color); text-shadow: 0 0 20px var(--rank-glow); text-align: center; }
+.today-xp-label { font-size: 11px; color: var(--text-dim); text-align: center; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+.key-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.key-stat-box { background: var(--surface2); border: 1px solid var(--rank-color)22; border-radius: 10px; padding: 12px; text-align: center; }
+.key-stat-val { font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700; color: var(--rank-color); }
+.key-stat-lbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const RANKS = [
+  { id:"E", label:"Éveillé",    color:"#9ca3af", glow:"#9ca3af55", bg:"#0a0a0f", accent:"#6b7280", xpRequired:0     },
+  { id:"D", label:"Aventurier", color:"#22d3ee", glow:"#22d3ee55", bg:"#000d12", accent:"#06b6d4", xpRequired:3000  },
+  { id:"C", label:"Combattant", color:"#4ade80", glow:"#4ade8055", bg:"#000d06", accent:"#22c55e", xpRequired:9000  },
+  { id:"B", label:"Chasseur",   color:"#f59e0b", glow:"#f59e0b55", bg:"#0d0800", accent:"#d97706", xpRequired:21000 },
+  { id:"A", label:"Expert",     color:"#f87171", glow:"#f87171aa", bg:"#0d0004", accent:"#ef4444", xpRequired:45000 },
+  { id:"S", label:"Maître",     color:"#c084fc", glow:"#c084fcaa", bg:"#0a0014", accent:"#a855f7", xpRequired:90000 },
+];
+const STATS = ["Force","Intelligence","Agilité","Endurance"];
+const DEFAULT_OBJECTIVES = [
+  { id:"push",    name:"Pompes",         unit:"reps",   xpPer:1,   daily:true,  weekly:false, optional:false, stat:"Force",        icon:"🦾", base:30 },
+  { id:"abs",     name:"Abdominaux",     unit:"reps",   xpPer:1,   daily:true,  weekly:false, optional:false, stat:"Agilité",      icon:"🧎🏻‍♂️", base:60 },
+  { id:"squats",  name:"Squats",         unit:"reps",   xpPer:1,   daily:true,  weekly:false, optional:false, stat:"Force",        icon:"🦿", base:15 },
+  { id:"water",   name:"Boire de l'eau", unit:"verres", xpPer:1,   daily:true,  weekly:false, optional:false, stat:"Endurance",    icon:"💧", base:8  },
+  { id:"reading", name:"Lecture",        unit:"pages",  xpPer:0.1, daily:true,  weekly:false, optional:false, stat:"Intelligence", icon:"📚", base:10 },
+  { id:"run",     name:"Course à pied",  unit:"km",     xpPer:20,  daily:false, weekly:true,  optional:false, stat:"Endurance",    icon:"🏃🏻", base:7  },
+  { id:"med",     name:"Méditation",     unit:"min",    xpPer:1,   daily:true,  weekly:false, optional:true,  stat:"Intelligence", icon:"🧘🏻", base:5  },
+  { id:"flex",    name:"Souplesse",      unit:"min",    xpPer:1,   daily:true,  weekly:false, optional:true,  stat:"Agilité",      icon:"🤸🏻", base:5  },
+];
+
+function getRank(xp) { for(let i=RANKS.length-1;i>=0;i--) if(xp>=RANKS[i].xpRequired) return RANKS[i]; return RANKS[0]; }
+function getNextRank(id) { const i=RANKS.findIndex(r=>r.id===id); return i<RANKS.length-1?RANKS[i+1]:null; }
+function getTarget(base,ri) { return Math.round(base*Math.pow(1.25,ri)); }
+function today() { return new Date().toISOString().slice(0,10); }
+function weekKey(d=new Date()) { const j=new Date(d.getFullYear(),0,1); return `${d.getFullYear()}-W${Math.ceil(((d-j)/86400000+j.getDay()+1)/7)}`; }
+
+function loadState() {
+  try { const r=localStorage.getItem("sl_v2"); return r?JSON.parse(r):null; } catch { return null; }
+}
+function saveState(s) {
+  try { localStorage.setItem("sl_v2",JSON.stringify(s)); } catch {}
+}
+function initState() {
+  return { totalXp:0, streak:0, lastActiveDay:null, streakBonusDay:null,
+    objectives:DEFAULT_OBJECTIVES, dailyLog:{}, weeklyLog:{},
+    stats:{Force:0,Intelligence:0,Agilité:0,Endurance:0},
+    statXp:{Force:0,Intelligence:0,Agilité:0,Endurance:0} };
+}
+
+function App() {
+  const [state, setState] = useState(() => {
+    const saved = loadState();
+    if (!saved) return initState();
+    // Migration
+    const PATCHES = { push:{icon:"🦾",base:30}, abs:{icon:"🧎🏻‍♂️",base:60,stat:"Agilité"}, squats:{icon:"🦿",base:15}, reading:{icon:"📚",base:10}, run:{icon:"🏃🏻",base:7}, med:{icon:"🧘🏻",base:5}, flex:{icon:"🤸🏻",base:5} };
+    let objs = saved.objectives.map(o => PATCHES[o.id] ? {...o,...PATCHES[o.id]} : o);
+    if (!objs.find(o=>o.id==="water")) objs = [...objs, {id:"water",name:"Boire de l'eau",unit:"verres",xpPer:1,daily:true,weekly:false,optional:false,stat:"Endurance",icon:"💧",base:8}];
+    return {...saved, objectives:objs};
+  });
+  const [tab, setTab] = useState("home");
+  const [showAddObj, setShowAddObj] = useState(false);
+  const [rankUpAnim, setRankUpAnim] = useState(null);
+  const [xpFloats, setXpFloats] = useState([]);
+  const [inputVals, setInputVals] = useState({});
+  const [newObj, setNewObj] = useState({name:"",unit:"reps",xpPer:1,daily:true,weekly:false,optional:false,stat:"Force",icon:"⚡",base:10});
+  const [editObj, setEditObj] = useState(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [editDay, setEditDay] = useState({});
+  const [weekOffset, setWeekOffset] = useState(0);
+
+  useEffect(() => { saveState(state); }, [state]);
+
+  const rank = getRank(state.totalXp);
+  useEffect(() => {
+    const r = document.documentElement;
+    r.style.setProperty("--rank-color", rank.color);
+    r.style.setProperty("--rank-glow", rank.glow);
+    r.style.setProperty("--rank-accent", rank.accent);
+    r.style.setProperty("--bg", rank.bg);
+  }, [rank.id]);
+
+  useEffect(() => {
+    const t = today();
+    if (state.lastActiveDay && state.lastActiveDay !== t) {
+      const diff = Math.round((new Date(t)-new Date(state.lastActiveDay))/86400000);
+      if (diff >= 2) setState(s => ({...s, totalXp:Math.max(0,s.totalXp-diff*10), streak:0}));
+    }
+  }, []);
+
+  const todayKey = today();
+  const wk = weekKey();
+  const rankIdx = RANKS.findIndex(r=>r.id===rank.id);
+  const nextRank = getNextRank(rank.id);
+  const xpInRank = state.totalXp - rank.xpRequired;
+  const xpToNext = nextRank ? nextRank.xpRequired - rank.xpRequired : 1;
+  const rankPct = nextRank ? Math.min(100,(xpInRank/xpToNext)*100) : 100;
+  const todayLog = state.dailyLog[todayKey] || {};
+  const weekLog = state.weeklyLog[wk] || {};
+  const todayXp = Object.entries(todayLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id);return s+(o?a*o.xpPer:0);},0)
+    + Object.entries(weekLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id&&x.weekly);return s+(o?a*o.xpPer:0);},0);
+
+  const STAT_ORDER = ["Force","Intelligence","Agilité","Endurance"];
+  const sortByStat = arr => [...arr].sort((a,b)=>STAT_ORDER.indexOf(a.stat)-STAT_ORDER.indexOf(b.stat));
+
+  const missedDays = (() => {
+    if (!state.lastActiveDay) return 0;
+    const diff = Math.round((new Date(today())-new Date(state.lastActiveDay))/86400000);
+    return diff > 1 ? diff : 0;
+  })();
+
+  const allRequiredDone = state.objectives.filter(o=>!o.optional).every(o=>{
+    const t=getTarget(o.base,rankIdx); const d=o.weekly?(weekLog[o.id]||0):(todayLog[o.id]||0); return d>=t;
+  });
+  const streakBonus = state.streak * 20;
+  const streakBonusAlreadyGiven = state.streakBonusDay === todayKey;
+
+  function spawnXpFloat(xp, e) {
+    const id = Date.now()+Math.random();
+    const x = e?.clientX??200, y = e?.clientY??300;
+    setXpFloats(f=>[...f,{id,x,y,xp}]);
+    setTimeout(()=>setXpFloats(f=>f.filter(p=>p.id!==id)),1300);
+  }
+
+  function addXp(amount, statName, e) {
+    setState(s => {
+      const newTotal = s.totalXp + amount;
+      const newStatXp = {...s.statXp, [statName]:(s.statXp[statName]||0)+amount};
+      function xpForLvl(l){return Math.round(100*Math.pow(1.1,l));}
+      function totalForLvl(l){let t=0;for(let i=0;i<l;i++)t+=xpForLvl(i);return t;}
+      let lvl=0; while(newStatXp[statName]>=totalForLvl(lvl+1)) lvl++;
+      const newStats={...s.stats,[statName]:lvl};
+      if(getRank(newTotal).id!==getRank(s.totalXp).id) setTimeout(()=>setRankUpAnim(getRank(newTotal)),100);
+      return {...s,totalXp:newTotal,statXp:newStatXp,stats:newStats,lastActiveDay:today()};
+    });
+    if(e) spawnXpFloat(`+${amount.toFixed(1)}xp`,e);
+  }
+
+  function validateObjective(obj, e) {
+    const val = parseFloat(inputVals[obj.id]||0);
+    if (!val||val<=0) return;
+    const currentDone = obj.weekly?(weekLog[obj.id]||0):(todayLog[obj.id]||0);
+    const target = getTarget(obj.base,rankIdx);
+    const alreadyOver = Math.max(0,currentDone-target);
+    const normalPart = alreadyOver>0?0:Math.min(val,target-currentDone);
+    const bonusPart = val-normalPart;
+    const xp = normalPart*obj.xpPer + bonusPart*obj.xpPer*1.5;
+    setState(s => {
+      if (obj.weekly) { const w={...s.weeklyLog}; w[wk]={...(w[wk]||{}),[obj.id]:(w[wk]?.[obj.id]||0)+val}; return {...s,weeklyLog:w,lastActiveDay:today()}; }
+      else { const d={...s.dailyLog}; d[todayKey]={...(d[todayKey]||{}),[obj.id]:(d[todayKey]?.[obj.id]||0)+val}; return {...s,dailyLog:d,lastActiveDay:today()}; }
+    });
+    addXp(xp,obj.stat,e);
+    setInputVals(v=>({...v,[obj.id]:""}));
+  }
+
+  function saveEdit() {
+    if(!editObj) return;
+    setState(s=>({...s,objectives:s.objectives.map(o=>o.id===editObj.id?editObj:o)}));
+    setEditObj(null);
+  }
+
+  function addObjective() {
+    if(!newObj.name) return;
+    const id="custom_"+Date.now();
+    setState(s=>({...s,objectives:[...s.objectives,{...newObj,id}]}));
+    setNewObj({name:"",unit:"reps",xpPer:1,daily:true,weekly:false,optional:false,stat:"Force",icon:"⚡",base:10});
+    setShowAddObj(false);
+  }
+
+  // ─── QUEST ITEM COMPONENT ───────────────────────────────────────────────────
+  function QuestItem({obj,done,target,pct,over}) {
+    return (
+      <div className={`quest-item ${done>=target?'completed':''}`}>
+        <div className="quest-header">
+          <div className="quest-name"><span className="quest-icon">{obj.icon}</span><span>{obj.name}</span></div>
+          <div style={{display:'flex',gap:4,alignItems:'center'}}>
+            <button className="delete-btn" onClick={()=>setEditObj({...obj})}>✏️</button>
+            <button className="delete-btn" onClick={()=>setState(s=>({...s,objectives:s.objectives.filter(o=>o.id!==obj.id)}))}>🗑</button>
+          </div>
+        </div>
+        <div className="quest-progress-row">
+          <div className="quest-bar"><div className={`quest-bar-fill ${over?'over':''}`} style={{width:Math.min(100,pct)+'%'}}/></div>
+          <div className="quest-xp">{done}/{target} {obj.unit}</div>
+        </div>
+        <div className="quest-input-row">
+          <input className="quest-input" type="number" min="0" placeholder={`+ ${obj.unit}`}
+            value={inputVals[obj.id]||""} onChange={ev=>setInputVals(v=>({...v,[obj.id]:ev.target.value}))}/>
+          <button className="quest-add-btn" onClick={e=>validateObjective(obj,e)}>+XP</button>
+        </div>
+        <div style={{fontSize:10,color:'var(--text-dim)',marginTop:4,fontFamily:'Orbitron,sans-serif'}}>{obj.xpPer} xp/{obj.unit} · {obj.stat}</div>
+      </div>
+    );
+  }
+
+  function renderSection(objs, isWeekly) {
+    return objs.map(obj=>{
+      const target=getTarget(obj.base,rankIdx);
+      const done=isWeekly?(weekLog[obj.id]||0):(todayLog[obj.id]||0);
+      const pct=(done/target)*100, over=done>target;
+      return <QuestItem key={obj.id} obj={obj} done={done} target={target} pct={pct} over={over}/>;
+    });
+  }
+
+  // ─── RECAP ROW ──────────────────────────────────────────────────────────────
+  function RecapRow({obj, isWeekly}) {
+    const target=getTarget(obj.base,rankIdx);
+    const done=isWeekly?(weekLog[obj.id]||0):(todayLog[obj.id]||0);
+    const pct=Math.min(100,(done/target)*100);
+    const complete=done>=target, over=done>target;
+    return (
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+        <span style={{fontSize:16}}>{obj.icon}</span>
+        <div style={{flex:1}}>
+          <div style={{fontSize:12,color:over?'#f59e0b':complete?'var(--rank-color)':'var(--text)',marginBottom:3,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span>{obj.name}</span>
+            <span style={{fontFamily:'Orbitron,sans-serif',fontSize:10}}>{done}/{target} {obj.unit}</span>
+          </div>
+          <div className="quest-bar"><div className={`quest-bar-fill ${over?'over':''}`} style={{width:pct+'%',opacity:complete?1:0.7}}/></div>
+        </div>
+        {complete && <span style={{fontSize:14}}>✅</span>}
+      </div>
+    );
+  }
+
+  // ─── TABS ───────────────────────────────────────────────────────────────────
+  function renderHome() {
+    const sections = [
+      {label:"⚔ Quêtes journalières", objs:sortByStat(state.objectives.filter(o=>o.daily&&!o.optional)), weekly:false},
+      {label:"✨ Quêtes bonus",        objs:sortByStat(state.objectives.filter(o=>o.daily&&o.optional)),  weekly:false},
+      {label:"📅 Quêtes hebdomadaires",objs:sortByStat(state.objectives.filter(o=>o.weekly)),              weekly:true},
+    ];
+    return (
+      <div className="tab">
+        {missedDays>=2 && <div className="warning-banner"><span className="warning-icon">⚠️</span><span className="warning-text">Pénalité : -{missedDays*10} XP ({missedDays} jours manqués)</span></div>}
+        {missedDays===1 && <div className="warning-banner"><span className="warning-icon">⚡</span><span className="warning-text">Attention ! Encore un jour sans activité = pénalité XP.</span></div>}
+        <div className="card" style={{textAlign:'center',padding:'20px'}}>
+          <div className="today-xp-label">XP aujourd'hui</div>
+          <div className="today-xp">{todayXp.toFixed(0)}</div>
+          <div style={{fontSize:12,color:'var(--text-dim)',marginTop:4}}>XP total : <span style={{color:'var(--rank-color)',fontFamily:'Orbitron,sans-serif'}}>{state.totalXp.toFixed(0)}</span></div>
+        </div>
+        {allRequiredDone && (
+          <div className="card" style={{border:'1px solid #f59e0b88',background:'#f59e0b08',textAlign:'center'}}>
+            <div style={{fontSize:11,color:'#f59e0b',fontFamily:'Orbitron,sans-serif',letterSpacing:2,marginBottom:6}}>🔥 BONUS STREAK</div>
+            <div style={{fontSize:28,fontFamily:'Orbitron,sans-serif',fontWeight:900,color:'#f59e0b',textShadow:'0 0 20px #f59e0b88'}}>+{streakBonus} XP</div>
+            <div style={{fontSize:11,color:'#f59e0b99',marginTop:4}}>{state.streak} jour{state.streak>1?'s':''} × 20 XP</div>
+            {!streakBonusAlreadyGiven
+              ? <button className="quest-add-btn" style={{marginTop:12,width:'100%',borderColor:'#f59e0b88',color:'#f59e0b',background:'#f59e0b11',fontSize:12,padding:'10px'}} onClick={e=>{setState(s=>({...s,streakBonusDay:todayKey}));addXp(streakBonus,"Force",e);}}>⚡ Réclamer le bonus</button>
+              : <div style={{fontSize:11,color:'#f59e0b66',marginTop:8,fontFamily:'Orbitron,sans-serif'}}>✅ Déjà réclamé aujourd'hui</div>}
+          </div>
+        )}
+        {sections.map(({label,objs,weekly})=>objs.length===0?null:(
+          <div key={label} className="card">
+            <div className="card-title">{label}</div>
+            {objs.map(obj=><RecapRow key={obj.id} obj={obj} isWeekly={weekly}/>)}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  function renderQuests() {
+    const req  = sortByStat(state.objectives.filter(o=>o.daily&&!o.optional));
+    const bon  = sortByStat(state.objectives.filter(o=>o.daily&&o.optional));
+    const week = sortByStat(state.objectives.filter(o=>o.weekly));
+    return (
+      <div className="tab">
+        <div className="card">
+          <div className="section-header"><div className="card-title" style={{margin:0}}>⚔ Quêtes journalières</div></div>
+          {renderSection(req,false)}
+        </div>
+        {bon.length>0 && <div className="card"><div className="card-title">✨ Quêtes bonus</div>{renderSection(bon,false)}</div>}
+        {week.length>0 && <div className="card"><div className="card-title">📅 Quêtes hebdomadaires</div>{renderSection(week,true)}</div>}
+        <div className="card">
+          <div className="section-header">
+            <div className="card-title" style={{margin:0}}>Nouvelle quête</div>
+            <button className="add-toggle-btn" onClick={()=>setShowAddObj(v=>!v)}>{showAddObj?"Fermer":"+ Ajouter"}</button>
+          </div>
+          {showAddObj && (
+            <div className="add-obj-form">
+              <div className="form-grid">
+                <input className="form-input form-full" placeholder="Nom" value={newObj.name} onChange={e=>setNewObj(v=>({...v,name:e.target.value}))}/>
+                <input className="form-input" placeholder="Icône" value={newObj.icon} onChange={e=>setNewObj(v=>({...v,icon:e.target.value}))}/>
+                <input className="form-input" placeholder="Unité" value={newObj.unit} onChange={e=>setNewObj(v=>({...v,unit:e.target.value}))}/>
+                <input className="form-input" type="number" placeholder="XP/unité" value={newObj.xpPer} onChange={e=>setNewObj(v=>({...v,xpPer:parseFloat(e.target.value)}))}/>
+                <input className="form-input" type="number" placeholder="Objectif base" value={newObj.base} onChange={e=>setNewObj(v=>({...v,base:parseInt(e.target.value)}))}/>
+                <select className="form-select" value={newObj.stat} onChange={e=>setNewObj(v=>({...v,stat:e.target.value}))}>{STATS.map(s=><option key={s}>{s}</option>)}</select>
+                <label className="form-check"><input type="checkbox" checked={newObj.optional} onChange={e=>setNewObj(v=>({...v,optional:e.target.checked}))}/>Bonus</label>
+                <label className="form-check"><input type="checkbox" checked={newObj.weekly} onChange={e=>setNewObj(v=>({...v,weekly:e.target.checked,daily:!e.target.checked}))}/>Hebdo</label>
+              </div>
+              <button className="quest-add-btn" style={{width:'100%',marginTop:10}} onClick={addObjective}>Créer la quête</button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  function renderStats() {
+    const statColors={Force:"#ef4444",Intelligence:"#818cf8",Agilité:"#4ade80",Endurance:"#f59e0b"};
+    const days=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return d.toISOString().slice(0,10);});
+    const actualDayLabels=days.map(d=>["D","L","M","M","J","V","S"][new Date(d).getDay()]);
+    return (
+      <div className="tab">
+        <div className="card">
+          <div className="card-title">Chemin vers le rang S</div>
+          <div className="rank-path">
+            {RANKS.map((r,i)=>{
+              const reached=state.totalXp>=r.xpRequired, current=r.id===rank.id;
+              return (
+                <div key={r.id} style={{display:'flex',alignItems:'center',flex:i<RANKS.length-1?'1':undefined}}>
+                  <div className="rank-node">
+                    <div className="rank-node-circle" style={{borderColor:reached?r.color:'#333',color:reached?r.color:'#444',background:current?r.color+'22':'transparent',boxShadow:current?`0 0 15px ${r.glow}`:'none'}}>{r.id}</div>
+                    <div className="rank-node-name" style={{color:reached?r.color:'#444'}}>{r.label}</div>
+                  </div>
+                  {i<RANKS.length-1 && <div className="rank-connector" style={{background:state.totalXp>=RANKS[i+1].xpRequired?r.color:'#222'}}/>}
+                </div>
+              );
+            })}
+          </div>
+          {nextRank && (<div style={{marginTop:8}}>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--text-dim)',marginBottom:4,fontFamily:'Orbitron,sans-serif'}}><span>Rang {rank.id} → {nextRank.id}</span><span>{state.totalXp.toFixed(0)} / {nextRank.xpRequired} XP</span></div>
+            <div className="xp-bar"><div className="xp-bar-fill" style={{width:rankPct+'%'}}/></div>
+          </div>)}
+        </div>
+        <div className="card">
+          <div className="card-title">Caractéristiques</div>
+          {STATS.map(s=>{
+            const lvl=state.stats[s]||0;
+            function xpForLvl(l){return Math.round(100*Math.pow(1.1,l));}
+            function totalForLvl(l){let t=0;for(let i=0;i<l;i++)t+=xpForLvl(i);return t;}
+            const xpInLvl=(state.statXp[s]||0)-totalForLvl(lvl);
+            const xpNeeded=xpForLvl(lvl);
+            const pct=Math.min(100,(xpInLvl/xpNeeded)*100);
+            return (
+              <div key={s} className="stat-char">
+                <div className="stat-char-name"><span>{s}</span><span className="stat-char-level">Niv. {lvl}</span></div>
+                <div className="stat-char-bar"><div className="stat-char-fill" style={{width:pct+'%',background:`linear-gradient(90deg,${statColors[s]}88,${statColors[s]})`}}/></div>
+                <div style={{fontSize:9,color:'var(--text-dim)',marginTop:2,fontFamily:'Orbitron,sans-serif'}}>{Math.round(xpInLvl)}/{xpNeeded} XP vers niveau {lvl+1}</div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="card">
+          <div className="card-title">Activité (7 derniers jours)</div>
+          <div className="weekly-grid">
+            {days.map((d,i)=>{
+              const log=state.dailyLog[d]||{};
+              const xp=Object.entries(log).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id);return s+(o?a*o.xpPer:0);},0);
+              const intensity=xp>100?1:xp>50?.7:xp>10?.4:xp>0?.2:0;
+              const isToday=d===todayKey;
+              const rgb=rank.color.replace('#','').match(/../g).map(h=>parseInt(h,16)).join(',');
+              return (
+                <div key={d} className="week-day">
+                  <div className="week-day-label">{actualDayLabels[i]}</div>
+                  <div className="week-day-dot" style={{background:intensity>0?`rgba(${rgb},${intensity})`:'rgba(255,255,255,0.04)',border:isToday?`1px solid ${rank.color}`:'1px solid transparent',color:xp>0?'var(--rank-color)':'var(--text-dim)'}}>
+                    {xp>0?Math.round(xp):'·'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="card">
+          <div className="card-title">Chiffres clés</div>
+          <div className="key-stats">
+            <div className="key-stat-box"><div className="key-stat-val">{state.totalXp.toFixed(0)}</div><div className="key-stat-lbl">XP Total</div></div>
+            <div className="key-stat-box"><div className="key-stat-val">{state.streak}</div><div className="key-stat-lbl">🔥 Streak</div></div>
+            <div className="key-stat-box"><div className="key-stat-val">{rank.id}</div><div className="key-stat-lbl">Rang actuel</div></div>
+            <div className="key-stat-box"><div className="key-stat-val">{nextRank?(nextRank.xpRequired-state.totalXp).toFixed(0):"MAX"}</div><div className="key-stat-lbl">XP manquant</div></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderHistory() {
+    function getWeekStart(offset) {
+      const d=new Date(); d.setDate(d.getDate()-((d.getDay()+6)%7)-offset*7); d.setHours(0,0,0,0); return d;
+    }
+    function getWKey(ws) {
+      const j=new Date(ws.getFullYear(),0,1);
+      return `${ws.getFullYear()}-W${Math.ceil(((ws-j)/86400000+j.getDay()+1)/7)}`;
+    }
+    const weekStart=getWeekStart(weekOffset);
+    const wKey=getWKey(weekStart);
+    const dailyTotals={};
+    for(let i=0;i<7;i++){
+      const d=new Date(weekStart); d.setDate(weekStart.getDate()+i);
+      const dKey=d.toISOString().slice(0,10);
+      Object.entries(state.dailyLog[dKey]||{}).forEach(([id,v])=>{ dailyTotals[id]=(dailyTotals[id]||0)+v; });
+    }
+    const totals={...dailyTotals,...(state.weeklyLog[wKey]||{})};
+    const weekEnd=new Date(weekStart); weekEnd.setDate(weekStart.getDate()+6);
+    const fmt=d=>`${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}`;
+    const weekLabel=weekOffset===0?"Cette semaine":weekOffset===1?"Semaine dernière":`${fmt(weekStart)} – ${fmt(weekEnd)}`;
+    const hasData=Object.values(totals).some(v=>v>0);
+    const orderedObjs=[
+      ...sortByStat(state.objectives.filter(o=>o.daily&&!o.optional)),
+      ...sortByStat(state.objectives.filter(o=>o.daily&&o.optional)),
+      ...sortByStat(state.objectives.filter(o=>o.weekly)),
+    ];
+    return (
+      <div className="tab">
+        <div className="card" style={{padding:'12px 16px'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
+            <button onClick={()=>setWeekOffset(o=>Math.min(o+1,51))} style={{background:'var(--surface2)',border:'1px solid var(--rank-color)44',borderRadius:8,color:'var(--rank-color)',fontSize:18,width:40,height:40,cursor:'pointer',opacity:weekOffset>=51?.3:1}}>‹</button>
+            <div style={{textAlign:'center',flex:1}}>
+              <div style={{fontFamily:'Orbitron,sans-serif',fontSize:12,color:'var(--rank-color)',letterSpacing:1}}>{weekLabel}</div>
+              <div style={{fontSize:10,color:'var(--text-dim)',marginTop:2}}>{fmt(weekStart)} – {fmt(weekEnd)}</div>
+            </div>
+            <button onClick={()=>setWeekOffset(o=>Math.max(o-1,0))} style={{background:'var(--surface2)',border:'1px solid var(--rank-color)44',borderRadius:8,color:'var(--rank-color)',fontSize:18,width:40,height:40,cursor:'pointer',opacity:weekOffset===0?.3:1}}>›</button>
+          </div>
+          {weekOffset>0 && <button onClick={()=>setWeekOffset(0)} style={{width:'100%',marginTop:10,background:'var(--rank-color)11',border:'1px solid var(--rank-color)44',borderRadius:8,color:'var(--rank-color)',fontFamily:'Orbitron,sans-serif',fontSize:10,letterSpacing:2,padding:'7px',cursor:'pointer',textTransform:'uppercase'}}>Aujourd'hui</button>}
+        </div>
+        <div className="card">
+          <div className="card-title" style={{marginBottom:12}}>📊 Activité de la semaine</div>
+          {orderedObjs.map(obj=>{
+            const val=totals[obj.id]||0;
+            const weekTarget=obj.weekly?getTarget(obj.base,rankIdx):getTarget(obj.base,rankIdx)*7;
+            const pct=Math.min(100,(val/weekTarget)*100), complete=val>=weekTarget;
+            return (
+              <div key={obj.id} style={{marginBottom:10}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+                  <span style={{fontSize:13,display:'flex',alignItems:'center',gap:6}}>
+                    <span>{obj.icon}</span>
+                    <span style={{color:val>0?'var(--text)':'var(--text-dim)',fontWeight:val>0?600:400}}>{obj.name}</span>
+                    {obj.weekly && <span style={{fontSize:9,color:'#818cf8',fontFamily:'Orbitron,sans-serif',border:'1px solid #818cf855',borderRadius:4,padding:'1px 4px'}}>SEMAINE</span>}
+                    {obj.optional && <span style={{fontSize:9,color:'#fbbf24',fontFamily:'Orbitron,sans-serif',border:'1px solid #fbbf2455',borderRadius:4,padding:'1px 4px'}}>BONUS</span>}
+                  </span>
+                  <span style={{fontFamily:'Orbitron,sans-serif',fontSize:10,color:complete?'var(--rank-color)':val>0?'var(--text)':'var(--text-dim)'}}>
+                    {val%1===0?val:val.toFixed(1)}<span style={{color:'var(--text-dim)'}}>/{weekTarget}</span> {obj.unit}{complete&&' ✅'}
+                  </span>
+                </div>
+                <div className="quest-bar" style={{height:5}}><div className="quest-bar-fill" style={{width:pct+'%',opacity:val>0?1:0.15}}/></div>
+              </div>
+            );
+          })}
+          {!hasData && <div style={{textAlign:'center',fontSize:13,color:'var(--text-dim)',padding:'16px 0'}}>Aucune activité cette semaine</div>}
+        </div>
+      </div>
+    );
+  }
+
+  function renderSettings() {
+    if (!showSettings) return null;
+    function applyDayEdit() {
+      setState(s=>{
+        let xpDelta=0;
+        const newDailyLog={...s.dailyLog}, newWeeklyLog={...s.weeklyLog}, newStatXp={...s.statXp};
+        Object.entries(editDay).forEach(([id,rawVal])=>{
+          const newVal=parseFloat(rawVal); if(isNaN(newVal)||newVal<0) return;
+          const obj=s.objectives.find(o=>o.id===id); if(!obj) return;
+          const oldVal=obj.weekly?(s.weeklyLog[wk]?.[id]||0):(s.dailyLog[todayKey]?.[id]||0);
+          const oldTarget=getTarget(obj.base,rankIdx);
+          const oldXp=Math.min(oldVal,oldTarget)*obj.xpPer+Math.max(0,oldVal-oldTarget)*obj.xpPer*1.5;
+          const newXp=Math.min(newVal,oldTarget)*obj.xpPer+Math.max(0,newVal-oldTarget)*obj.xpPer*1.5;
+          xpDelta+=newXp-oldXp;
+          newStatXp[obj.stat]=Math.max(0,(newStatXp[obj.stat]||0)+(newXp-oldXp));
+          if(obj.weekly) newWeeklyLog[wk]={...(newWeeklyLog[wk]||{}),[id]:newVal};
+          else newDailyLog[todayKey]={...(newDailyLog[todayKey]||{}),[id]:newVal};
+        });
+        function xpForLvl(l){return Math.round(100*Math.pow(1.1,l));}
+        function totalForLvl(l){let t=0;for(let i=0;i<l;i++)t+=xpForLvl(i);return t;}
+        const newStats={...s.stats};
+        Object.keys(newStatXp).forEach(st=>{let l=0;while(newStatXp[st]>=totalForLvl(l+1))l++;newStats[st]=l;});
+        return {...s,totalXp:Math.max(0,s.totalXp+xpDelta),dailyLog:newDailyLog,weeklyLog:newWeeklyLog,statXp:newStatXp,stats:newStats};
+      });
+      setEditDay({}); setShowSettings(false);
+    }
+    const orderedObjs=[
+      ...sortByStat(state.objectives.filter(o=>o.daily&&!o.optional)),
+      ...sortByStat(state.objectives.filter(o=>o.daily&&o.optional)),
+      ...sortByStat(state.objectives.filter(o=>o.weekly)),
+    ];
+    return (
+      <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowSettings(false)}>
+        <div className="modal">
+          <div className="modal-title">⚙ Réglages</div>
+          <div className="modal-section">
+            <div className="modal-label">📝 Corriger les données du jour</div>
+            <div style={{fontSize:11,color:'var(--text-dim)',marginBottom:10,lineHeight:1.5}}>Modifie les valeurs si tu t'es trompé. L'XP sera recalculé.</div>
+            {orderedObjs.map(obj=>{
+              const cur=obj.weekly?(weekLog[obj.id]||0):(todayLog[obj.id]||0);
+              const val=editDay[obj.id]!==undefined?editDay[obj.id]:String(cur);
+              return (
+                <div key={obj.id} style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                  <span style={{fontSize:16,minWidth:24}}>{obj.icon}</span>
+                  <span style={{flex:1,fontSize:13,color:'var(--text)'}}>{obj.name}</span>
+                  <input className="modal-input" type="number" min="0" value={val} onChange={e=>setEditDay(d=>({...d,[obj.id]:e.target.value}))} style={{width:80,margin:0,textAlign:'center',fontSize:16}}/>
+                  <span style={{fontSize:11,color:'var(--text-dim)',minWidth:28}}>{obj.unit}</span>
+                </div>
+              );
+            })}
+            <button className="modal-btn btn-primary" style={{width:'100%',marginTop:8}} onClick={applyDayEdit}>✅ Appliquer</button>
+          </div>
+          <div style={{height:1,background:'linear-gradient(90deg,transparent,var(--rank-color)33,transparent)',margin:'4px 0 16px'}}/>
+          <div className="modal-section">
+            <div className="modal-label">☠ Zone dangereuse</div>
+            {!confirmReset
+              ? <button className="modal-btn btn-danger" style={{width:'100%'}} onClick={()=>setConfirmReset(true)}>Réinitialiser toutes les données</button>
+              : <div style={{background:'#ef444411',border:'1px solid #ef444466',borderRadius:8,padding:12}}>
+                  <div style={{fontSize:13,color:'#ef4444',marginBottom:12,textAlign:'center',lineHeight:1.5}}>⚠️ Action <strong>irréversible</strong>.<br/>Toute ta progression sera perdue.</div>
+                  <div style={{display:'flex',gap:8}}>
+                    <button className="modal-btn btn-danger" style={{flex:1}} onClick={()=>{setState(initState());setConfirmReset(false);setShowSettings(false);}}>✅ Confirmer</button>
+                    <button className="modal-btn btn-cancel" style={{flex:1}} onClick={()=>setConfirmReset(false)}>Annuler</button>
+                  </div>
+                </div>
+            }
+          </div>
+          <button className="modal-btn btn-cancel" style={{width:'100%',marginTop:4}} onClick={()=>{setShowSettings(false);setConfirmReset(false);}}>Fermer</button>
+        </div>
+      </div>
+    );
+  }
+
+  function renderRankUp() {
+    if (!rankUpAnim) return null;
+    const lines=Array.from({length:12},(_,i)=>({top:Math.random()*100+'%',left:Math.random()*100+'%',angle:(Math.random()-.5)*40+'deg',delay:Math.random()*1.5+'s'}));
+    return (
+      <div className="rankup-overlay" style={{'--rank-color':rankUpAnim.color,'--rank-glow':rankUpAnim.glow}}>
+        <div className="rankup-lines">{lines.map((l,i)=><div key={i} className="rankup-line" style={{top:l.top,left:l.left,'--angle':l.angle,animationDelay:l.delay}}/>)}</div>
+        <div className="rankup-content">
+          <div className="rankup-title">Rang atteint</div>
+          <div className="rankup-rank">{rankUpAnim.id}</div>
+          <div className="rankup-label">{rankUpAnim.label}</div>
+          <button className="rankup-dismiss" onClick={()=>setRankUpAnim(null)}>Continuer</button>
+        </div>
+      </div>
+    );
+  }
+
+  const particles=Array.from({length:15},(_,i)=>({id:i,size:Math.random()*3+1,left:Math.random()*100,duration:Math.random()*10+8,delay:Math.random()*10}));
+
+  return (
+    <>
+      <div className="app">
+        <div className="particles">
+          {particles.map(p=><div key={p.id} className="particle" style={{width:p.size,height:p.size,left:p.left+'%',bottom:'-10px',background:rank.color,boxShadow:`0 0 4px ${rank.glow}`,animationDuration:p.duration+'s',animationDelay:p.delay+'s'}}/>)}
+        </div>
+        <div className="header">
+          <div className="header-top">
+            <div>
+              <div className="player-name">VAL</div>
+              <div className="rank-badge"><span className="rank-letter">{rank.id}</span><span className="rank-label">{rank.label}</span></div>
+            </div>
+            <button className="gear-btn" onClick={()=>setShowSettings(true)}>⚙</button>
+          </div>
+          <div className="xp-bar-wrap">
+            <div className="xp-bar-label"><span>XP</span><span>{nextRank?`${xpInRank.toFixed(0)} / ${xpToNext.toFixed(0)}`:'MAÎTRE'}</span></div>
+            <div className="xp-bar"><div className="xp-bar-fill" style={{width:rankPct+'%'}}/></div>
+          </div>
+          <div className="header-stats">
+            <div className="h-stat"><div className="h-stat-val">🔥 {state.streak}</div><div className="h-stat-lbl">Streak</div></div>
+            <div className="h-stat"><div className="h-stat-val">{todayXp.toFixed(0)}</div><div className="h-stat-lbl">XP jour</div></div>
+            <div className="h-stat"><div className="h-stat-val">{state.totalXp.toFixed(0)}</div><div className="h-stat-lbl">XP total</div></div>
+          </div>
+        </div>
+        {tab==="home" && renderHome()}
+        {tab==="quests" && renderQuests()}
+        {tab==="stats" && renderStats()}
+        {tab==="history" && renderHistory()}
+        <nav className="nav">
+          {[["home","🏠","Accueil"],["quests","⚔","Quêtes"],["stats","📊","Stats"],["history","📅","Historique"]].map(([id,icon,label])=>(
+            <button key={id} className={`nav-btn ${tab===id?'active':''}`} onClick={()=>setTab(id)}>
+              <span className="nav-icon">{icon}</span>{label}
+            </button>
+          ))}
+        </nav>
+        {xpFloats.map(f=><div key={f.id} className="xp-float" style={{left:f.x,top:f.y}}>{f.xp}</div>)}
+        {editObj && (
+          <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setEditObj(null)}>
+            <div className="modal">
+              <div className="modal-title">✏️ Modifier la quête</div>
+              <div className="form-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+                <input className="form-input" style={{gridColumn:'1/-1'}} placeholder="Nom" value={editObj.name} onChange={e=>setEditObj(v=>({...v,name:e.target.value}))}/>
+                <input className="form-input" placeholder="Icône" value={editObj.icon} onChange={e=>setEditObj(v=>({...v,icon:e.target.value}))}/>
+                <input className="form-input" placeholder="Unité" value={editObj.unit} onChange={e=>setEditObj(v=>({...v,unit:e.target.value}))}/>
+                <input className="form-input" type="number" placeholder="XP/unité" value={editObj.xpPer} onChange={e=>setEditObj(v=>({...v,xpPer:parseFloat(e.target.value)}))}/>
+                <input className="form-input" type="number" placeholder="Objectif base" value={editObj.base} onChange={e=>setEditObj(v=>({...v,base:parseInt(e.target.value)}))}/>
+                <select className="form-select" style={{gridColumn:'1/-1'}} value={editObj.stat} onChange={e=>setEditObj(v=>({...v,stat:e.target.value}))}>{STATS.map(s=><option key={s}>{s}</option>)}</select>
+                <label className="form-check" style={{fontSize:13}}><input type="checkbox" checked={editObj.optional} onChange={e=>setEditObj(v=>({...v,optional:e.target.checked}))}/>Bonus</label>
+                <label className="form-check" style={{fontSize:13}}><input type="checkbox" checked={editObj.weekly} onChange={e=>setEditObj(v=>({...v,weekly:e.target.checked,daily:!e.target.checked}))}/>Hebdomadaire</label>
+              </div>
+              <div style={{display:'flex',gap:8,marginTop:16}}>
+                <button className="modal-btn btn-primary" style={{flex:2}} onClick={saveEdit}>✅ Sauvegarder</button>
+                <button className="modal-btn btn-cancel" style={{flex:1}} onClick={()=>setEditObj(null)}>Annuler</button>
+              </div>
+            </div>
+          </div>
+        )}
+        {renderSettings()}
+        {renderRankUp()}
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
