@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -612,6 +613,27 @@ function App() {
               );
             })}
             <button className="modal-btn btn-primary" style={{width:'100%',marginTop:8}} onClick={applyDayEdit}>✅ Appliquer</button>
+          </div>
+          <div style={{height:1,background:'linear-gradient(90deg,transparent,var(--rank-color)33,transparent)',margin:'4px 0 16px'}}/>
+          <div className="modal-section">
+            <div className="modal-label">💾 Sauvegarde / Restauration</div>
+            <div style={{fontSize:11,color:'var(--text-dim)',marginBottom:10,lineHeight:1.6}}>
+              Exporte tes données depuis Safari iPhone, puis importe-les sur un autre navigateur (ou inversement).
+            </div>
+            <div style={{display:'flex',gap:8,marginBottom:8}}>
+              <button className="modal-btn btn-primary" style={{flex:1}} onClick={()=>{
+                const json = JSON.stringify(state);
+                navigator.clipboard.writeText(json)
+                  .then(()=>alert("✅ Données copiées !\n\nColle-les dans un message ou une note pour les sauvegarder."))
+                  .catch(()=>window.prompt("Copie ce texte et garde-le précieusement :", json));
+              }}>📋 Exporter</button>
+              <button className="modal-btn btn-primary" style={{flex:1}} onClick={()=>{
+                const json = window.prompt("Colle ici tes données exportées :");
+                if (!json) return;
+                try { setState(JSON.parse(json)); alert("✅ Données restaurées !"); setShowSettings(false); }
+                catch { alert("❌ Données invalides."); }
+              }}>📥 Importer</button>
+            </div>
           </div>
           <div style={{height:1,background:'linear-gradient(90deg,transparent,var(--rank-color)33,transparent)',margin:'4px 0 16px'}}/>
           <div className="modal-section">
