@@ -49,7 +49,8 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Rajdhani
 .qrow{display:flex;align-items:center;gap:10px}
 .qbar{flex:1;height:5px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden}
 .qfill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--ra),var(--rc));transition:width .4s}
-.qfill.over{background:linear-gradient(90deg,#fbbf24,#f59e0b);box-shadow:0 0 6px #f59e0b88}
+.qfill.done{background:linear-gradient(90deg,#16a34a,#4ade80);box-shadow:0 0 6px #4ade8088}
+.qfill.over{background:linear-gradient(90deg,#d97706,#f59e0b);box-shadow:0 0 6px #f59e0b88}
 .qxp{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--rc);min-width:50px;text-align:right}
 .qinrow{display:flex;gap:8px;margin-top:8px}
 .qin{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--rc);border-radius:8px;padding:8px 12px;color:var(--tx);font-family:'Rajdhani',sans-serif;font-size:16px;outline:none;opacity:.8}
@@ -157,16 +158,18 @@ const DEFS = [
 ];
 
 const IMPORTED = {
-  totalXp:1162,
+  totalXp:1202.5,
   streak:3,
   lastActiveDay:"2026-04-08",
   streakBonusDay:null,
   dailyLog:{
-    "2026-04-06":{water:8, push:36, abs:72, sleep:8},
-    "2026-04-07":{water:8, push:36, abs:72, reading:11, sleep:8, flex:5, med:6, squats:15},
-    "2026-04-08":{water:2, push:70, abs:62, sleep:8, squats:35}
+    "2026-04-06":{water:8,push:36,abs:72,sleep:8},
+    "2026-04-07":{water:8,push:36,abs:72,reading:11,sleep:8,flex:5,med:6,squats:15},
+    "2026-04-08":{water:3,push:70,abs:62,sleep:8,squats:35,reading:3,med:6}
   },
-  weeklyLog:{"2026-W15":{run:6.92}}
+  weeklyLog:{"2026-W15":{run:6.92}},
+  stats:{Vitalité:2,Force:4,Intelligence:0,Endurance:3},
+  statXp:{Vitalité:245,Force:532,Intelligence:79.5,Endurance:346}
 };
 
 const getRank  = xp => { for(let i=RANKS.length-1;i>=0;i--)if(xp>=RANKS[i].xpRequired)return RANKS[i];return RANKS[0]; };
@@ -191,12 +194,7 @@ const loadState = () => { try{const r=localStorage.getItem("sl_v3");return r?JSO
 const saveState = s => { try{localStorage.setItem("sl_v3",JSON.stringify(s));}catch{} };
 
 function buildFromImported(){
-  const sx={Vitalité:0,Force:0,Intelligence:0,Endurance:0};
-  [...Object.values(IMPORTED.dailyLog),...Object.values(IMPORTED.weeklyLog)].forEach(log=>
-    Object.entries(log).forEach(([id,val])=>{const o=DEFS.find(x=>x.id===id);if(o&&!o.binary)sx[o.stat]=(sx[o.stat]||0)+val*o.xpPer;})
-  );
-  const stats={};Object.keys(sx).forEach(s=>{stats[s]=getLvl(sx[s]);});
-  return {...IMPORTED,objectives:DEFS,stats,statXp:sx};
+  return {...IMPORTED, objectives:DEFS};
 }
 
 function emptyState(){
@@ -308,7 +306,7 @@ function App(){
         )
       ),
       h('div',{class:'qrow'},
-        h('div',{class:'qbar'},h('div',{class:'qfill'+(over?' over':''),style:'width:'+Math.min(100,pct)+'%'})),
+        h('div',{class:'qbar'},h('div',{class:'qfill'+(over?' over':d>=t?' done':''),style:'width:'+Math.min(100,pct)+'%'})),
         h('div',{class:'qxp'},d+'/'+t+' '+obj.unit)
       ),
       h('div',{class:'qinrow'},
@@ -340,7 +338,7 @@ function App(){
         h('div',{style:'font-size:12px;color:'+(over?'#f59e0b':done?'var(--rc)':'var(--tx)')+';margin-bottom:3px;display:flex;justify-content:space-between'},
           h('span',null,obj.name),h('span',{style:'font-family:Orbitron,sans-serif;font-size:10px'},d+'/'+t+' '+obj.unit)
         ),
-        h('div',{class:'qbar'},h('div',{class:'qfill'+(over?' over':''),style:'width:'+pct+'%;opacity:'+(done?1:0.7)}))
+        h('div',{class:'qbar'},h('div',{class:'qfill'+(over?' over':done?' done':''),style:'width:'+pct+'%;opacity:'+(done||over?1:0.7)}))
       ),
       done&&h('span',{style:'font-size:14px'},'✅')
     );
