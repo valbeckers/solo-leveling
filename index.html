@@ -427,11 +427,11 @@ function App(){
           )
         )
       ),
-      bonusGiven&&h('div',{class:'card',style:'border:1px solid #f59e0b88;background:#f59e0b08;text-align:center;padding:12px'},
-        h('div',{style:'font-size:11px;color:#f59e0b;font-family:Orbitron,sans-serif;letter-spacing:2px;margin-bottom:4px'},'🔥 BONUS STREAK ACCORDÉ'),
-        h('div',{style:'font-size:22px;font-family:Orbitron,sans-serif;font-weight:900;color:#f59e0b'},'+'+streakBonus+' XP Discipline'),
-        h('div',{style:'font-size:11px;color:#f59e0b99;margin-top:4px'},state.streak+' jour'+(state.streak>1?'s':'')+' de streak · Discipline +1 ⚡'),
-        weeklyBonusGiven&&h('div',{style:'font-size:11px;color:#f59e0b88;margin-top:6px;font-family:Orbitron,sans-serif'},'📅 Bonus hebdo +150 XP accordé ✅')
+      bonusGiven&&h('div',{class:'card',style:'border:1px solid #a855f788;background:#a855f708;text-align:center;padding:12px'},
+        h('div',{style:'font-size:11px;color:#c084fc;font-family:Orbitron,sans-serif;letter-spacing:2px;margin-bottom:4px'},'💜 BONUS STREAK ACCORDÉ'),
+        h('div',{style:'font-size:22px;font-family:Orbitron,sans-serif;font-weight:900;color:#c084fc'},'+'+streakBonus+' XP Discipline'),
+        h('div',{style:'font-size:11px;color:#c084fc99;margin-top:4px'},state.streak+' jour'+(state.streak>1?'s':'')+' de streak · Discipline ⚡'),
+        weeklyBonusGiven&&h('div',{style:'font-size:11px;color:#c084fc88;margin-top:6px;font-family:Orbitron,sans-serif'},'📅 Bonus hebdo +150 XP accordé ✅')
       ),
       secs.map(({lb,ob,iw})=>ob.length===0?null:
         h('div',{key:lb,class:'card'},h('div',{class:'ctitle'},lb),ob.map(o=>h(RR,{key:o.id,obj:o,isW:iw})))
