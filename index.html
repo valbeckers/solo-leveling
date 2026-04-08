@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet"/>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
 :root{--rc:#9ca3af;--rg:#9ca3af55;--ra:#6b7280;--bg:#0a0a0f;--sf:rgba(255,255,255,0.03);--sf2:rgba(255,255,255,0.06);--tx:#e2e8f0;--td:#64748b}
 html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Rajdhani',sans-serif;overflow-x:hidden}
 #app{max-width:430px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:80px}
@@ -128,9 +128,9 @@ const RANKS = [
   {id:"A",label:"Expert",    color:"#f87171",glow:"#f87171aa",bg:"#0d0004",accent:"#ef4444",xpRequired:45000},
   {id:"S",label:"Maître",    color:"#c084fc",glow:"#c084fcaa",bg:"#0a0014",accent:"#a855f7",xpRequired:90000},
 ];
-const STATS = ["Vitalité","Force","Intelligence","Endurance"];
-const STAT_ORDER = ["Vitalité","Force","Intelligence","Endurance"];
-const STAT_COLORS = {Vitalité:"#ef4444",Force:"#4ade80",Intelligence:"#f59e0b",Endurance:"#22d3ee"};
+const STATS = ["Vitalité","Force","Esprit","Endurance","Discipline"];
+const STAT_ORDER = ["Vitalité","Force","Esprit","Endurance","Discipline"];
+const STAT_COLORS = {Vitalité:"#ef4444",Force:"#4ade80",Esprit:"#f59e0b",Endurance:"#22d3ee",Discipline:"#c084fc"};
 
 // Emojis définis via unicode pour éviter les problèmes de parsing
 const E = {
@@ -150,26 +150,26 @@ const DEFS = [
   {id:"abs",    name:"Abdominaux",    unit:"reps",  xpPer:1,  daily:true, weekly:false,optional:false,stat:"Force",       icon:E.abs,    base:60},
   {id:"squats", name:"Squats",        unit:"reps",  xpPer:2,  daily:true, weekly:false,optional:false,stat:"Force",       icon:E.squats, base:15},
   {id:"water",  name:"Boire de l'eau",unit:"verres",xpPer:5,  daily:true, weekly:false,optional:false,stat:"Vitalité",    icon:E.water,  base:8},
-  {id:"reading",name:"Lecture",       unit:"pages", xpPer:2,  daily:true, weekly:false,optional:false,stat:"Intelligence",icon:E.reading,base:10},
-  {id:"run",    name:"Course à pied", unit:"km",    xpPer:50, daily:false,weekly:true, optional:false,stat:"Endurance",   icon:E.run,    base:7},
-  {id:"med",    name:"Méditation",    unit:"min",   xpPer:5,  daily:true, weekly:false,optional:true, stat:"Intelligence",icon:E.med,    base:5},
+  {id:"reading",name:"Lecture",       unit:"pages", xpPer:5,  daily:true, weekly:false,optional:false,stat:"Esprit",icon:E.reading,base:10},
+  {id:"run",    name:"Course à pied", unit:"km",    xpPer:25, daily:false,weekly:true, optional:false,stat:"Endurance",   icon:E.run,    base:7},
+  {id:"med",    name:"Méditation",    unit:"min",   xpPer:5,  daily:true, weekly:false,optional:true, stat:"Esprit",icon:E.med,    base:5},
   {id:"flex",   name:"Souplesse",     unit:"min",   xpPer:5,  daily:true, weekly:false,optional:true, stat:"Vitalité",    icon:E.flex,   base:5},
   {id:"sleep",  name:"Sommeil",       unit:"h",     xpPer:0,  daily:true, weekly:false,optional:true, stat:"Vitalité",    icon:E.sleep,  base:8,binary:true,binaryXp:100},
 ];
 
 const IMPORTED = {
-  totalXp:1367,
+  totalXp:1742,
   streak:3,
   lastActiveDay:"2026-04-08",
   streakBonusDay:null,
   dailyLog:{
     "2026-04-06":{water:8,push:36,abs:72,sleep:8},
-    "2026-04-07":{water:8,push:36,abs:72,reading:11,sleep:8,flex:5,med:6,squats:15},
-    "2026-04-08":{water:3,push:70,abs:62,sleep:8,squats:35,reading:3,med:6}
+    "2026-04-07":{water:8,push:36,abs:72,squats:15,reading:11,flex:5,sleep:8,med:6},
+    "2026-04-08":{water:6,push:70,abs:115,squats:35,reading:20,sleep:8,med:6}
   },
   weeklyLog:{"2026-W15":{run:6.92}},
-  stats:{Vitalité:3,Force:4,Intelligence:0,Endurance:3},
-  statXp:{Vitalité:420,Force:507,Intelligence:94,Endurance:346}
+  stats:{Vitalité:3,Force:4,Esprit:2,Endurance:1,Discipline:2},
+  statXp:{Vitalité:435,Force:586.5,Esprit:247.5,Endurance:173,Discipline:300}
 };
 
 const getRank  = xp => { for(let i=RANKS.length-1;i>=0;i--)if(xp>=RANKS[i].xpRequired)return RANKS[i];return RANKS[0]; };
@@ -199,23 +199,30 @@ function buildFromImported(){
 
 function emptyState(){
   return {totalXp:0,streak:0,lastActiveDay:null,streakBonusDay:null,objectives:DEFS,dailyLog:{},weeklyLog:{},
-    stats:{Vitalité:0,Force:0,Intelligence:0,Endurance:0},statXp:{Vitalité:0,Force:0,Intelligence:0,Endurance:0}};
+    stats:{Vitalité:0,Force:0,Esprit:0,Endurance:0,Discipline:0},statXp:{Vitalité:0,Force:0,Esprit:0,Endurance:0,Discipline:0}};
 }
 
 function migrate(saved){
   const P={push:{icon:E.push,stat:"Force",xpPer:1},abs:{icon:E.abs,stat:"Force",xpPer:1},squats:{icon:E.squats,stat:"Force",xpPer:2},
-    water:{icon:E.water,stat:"Vitalité",xpPer:5},reading:{icon:E.reading,stat:"Intelligence",xpPer:2},
-    run:{icon:E.run,stat:"Endurance",xpPer:50},med:{icon:E.med,stat:"Intelligence",xpPer:5},flex:{icon:E.flex,stat:"Vitalité",xpPer:5}};
+    water:{icon:E.water,stat:"Vitalité",xpPer:5},reading:{icon:E.reading,stat:"Esprit",xpPer:5},
+    run:{icon:E.run,stat:"Endurance",xpPer:25},med:{icon:E.med,stat:"Esprit",xpPer:5},flex:{icon:E.flex,stat:"Vitalité",xpPer:5}};
   let objs=saved.objectives.map(o=>P[o.id]?{...o,...P[o.id]}:o);
   if(!objs.find(o=>o.id==="sleep"))objs=[...objs,DEFS.find(o=>o.id==="sleep")];
-  // Force mise à jour binaryXp du sommeil
   objs=objs.map(o=>o.id==="sleep"?{...o,binaryXp:100}:o);
   const stats={...(saved.stats||{})};
-  delete stats["Agilit\u00e9"]; // supprime Agilité
+  delete stats["Agilit\u00e9"];
+  if(stats.Intelligence!==undefined&&stats.Esprit===undefined){stats.Esprit=stats.Intelligence;}
+  delete stats.Intelligence;
   if(stats.Vitalité===undefined)stats.Vitalité=0;
+  if(stats.Esprit===undefined)stats.Esprit=0;
+  if(stats.Discipline===undefined)stats.Discipline=0;
   const statXp={...(saved.statXp||{})};
   delete statXp["Agilit\u00e9"];
+  if(statXp.Intelligence!==undefined&&statXp.Esprit===undefined){statXp.Esprit=statXp.Intelligence;}
+  delete statXp.Intelligence;
   if(statXp.Vitalité===undefined)statXp.Vitalité=0;
+  if(statXp.Esprit===undefined)statXp.Esprit=0;
+  if(statXp.Discipline===undefined)statXp.Discipline=0;
   return {...saved,objectives:objs,stats,statXp};
 }
 
@@ -230,6 +237,7 @@ function App(){
   const [editObj,setEditObj]=useState(null);
   const [showSet,setShowSet]=useState(false);
   const [confirmReset,setConfirmReset]=useState(false);
+  const [confirmDelete,setConfirmDelete]=useState(null); // id de la quête à supprimer
   const [editDay,setEditDay]=useState({});
   const [wkOff,setWkOff]=useState(0);
 
@@ -260,10 +268,35 @@ function App(){
   const todayXp=Object.entries(tLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id);return s+(o?calcXp(o,a,ri):0);},0)
     +Object.entries(wLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id&&x.weekly);return s+(o?calcXp(o,a,ri):0);},0);
 
-  const allReqDone=state.objectives.filter(o=>!o.optional).every(o=>{
-    const d=o.weekly?(wLog[o.id]||0):(tLog[o.id]||0);return d>=getTarget(o.base,ri);
+  // Streak : uniquement les quêtes journalières obligatoires
+  const allDailyReqDone=state.objectives.filter(o=>!o.optional&&o.daily).every(o=>{
+    const d=tLog[o.id]||0;return d>=getTarget(o.base,ri);
   });
-  const streakBonus=state.streak*20,bonusGiven=state.streakBonusDay===today;
+  // Bonus hebdo : quêtes hebdomadaires obligatoires atteintes
+  const weeklyReqDone=state.objectives.filter(o=>!o.optional&&o.weekly).every(o=>{
+    const d=wLog[o.id]||0;return d>=getTarget(o.base,ri);
+  });
+  const weeklyBonusGiven=state.weeklyBonusWk===wk;
+
+  const streakBonus=100,bonusGiven=state.streakBonusDay===today;
+
+  // Bonus streak quotidien automatique (journalières seulement)
+  useEffect(()=>{
+    if(allDailyReqDone&&!bonusGiven&&state.streak>0){
+      setState(s=>({...s,streakBonusDay:today}));
+      addXp(streakBonus,"Discipline",null);
+      spawnFloat("+100 XP Discipline 🔥",null);
+    }
+  },[allDailyReqDone]);
+
+  // Bonus hebdomadaire automatique
+  useEffect(()=>{
+    if(weeklyReqDone&&!weeklyBonusGiven){
+      setState(s=>({...s,weeklyBonusWk:wk}));
+      addXp(150,"Discipline",null);
+      spawnFloat("+150 XP Discipline 📅",null);
+    }
+  },[weeklyReqDone]);
   const missedDays=(()=>{if(!state.lastActiveDay)return 0;const d=Math.round((new Date(today)-new Date(state.lastActiveDay))/86400000);return d>1?d:0;})();
 
   function spawnFloat(txt,e){
@@ -304,7 +337,7 @@ function App(){
         h('div',{class:'qname'},h('span',null,obj.icon),' ',obj.name),
         h('div',{style:'display:flex;gap:4px'},
           h('button',{class:'delbtn',onClick:()=>setEditObj({...obj})},'✏️'),
-          h('button',{class:'delbtn',onClick:()=>setState(s=>({...s,objectives:s.objectives.filter(o=>o.id!==obj.id)}))},'\uD83D\uDDD1')
+          h('button',{class:'delbtn',onClick:()=>setConfirmDelete(obj.id)},'\uD83D\uDDD1')
         )
       ),
       h('div',{class:'qrow'},
@@ -394,13 +427,11 @@ function App(){
           )
         )
       ),
-      allReqDone&&h('div',{class:'card',style:'border:1px solid #f59e0b88;background:#f59e0b08;text-align:center'},
-        h('div',{style:'font-size:11px;color:#f59e0b;font-family:Orbitron,sans-serif;letter-spacing:2px;margin-bottom:6px'},'🔥 BONUS STREAK'),
-        h('div',{style:'font-size:28px;font-family:Orbitron,sans-serif;font-weight:900;color:#f59e0b'},'+'+streakBonus+' XP'),
-        h('div',{style:'font-size:11px;color:#f59e0b99;margin-top:4px'},state.streak+' jour'+(state.streak>1?'s':'')+' × 20 XP'),
-        !bonusGiven
-          ?h('button',{class:'qbtn',style:'margin-top:12px;width:100%;border-color:#f59e0b88;color:#f59e0b;background:#f59e0b11;font-size:12px;padding:10px',onClick:e=>{setState(s=>({...s,streakBonusDay:today}));addXp(streakBonus,"Force",e);}},'⚡ Réclamer le bonus')
-          :h('div',{style:'font-size:11px;color:#f59e0b66;margin-top:8px;font-family:Orbitron,sans-serif'},'✅ Déjà réclamé')
+      bonusGiven&&h('div',{class:'card',style:'border:1px solid #f59e0b88;background:#f59e0b08;text-align:center;padding:12px'},
+        h('div',{style:'font-size:11px;color:#f59e0b;font-family:Orbitron,sans-serif;letter-spacing:2px;margin-bottom:4px'},'🔥 BONUS STREAK ACCORDÉ'),
+        h('div',{style:'font-size:22px;font-family:Orbitron,sans-serif;font-weight:900;color:#f59e0b'},'+'+streakBonus+' XP Discipline'),
+        h('div',{style:'font-size:11px;color:#f59e0b99;margin-top:4px'},state.streak+' jour'+(state.streak>1?'s':'')+' de streak · Discipline +1 ⚡'),
+        weeklyBonusGiven&&h('div',{style:'font-size:11px;color:#f59e0b88;margin-top:6px;font-family:Orbitron,sans-serif'},'📅 Bonus hebdo +150 XP accordé ✅')
       ),
       secs.map(({lb,ob,iw})=>ob.length===0?null:
         h('div',{key:lb,class:'card'},h('div',{class:'ctitle'},lb),ob.map(o=>h(RR,{key:o.id,obj:o,isW:iw})))
@@ -550,19 +581,19 @@ function App(){
     function applyEdit(){
       setState(s=>{
         let xpD=0;const ndl={...s.dailyLog},nwl={...s.weeklyLog},nsx={...s.statXp};
-        Object.entries(editDay).forEach(([id,rv])=>{
-          const nv=parseFloat(rv);if(isNaN(nv)||nv<0)return;
-          const obj=s.objectives.find(o=>o.id===id);if(!obj)return;
-          const ov=obj.weekly?(s.weeklyLog[wk]?.[id]||0):(s.dailyLog[today]?.[id]||0);
-          const tgt=getTarget(obj.base,ri);
+        ordered.forEach(obj=>{
+          const el=document.getElementById('cd_'+obj.id);
+          if(!el)return;
+          const nv=parseFloat(el.value);if(isNaN(nv)||nv<0)return;
+          const ov=obj.weekly?(s.weeklyLog[wk]?.[obj.id]||0):(s.dailyLog[today]?.[obj.id]||0);
           const oxp=calcXp(obj,ov,ri),nxp=calcXp(obj,nv,ri);
           xpD+=nxp-oxp;nsx[obj.stat]=Math.max(0,(nsx[obj.stat]||0)+(nxp-oxp));
-          if(obj.weekly)nwl[wk]={...(nwl[wk]||{}),[id]:nv};else ndl[today]={...(ndl[today]||{}),[id]:nv};
+          if(obj.weekly)nwl[wk]={...(nwl[wk]||{}),[obj.id]:nv};else ndl[today]={...(ndl[today]||{}),[obj.id]:nv};
         });
         const ns={...s.stats};Object.keys(nsx).forEach(st=>{ns[st]=getLvl(nsx[st]);});
         return {...s,totalXp:Math.max(0,s.totalXp+xpD),dailyLog:ndl,weeklyLog:nwl,statXp:nsx,stats:ns};
       });
-      setEditDay({});setShowSet(false);
+      setShowSet(false);
     }
     const ordered=[...sortStat(state.objectives.filter(o=>o.daily&&!o.optional)),...sortStat(state.objectives.filter(o=>o.daily&&o.optional)),...sortStat(state.objectives.filter(o=>o.weekly))];
     return h('div',{class:'modal-ov',onClick:e=>{if(e.target===e.currentTarget){setShowSet(false);setConfirmReset(false);}}},
@@ -576,11 +607,10 @@ function App(){
           h('div',{style:'font-size:11px;color:var(--td);margin-bottom:10px;line-height:1.5'},"Modifie les valeurs si tu t'es trompé. L'XP sera recalculé."),
           ordered.map(obj=>{
             const cur=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
-            const val=editDay[obj.id]!==undefined?editDay[obj.id]:String(cur);
             return h('div',{key:obj.id,style:'display:flex;align-items:center;gap:10px;margin-bottom:8px'},
               h('span',{style:'font-size:16px;min-width:24px'},obj.icon),
               h('span',{style:'flex:1;font-size:13px'},obj.name),
-              h('input',{class:'min',type:'text',inputMode:'decimal',value:val,onInput:e=>setEditDay(d=>({...d,[obj.id]:e.target.value})),style:'width:80px;margin:0;text-align:center'}),
+              h('input',{id:'cd_'+obj.id,class:'min',type:'text',inputMode:'decimal',defaultValue:String(cur),style:'width:80px;margin:0;text-align:center'}),
               h('span',{style:'font-size:11px;color:var(--td);min-width:28px'},obj.unit)
             );
           }),
@@ -613,11 +643,14 @@ function App(){
           h('div',{class:'mlbl'},'☠ Zone dangereuse'),
           !confirmReset
             ?h('button',{class:'mbtn mdng',style:'width:100%',onClick:()=>setConfirmReset(true)},'Réinitialiser toutes les données')
-            :h('div',{style:'background:#ef444411;border:1px solid #ef444466;border-radius:8px;padding:12px'},
-                h('div',{style:'font-size:13px;color:#ef4444;margin-bottom:12px;text-align:center;line-height:1.5'},'⚠️ Action irréversible.',h('br'),'Toute ta progression sera perdue.'),
-                h('div',{class:'mrow'},
-                  h('button',{class:'mbtn mdng',style:'flex:1',onClick:()=>{localStorage.removeItem("sl_v3");setState(emptyState());setConfirmReset(false);setShowSet(false);}},'✅ Confirmer'),
-                  h('button',{class:'mbtn mcan',style:'flex:1',onClick:()=>setConfirmReset(false)},'Annuler')
+            :h('div',{class:'modal-ov',style:'align-items:center;position:fixed',onClick:e=>{if(e.target===e.currentTarget)setConfirmReset(false);}},
+                h('div',{class:'modal',style:'border-radius:12px;max-width:320px;width:90%'},
+                  h('div',{class:'mtitle'},'☠ Réinitialisation'),
+                  h('div',{style:'font-size:13px;color:#ef4444;margin-bottom:16px;text-align:center;line-height:1.5'},'⚠️ Action ',h('strong',null,'irréversible'),'.',h('br'),'Toute ta progression sera perdue.'),
+                  h('div',{class:'mrow'},
+                    h('button',{class:'mbtn mdng',style:'flex:1',onClick:()=>{localStorage.removeItem("sl_v3");setState(emptyState());setConfirmReset(false);setShowSet(false);}},'✅ Confirmer'),
+                    h('button',{class:'mbtn mcan',style:'flex:1',onClick:()=>setConfirmReset(false)},'Annuler')
+                  )
                 )
               )
         ),
@@ -627,21 +660,35 @@ function App(){
 
   function EditModal(){
     if(!editObj)return null;
+    const id='em_'+editObj.id;
+    function getVal(field){const el=document.getElementById(id+'_'+field);return el?el.value:null;}
+    function save(){
+      const name=getVal('name')||editObj.name;
+      const icon=getVal('icon')||editObj.icon;
+      const unit=getVal('unit')||editObj.unit;
+      const xpPer=parseFloat(getVal('xpPer'))||editObj.xpPer;
+      const base=parseInt(getVal('base'))||editObj.base;
+      const optional=document.getElementById(id+'_opt')?.checked??editObj.optional;
+      const weekly=document.getElementById(id+'_wkly')?.checked??editObj.weekly;
+      const stat=document.getElementById(id+'_stat')?.value||editObj.stat;
+      setState(s=>({...s,objectives:s.objectives.map(o=>o.id===editObj.id?{...o,name,icon,unit,xpPer,base,optional,weekly,daily:!weekly,stat}:o)}));
+      setEditObj(null);
+    }
     return h('div',{class:'modal-ov',onClick:e=>{if(e.target===e.currentTarget)setEditObj(null);}},
       h('div',{class:'modal'},
         h('div',{class:'mtitle'},'✏️ Modifier la quête'),
         h('div',{class:'fg',style:'display:grid;grid-template-columns:1fr 1fr;gap:8px'},
-          h('input',{class:'fin ff',placeholder:'Nom',value:editObj.name,onInput:e=>setEditObj(v=>({...v,name:e.target.value}))}),
-          h('input',{class:'fin',placeholder:'Icône',value:editObj.icon,onInput:e=>setEditObj(v=>({...v,icon:e.target.value}))}),
-          h('input',{class:'fin',placeholder:'Unité',value:editObj.unit,onInput:e=>setEditObj(v=>({...v,unit:e.target.value}))}),
-          h('input',{class:'fin',type:'number',placeholder:'XP/unité',value:editObj.xpPer,onInput:e=>setEditObj(v=>({...v,xpPer:parseFloat(e.target.value)}))}),
-          h('input',{class:'fin',type:'number',placeholder:'Objectif base',value:editObj.base,onInput:e=>setEditObj(v=>({...v,base:parseInt(e.target.value)}))}),
-          h('select',{class:'fsel ff',value:editObj.stat,onChange:e=>setEditObj(v=>({...v,stat:e.target.value}))},STATS.map(s=>h('option',{key:s,value:s},s))),
-          h('label',{class:'fck',style:'font-size:13px'},h('input',{type:'checkbox',checked:editObj.optional,onChange:e=>setEditObj(v=>({...v,optional:e.target.checked}))}),'Bonus'),
-          h('label',{class:'fck',style:'font-size:13px'},h('input',{type:'checkbox',checked:editObj.weekly,onChange:e=>setEditObj(v=>({...v,weekly:e.target.checked,daily:!e.target.checked}))}),'Hebdo')
+          h('input',{id:id+'_name',class:'fin ff',placeholder:'Nom',defaultValue:editObj.name}),
+          h('input',{id:id+'_icon',class:'fin',placeholder:'Icône',defaultValue:editObj.icon}),
+          h('input',{id:id+'_unit',class:'fin',placeholder:'Unité',defaultValue:editObj.unit}),
+          h('input',{id:id+'_xpPer',class:'fin',type:'text',inputMode:'decimal',placeholder:'XP/unité',defaultValue:editObj.xpPer}),
+          h('input',{id:id+'_base',class:'fin',type:'text',inputMode:'decimal',placeholder:'Objectif base',defaultValue:editObj.base}),
+          h('select',{id:id+'_stat',class:'fsel ff',defaultValue:editObj.stat},STATS.map(s=>h('option',{key:s,value:s,selected:s===editObj.stat},s))),
+          h('label',{class:'fck',style:'font-size:13px'},h('input',{id:id+'_opt',type:'checkbox',defaultChecked:editObj.optional}),'Bonus'),
+          h('label',{class:'fck',style:'font-size:13px'},h('input',{id:id+'_wkly',type:'checkbox',defaultChecked:editObj.weekly}),'Hebdo')
         ),
         h('div',{class:'mrow',style:'margin-top:16px'},
-          h('button',{class:'mbtn mprim',style:'flex:2',onClick:()=>{setState(s=>({...s,objectives:s.objectives.map(o=>o.id===editObj.id?editObj:o)}));setEditObj(null);}},'✅ Sauvegarder'),
+          h('button',{class:'mbtn mprim',style:'flex:2',onClick:save},'✅ Sauvegarder'),
           h('button',{class:'mbtn mcan',style:'flex:1',onClick:()=>setEditObj(null)},'Annuler')
         )
       )
@@ -685,7 +732,25 @@ function App(){
       floats.map(f=>h('div',{key:f.id,class:'xpfloat',style:'left:'+f.x+'px;top:'+f.y+'px'},f.txt)),
       h(EditModal,null),
       h(Settings,null),
-      h(RankUp,null)
+      h(RankUp,null),
+      confirmDelete&&h('div',{class:'modal-ov',style:'align-items:center',onClick:()=>setConfirmDelete(null)},
+        h('div',{class:'modal',style:'border-radius:12px;max-width:320px;width:90%'},
+          h('div',{class:'mtitle'},'🗑 Supprimer la quête'),
+          h('div',{style:'background:#ef444411;border:1px solid #ef444466;border-radius:8px;padding:12px;margin-bottom:16px'},
+            h('div',{style:'font-size:13px;color:#ef4444;text-align:center;line-height:1.5'},
+              '⚠️ Supprimer ',h('strong',null,state.objectives.find(o=>o.id===confirmDelete)?.name||'cette quête'),' ?',
+              h('br'),'Cette action est irréversible.'
+            )
+          ),
+          h('div',{class:'mrow'},
+            h('button',{class:'mbtn mdng',style:'flex:1',onClick:()=>{
+              setState(s=>({...s,objectives:s.objectives.filter(o=>o.id!==confirmDelete)}));
+              setConfirmDelete(null);
+            }},'✅ Confirmer'),
+            h('button',{class:'mbtn mcan',style:'flex:1',onClick:()=>setConfirmDelete(null)},'Annuler')
+          )
+        )
+      )
     )
   );
 }
