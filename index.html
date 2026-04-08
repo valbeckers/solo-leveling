@@ -27,7 +27,7 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
 .particle { position: absolute; border-radius: 50%; animation: float linear infinite; }
 @keyframes float { 0%{transform:translateY(100vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(-100px) scale(1);opacity:0} }
-.header { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--rank-color,#9ca3af)33; padding: 44px 20px 12px; }
+.header { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--rank-color,#9ca3af)33; padding: 54px 20px 12px; }
 .header-top { display: flex; justify-content: space-between; align-items: center; }
 .player-name { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; color: var(--rank-color); text-shadow: 0 0 20px var(--rank-glow); letter-spacing: 3px; }
 .gear-btn { background: none; border: 1px solid var(--rank-color)44; border-radius: 50%; width: 43px; height: 43px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 19px; color: var(--rank-color); transition: all .3s; }
@@ -137,16 +137,17 @@ const RANKS = [
   { id:"A", label:"Expert",     color:"#f87171", glow:"#f87171aa", bg:"#0d0004", accent:"#ef4444", xpRequired:45000 },
   { id:"S", label:"Maître",     color:"#c084fc", glow:"#c084fcaa", bg:"#0a0014", accent:"#a855f7", xpRequired:90000 },
 ];
-const STATS = ["Force","Intelligence","Agilité","Endurance"];
+const STATS = ["Vitalité","Force","Intelligence","Endurance"];
 const DEFAULT_OBJECTIVES = [
-  { id:"push",    name:"Pompes",         unit:"reps",   xpPer:1,   daily:true,  weekly:false, optional:false, stat:"Force",        icon:"🦾", base:30 },
-  { id:"abs",     name:"Abdominaux",     unit:"reps",   xpPer:1,   daily:true,  weekly:false, optional:false, stat:"Agilité",      icon:"🧎🏻‍♂️", base:60 },
-  { id:"squats",  name:"Squats",         unit:"reps",   xpPer:1,   daily:true,  weekly:false, optional:false, stat:"Force",        icon:"🦿", base:15 },
-  { id:"water",   name:"Boire de l'eau", unit:"verres", xpPer:1,   daily:true,  weekly:false, optional:false, stat:"Endurance",    icon:"💧", base:8  },
-  { id:"reading", name:"Lecture",        unit:"pages",  xpPer:0.1, daily:true,  weekly:false, optional:false, stat:"Intelligence", icon:"📚", base:10 },
-  { id:"run",     name:"Course à pied",  unit:"km",     xpPer:20,  daily:false, weekly:true,  optional:false, stat:"Endurance",    icon:"🏃🏻", base:7  },
-  { id:"med",     name:"Méditation",     unit:"min",    xpPer:1,   daily:true,  weekly:false, optional:true,  stat:"Intelligence", icon:"🧘🏻", base:5  },
-  { id:"flex",    name:"Souplesse",      unit:"min",    xpPer:1,   daily:true,  weekly:false, optional:true,  stat:"Agilité",      icon:"🤸🏻", base:5  },
+  { id:"push",    name:"Pompes",         unit:"reps",   xpPer:1,   daily:true,  weekly:false, optional:false, stat:"Force",        icon:"🦾",  base:30 },
+  { id:"abs",     name:"Abdominaux",     unit:"reps",   xpPer:1,   daily:true,  weekly:false, optional:false, stat:"Force",        icon:"🧎🏻‍♂️", base:60 },
+  { id:"squats",  name:"Squats",         unit:"reps",   xpPer:2,   daily:true,  weekly:false, optional:false, stat:"Force",        icon:"🦿",  base:15 },
+  { id:"water",   name:"Boire de l'eau", unit:"verres", xpPer:5,   daily:true,  weekly:false, optional:false, stat:"Vitalité",     icon:"💧",  base:8  },
+  { id:"reading", name:"Lecture",        unit:"pages",  xpPer:1,   daily:true,  weekly:false, optional:false, stat:"Intelligence", icon:"📚",  base:10 },
+  { id:"run",     name:"Course à pied",  unit:"km",     xpPer:50,  daily:false, weekly:true,  optional:false, stat:"Endurance",    icon:"🏃🏻", base:7  },
+  { id:"med",     name:"Méditation",     unit:"min",    xpPer:5,   daily:true,  weekly:false, optional:true,  stat:"Intelligence", icon:"🧘🏻", base:5  },
+  { id:"flex",    name:"Souplesse",      unit:"min",    xpPer:5,   daily:true,  weekly:false, optional:true,  stat:"Force",        icon:"🤸🏻", base:5  },
+  { id:"sleep",   name:"Sommeil",        unit:"h",      xpPer:0,   daily:true,  weekly:false, optional:true,  stat:"Vitalité",     icon:"🛏️", base:8, binary:true, binaryXp:50 },
 ];
 
 function getRank(xp) { for(let i=RANKS.length-1;i>=0;i--) if(xp>=RANKS[i].xpRequired) return RANKS[i]; return RANKS[0]; }
@@ -161,22 +162,59 @@ function loadState() {
 function saveState(s) {
   try { localStorage.setItem("sl_v2",JSON.stringify(s)); } catch {}
 }
+
+// Données importées depuis iPhone + adaptées à la nouvelle version
+const IMPORTED_DATA = {"totalXp":703.55,"streak":0,"lastActiveDay":"2026-04-08","streakBonusDay":null,"dailyLog":{"2026-04-07":{"push":74,"squats":15,"reading":11,"abs":144,"water":8,"med":5,"flex":5},"2026-04-08":{"water":2,"push":70,"squats":35,"abs":62}},"weeklyLog":{"2026-W15":{"run":6.92}}};
+
 function initState() {
-  return { totalXp:0, streak:0, lastActiveDay:null, streakBonusDay:null,
-    objectives:DEFAULT_OBJECTIVES, dailyLog:{}, weeklyLog:{},
-    stats:{Force:0,Intelligence:0,Agilité:0,Endurance:0},
-    statXp:{Force:0,Intelligence:0,Agilité:0,Endurance:0} };
+  // Recalcul des statXp depuis les logs avec les nouveaux ratios
+  const statXp = {Vitalité:0, Force:0, Intelligence:0, Endurance:0};
+  // Depuis dailyLog
+  Object.values(IMPORTED_DATA.dailyLog).forEach(log => {
+    Object.entries(log).forEach(([id, val]) => {
+      const obj = DEFAULT_OBJECTIVES.find(o=>o.id===id);
+      if (obj && !obj.binary) statXp[obj.stat] = (statXp[obj.stat]||0) + val * obj.xpPer;
+    });
+  });
+  // Depuis weeklyLog
+  Object.values(IMPORTED_DATA.weeklyLog).forEach(log => {
+    Object.entries(log).forEach(([id, val]) => {
+      const obj = DEFAULT_OBJECTIVES.find(o=>o.id===id);
+      if (obj && !obj.binary) statXp[obj.stat] = (statXp[obj.stat]||0) + val * obj.xpPer;
+    });
+  });
+  function xpForLvl(l){return Math.round(100*Math.pow(1.1,l));}
+  function totalForLvl(l){let t=0;for(let i=0;i<l;i++)t+=xpForLvl(i);return t;}
+  const stats = {};
+  Object.keys(statXp).forEach(s=>{let l=0;while(statXp[s]>=totalForLvl(l+1))l++;stats[s]=l;});
+  return {
+    ...IMPORTED_DATA,
+    objectives: DEFAULT_OBJECTIVES,
+    stats, statXp,
+  };
 }
 
 function App() {
   const [state, setState] = useState(() => {
     const saved = loadState();
     if (!saved) return initState();
-    // Migration
-    const PATCHES = { push:{icon:"🦾",base:30}, abs:{icon:"🧎🏻‍♂️",base:60,stat:"Agilité"}, squats:{icon:"🦿",base:15}, reading:{icon:"📚",base:10}, run:{icon:"🏃🏻",base:7}, med:{icon:"🧘🏻",base:5}, flex:{icon:"🤸🏻",base:5} };
+    // Migration : on applique les nouveaux paramètres sur les objectifs existants
+    const PATCHES = {
+      push:    { icon:"🦾",  stat:"Force",        xpPer:1  },
+      abs:     { icon:"🧎🏻‍♂️", stat:"Force",        xpPer:1  },
+      squats:  { icon:"🦿",  stat:"Force",        xpPer:2  },
+      water:   { icon:"💧",  stat:"Vitalité",     xpPer:5  },
+      reading: { icon:"📚",  stat:"Intelligence", xpPer:1  },
+      run:     { icon:"🏃🏻", stat:"Endurance",    xpPer:50 },
+      med:     { icon:"🧘🏻", stat:"Intelligence", xpPer:5  },
+      flex:    { icon:"🤸🏻", stat:"Force",        xpPer:5  },
+    };
     let objs = saved.objectives.map(o => PATCHES[o.id] ? {...o,...PATCHES[o.id]} : o);
-    if (!objs.find(o=>o.id==="water")) objs = [...objs, {id:"water",name:"Boire de l'eau",unit:"verres",xpPer:1,daily:true,weekly:false,optional:false,stat:"Endurance",icon:"💧",base:8}];
-    return {...saved, objectives:objs};
+    if (!objs.find(o=>o.id==="sleep")) objs = [...objs, {id:"sleep",name:"Sommeil",unit:"h",xpPer:0,daily:true,weekly:false,optional:true,stat:"Vitalité",icon:"🛏️",base:8,binary:true,binaryXp:50}];
+    // Supprimer Agilité, ajouter Vitalité
+    const stats = {...(saved.stats||{})}; delete stats.Agilité; if (stats.Vitalité===undefined) stats.Vitalité=0;
+    const statXp = {...(saved.statXp||{})}; delete statXp.Agilité; if (statXp.Vitalité===undefined) statXp.Vitalité=0;
+    return {...saved, objectives:objs, stats, statXp};
   });
   const [tab, setTab] = useState("home");
   const [showAddObj, setShowAddObj] = useState(false);
@@ -218,8 +256,18 @@ function App() {
   const rankPct = nextRank ? Math.min(100,(xpInRank/xpToNext)*100) : 100;
   const todayLog = state.dailyLog[todayKey] || {};
   const weekLog = state.weeklyLog[wk] || {};
-  const todayXp = Object.entries(todayLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id);return s+(o?a*o.xpPer:0);},0)
-    + Object.entries(weekLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id&&x.weekly);return s+(o?a*o.xpPer:0);},0);
+  function calcXpForObj(obj, totalDone) {
+    if (totalDone <= 0) return 0;
+    if (obj.binary) {
+      const target = getTarget(obj.base, rankIdx);
+      return totalDone >= target ? (obj.binaryXp || 50) : 0;
+    }
+    const target = getTarget(obj.base, rankIdx);
+    if (totalDone <= target) return totalDone * obj.xpPer;
+    return target * obj.xpPer + (totalDone - target) * obj.xpPer * 1.5;
+  }
+  const todayXp = Object.entries(todayLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id);return s+(o?calcXpForObj(o,a):0);},0)
+    + Object.entries(weekLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id&&x.weekly);return s+(o?calcXpForObj(o,a):0);},0);
 
   const STAT_ORDER = ["Force","Intelligence","Agilité","Endurance"];
   const sortByStat = arr => [...arr].sort((a,b)=>STAT_ORDER.indexOf(a.stat)-STAT_ORDER.indexOf(b.stat));
@@ -262,15 +310,23 @@ function App() {
     if (!val||val<=0) return;
     const currentDone = obj.weekly?(weekLog[obj.id]||0):(todayLog[obj.id]||0);
     const target = getTarget(obj.base,rankIdx);
-    const alreadyOver = Math.max(0,currentDone-target);
-    const normalPart = alreadyOver>0?0:Math.min(val,target-currentDone);
-    const bonusPart = val-normalPart;
-    const xp = normalPart*obj.xpPer + bonusPart*obj.xpPer*1.5;
+    let xp = 0;
+    if (obj.binary) {
+      const wasComplete = currentDone >= target;
+      const nowComplete = (currentDone + val) >= target;
+      xp = (!wasComplete && nowComplete) ? (obj.binaryXp || 50) : 0;
+    } else {
+      const newTotal = currentDone + val;
+      if (currentDone >= target) { xp = val * obj.xpPer * 1.5; }
+      else if (newTotal <= target) { xp = val * obj.xpPer; }
+      else { const n=target-currentDone; xp = n*obj.xpPer + (val-n)*obj.xpPer*1.5; }
+    }
     setState(s => {
       if (obj.weekly) { const w={...s.weeklyLog}; w[wk]={...(w[wk]||{}),[obj.id]:(w[wk]?.[obj.id]||0)+val}; return {...s,weeklyLog:w,lastActiveDay:today()}; }
       else { const d={...s.dailyLog}; d[todayKey]={...(d[todayKey]||{}),[obj.id]:(d[todayKey]?.[obj.id]||0)+val}; return {...s,dailyLog:d,lastActiveDay:today()}; }
     });
-    addXp(xp,obj.stat,e);
+    if (xp > 0) addXp(xp,obj.stat,e);
+    else if (obj.binary) spawnXpFloat("0 XP",e);
     setInputVals(v=>({...v,[obj.id]:""}));
   }
 
@@ -304,7 +360,7 @@ function App() {
           <div className="quest-xp">{done}/{target} {obj.unit}</div>
         </div>
         <div className="quest-input-row">
-          <input className="quest-input" type="number" min="0" placeholder={`+ ${obj.unit}`}
+          <input className="quest-input" type="text" inputMode="decimal" pattern="[0-9]*\.?[0-9]*" placeholder={`+ ${obj.unit}`}
             value={inputVals[obj.id]||""} onChange={ev=>setInputVals(v=>({...v,[obj.id]:ev.target.value}))}/>
           <button className="quest-add-btn" onClick={e=>validateObjective(obj,e)}>+XP</button>
         </div>
@@ -417,7 +473,7 @@ function App() {
   }
 
   function renderStats() {
-    const statColors={Force:"#ef4444",Intelligence:"#818cf8",Agilité:"#4ade80",Endurance:"#f59e0b"};
+    const statColors={Vitalité:"#34d399",Force:"#ef4444",Intelligence:"#818cf8",Endurance:"#f59e0b"};
     const days=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return d.toISOString().slice(0,10);});
     const actualDayLabels=days.map(d=>["D","L","M","M","J","V","S"][new Date(d).getDay()]);
     return (
