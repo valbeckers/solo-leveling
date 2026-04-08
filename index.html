@@ -370,6 +370,10 @@ function App(){
 
   // ─── HOME ──────────────────────────────────────────────────────────────────
   function Home(){
+    const now=Date.now();
+    const sqs=state.specialQuests||[];
+    const activeSq=sqs.find(q=>!q.completedAt&&now<q.expiresAt);
+    function fmtCD(ms){const d=Math.floor(ms/86400000),hh=Math.floor((ms%86400000)/3600000),mm=Math.floor((ms%3600000)/60000);if(d>0)return d+"j "+hh+"h";if(hh>0)return hh+"h "+mm+"min";return mm+"min";}
     const secs=[
       {lb:"\u2694 Qu\u00eates journali\u00e8res",ob:sortStat(state.objectives.filter(o=>o.daily&&!o.optional)),iw:false},
       {lb:"\u2728 Qu\u00eates bonus",ob:sortStat(state.objectives.filter(o=>o.daily&&o.optional)),iw:false},
@@ -414,6 +418,27 @@ function App(){
         h("div",{style:"font-size:22px;font-family:Orbitron,sans-serif;font-weight:900;color:#c084fc"},"+100 XP Discipline"),
         h("div",{style:"font-size:11px;color:#c084fc99;margin-top:4px"},state.streak+" jour"+(state.streak>1?"s":"")+" de streak \u26A1"),
         weeklyBonusGiven&&h("div",{style:"font-size:11px;color:#c084fc88;margin-top:6px;font-family:Orbitron,sans-serif"},"\uD83D\uDCC5 Bonus hebdo +150 XP accord\u00e9 \u2705")
+      ),
+      activeSq&&h("div",{class:"card",style:"border-color:#a855f744"},
+        h("div",{class:"ctitle",style:"color:#c084fc;margin-bottom:8px"},"\uD83C\uDFC6 Qu\u00eate sp\u00e9ciale"),
+        h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"},
+          h("div",{style:"display:flex;align-items:center;gap:8px"},
+            h("span",{style:"font-size:18px"},activeSq.icon),
+            h("div",null,
+              h("div",{style:"font-size:13px;font-weight:700;color:var(--tx)"},activeSq.name),
+              h("div",{style:"font-size:10px;color:var(--td);margin-top:1px"},activeSq.desc)
+            )
+          ),
+          h("div",{style:"text-align:right"},
+            h("div",{style:"font-family:Orbitron,sans-serif;font-size:11px;color:"+(activeSq.expiresAt-now<86400000?"#ef4444":"#c084fc")},fmtCD(activeSq.expiresAt-now)),
+            h("div",{style:"font-size:10px;color:var(--td);margin-top:1px"},"restants")
+          )
+        ),
+        h("div",{class:"sqbar"},h("div",{class:"sqbarfill",style:"width:"+Math.min(100,(activeSq.progress/activeSq.target)*100)+"%"})),
+        h("div",{style:"display:flex;justify-content:space-between;font-size:10px;color:var(--td);margin-top:4px"},
+          h("span",null,activeSq.progress+"/"+activeSq.target+" "+activeSq.unit),
+          h("span",{style:"color:#c084fc;font-family:Orbitron,sans-serif"},"+"+activeSq.xp+" XP \u00b7 "+(STAT_LABELS[activeSq.stat]||activeSq.stat))
+        )
       ),
       secs.map(({lb,ob,iw})=>ob.length===0?null:
         h("div",{key:lb,class:"card"},h("div",{class:"ctitle"},lb),ob.map(o=>h(RR,{key:o.id,obj:o,isW:iw})))
