@@ -103,9 +103,11 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Rajdhani
 </head>
 <body>
 <div id="app"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:Orbitron,sans-serif;color:#9ca3af;gap:16px"><div style="font-size:48px">&#x2694;</div><div style="font-size:12px;letter-spacing:4px">CHARGEMENT...</div></div></div>
-<script type="module">
-import { h, render, Fragment } from 'https://esm.sh/preact@10.19.3';
-import { useState, useEffect, useRef } from 'https://esm.sh/preact@10.19.3/hooks';
+<script src="https://cdnjs.cloudflare.com/ajax/libs/preact/10.19.3/preact.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/preact/10.19.3/hooks.umd.js"></script>
+<script>
+const { h, render, Fragment } = preact;
+const { useState, useEffect, useRef } = preactHooks;
 
 // Rangs avec progression x2
 const RANKS = [
@@ -883,6 +885,3 @@ render(h(App,null),document.getElementById(“app”));
 
 </body>
 </html>
-
-
-
