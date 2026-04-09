@@ -252,7 +252,24 @@ return {...saved,objectives:objs,stats,statXp,specialQuests:saved.specialQuests|
 }
 
 function App(){
-const [state,setState]=useState(()=>{const s=loadState();return s?migrate(s):buildFromImported();});
+const [state,setState]=useState(()=>{
+const s=loadState();
+const base=s?migrate(s):buildFromImported();
+// Auto-init quête spéciale si aucune active
+const now=Date.now();
+const sqs=base.specialQuests||[];
+const hasActive=sqs.find(q=>!q.completedAt&&now<q.expiresAt);
+const hasCompleted=sqs.find(q=>q.completedAt&&(now-q.completedAt)<86400000);
+if(!hasActive&&!hasCompleted){
+const used=sqs.map(q=>q.id);
+const tpl=pickRandomSp(used);
+if(tpl){
+const sq={...tpl,sqid:"sq_"+Date.now(),progress:0,startedAt:now,expiresAt:now+tpl.days*86400000,completedAt:null};
+return {...base,specialQuests:[...sqs.filter(q=>q.completedAt),sq]};
+}
+}
+return base;
+});
 const [tab,setTab]=useState("home");
 const [showAdd,setShowAdd]=useState(false);
 const [rankUp,setRankUp]=useState(null);
@@ -294,20 +311,19 @@ const todayXp=Object.entries(tLog).reduce((s,[id,a])=>{const o=state.objectives.
 
 const allDailyReqDone=state.objectives.filter(o=>!o.optional&&o.daily).every(o=>(tLog[o.id]||0)>=getTarget(o.base,ri));
 
-// Bonus hebdo = quête hebdo atteinte + toutes les journalières complétées 7 jours cette semaine
+// Bonus hebdo = quête hebdo atteinte + toutes les journalières complétées les 7 jours de la semaine
 const weeklyReqDone=(()=>{
 // 1. Quête hebdo atteinte
 const weeklyOk=state.objectives.filter(o=>!o.optional&&o.weekly).every(o=>(wLog[o.id]||0)>=getTarget(o.base,ri));
 if(!weeklyOk)return false;
-// 2. Calculer les jours de la semaine en cours
+// 2. Les 7 jours de la semaine en cours
 const ws=new Date();ws.setDate(ws.getDate()-((ws.getDay()+6)%7));ws.setHours(0,0,0,0);
 const weekDays=Array.from({length:7},(_,i)=>{const d=new Date(ws);d.setDate(ws.getDate()+i);return d.toISOString().slice(0,10);});
-const pastDays=weekDays.filter(d=>d<=today);
-// 3. Pour chaque quête journalière obligatoire, vérifier qu'elle a été faite chaque jour passé de la semaine
+// 3. Tous les 7 jours doivent être passés (on doit être dimanche ou après)
+if(weekDays.some(d=>d>today))return false;
+// 4. Chaque journalière obligatoire complétée chaque jour
 const dailyReqObjs=state.objectives.filter(o=>!o.optional&&o.daily);
-return dailyReqObjs.every(o=>
-pastDays.every(d=>(state.dailyLog[d]?.[o.id]||0)>=getTarget(o.base,ri))
-);
+return dailyReqObjs.every(o=>weekDays.every(d=>(state.dailyLog[d]?.[o.id]||0)>=getTarget(o.base,ri)));
 })();
 const bonusGiven=state.streakBonusDay===today;
 const weeklyBonusGiven=state.weeklyBonusWk===wk;
@@ -319,7 +335,7 @@ const sqs=state.specialQuests||[];
 const activeSq=sqs.find(q=>!q.completedAt&&now<q.expiresAt)||null;
 const completedSq=sqs.find(q=>q.completedAt&&(now-q.completedAt)<86400000)||null;
 
-// Auto-launch quête spéciale si aucune active
+// Filet de sécurité : lance une quête si aucune active après render
 useEffect(()=>{
 if(!activeSq&&!completedSq){
 const used=sqs.map(q=>q.id);
@@ -329,7 +345,7 @@ const sq={...tpl,sqid:"sq_"+Date.now(),progress:0,startedAt:Date.now(),expiresAt
 setState(s=>({...s,specialQuests:[...s.specialQuests.filter(q=>q.completedAt),sq]}));
 }
 }
-},[activeSq,completedSq]);
+},[]);
 
 function spawnFloat(txt,e){
 const id=Date.now()+Math.random(),x=e?e.clientX:200,y=e?e.clientY:300;
