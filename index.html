@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
@@ -111,777 +110,776 @@ const { useState, useEffect, useRef } = preactHooks;
 
 // Rangs avec progression x2
 const RANKS = [
-{id:“E”,label:“Eveille”,   color:”#9ca3af”,glow:”#9ca3af55”,bg:”#0a0a0f”,accent:”#6b7280”,xpRequired:0},
-{id:“D”,label:“Aventurier”,color:”#22d3ee”,glow:”#22d3ee55”,bg:”#000d12”,accent:”#06b6d4”,xpRequired:3000},
-{id:“C”,label:“Combattant”,color:”#4ade80”,glow:”#4ade8055”,bg:”#000d06”,accent:”#22c55e”,xpRequired:9000},
-{id:“B”,label:“Chasseur”,  color:”#f59e0b”,glow:”#f59e0b55”,bg:”#0d0800”,accent:”#d97706”,xpRequired:21000},
-{id:“A”,label:“Expert”,    color:”#f87171”,glow:”#f87171aa”,bg:”#0d0004”,accent:”#ef4444”,xpRequired:45000},
-{id:“S”,label:“Maitre”,    color:”#c084fc”,glow:”#c084fcaa”,bg:”#0a0014”,accent:”#a855f7”,xpRequired:93000},
+  {id:"E",label:"Eveille",   color:"#9ca3af",glow:"#9ca3af55",bg:"#0a0a0f",accent:"#6b7280",xpRequired:0},
+  {id:"D",label:"Aventurier",color:"#22d3ee",glow:"#22d3ee55",bg:"#000d12",accent:"#06b6d4",xpRequired:3000},
+  {id:"C",label:"Combattant",color:"#4ade80",glow:"#4ade8055",bg:"#000d06",accent:"#22c55e",xpRequired:9000},
+  {id:"B",label:"Chasseur",  color:"#f59e0b",glow:"#f59e0b55",bg:"#0d0800",accent:"#d97706",xpRequired:21000},
+  {id:"A",label:"Expert",    color:"#f87171",glow:"#f87171aa",bg:"#0d0004",accent:"#ef4444",xpRequired:45000},
+  {id:"S",label:"Maitre",    color:"#c084fc",glow:"#c084fcaa",bg:"#0a0014",accent:"#a855f7",xpRequired:93000},
 ];
 
-const STATS = [“Vitalite”,“Force”,“Esprit”,“Endurance”,“Discipline”];
-const STAT_ORDER = [“Vitalite”,“Force”,“Esprit”,“Endurance”,“Discipline”];
-const STAT_COLORS = {Vitalite:”#ef4444”,Force:”#4ade80”,Esprit:”#f59e0b”,Endurance:”#22d3ee”,Discipline:”#c084fc”};
-const STAT_LABELS = {Vitalite:“Vitalit\u00e9”,Force:“Force”,Esprit:“Esprit”,Endurance:“Endurance”,Discipline:“Discipline”};
+const STATS = ["Vitalite","Force","Esprit","Endurance","Discipline"];
+const STAT_ORDER = ["Vitalite","Force","Esprit","Endurance","Discipline"];
+const STAT_COLORS = {Vitalite:"#ef4444",Force:"#4ade80",Esprit:"#f59e0b",Endurance:"#22d3ee",Discipline:"#c084fc"};
+const STAT_LABELS = {Vitalite:"Vitalit\u00e9",Force:"Force",Esprit:"Esprit",Endurance:"Endurance",Discipline:"Discipline"};
 
 const E = {
-push:”\uD83E\uDDBE”, abs:”\uD83E\uDDCE\uD83C\uDFFB\u200D\u2642\uFE0F”,
-squats:”\uD83E\uDDBF”, water:”\uD83D\uDCA7”, reading:”\uD83D\uDCDA”,
-run:”\uD83C\uDFC3\uD83C\uDFFB”, med:”\uD83E\uDDD8\uD83C\uDFFB”,
-flex:”\uD83E\uDD38\uD83C\uDFFB”, sleep:”\uD83D\uDECF\uFE0F”,
+  push:"\uD83E\uDDBE", abs:"\uD83E\uDDCE\uD83C\uDFFB\u200D\u2642\uFE0F",
+  squats:"\uD83E\uDDBF", water:"\uD83D\uDCA7", reading:"\uD83D\uDCDA",
+  run:"\uD83C\uDFC3\uD83C\uDFFB", med:"\uD83E\uDDD8\uD83C\uDFFB",
+  flex:"\uD83E\uDD38\uD83C\uDFFB", sleep:"\uD83D\uDECF\uFE0F",
 };
 
 const DEFS = [
-{id:“push”,   name:“Pompes”,      unit:“reps”,  xpPer:1,  daily:true, weekly:false,optional:false,stat:“Force”,    icon:E.push,   base:30},
-{id:“abs”,    name:“Abdominaux”,  unit:“reps”,  xpPer:1,  daily:true, weekly:false,optional:false,stat:“Force”,    icon:E.abs,    base:60},
-{id:“squats”, name:“Squats”,      unit:“reps”,  xpPer:1,  daily:true, weekly:false,optional:false,stat:“Force”,    icon:E.squats, base:15},
-{id:“water”,  name:“Hydratation”, unit:“verres”,xpPer:5,  daily:true, weekly:false,optional:false,stat:“Vitalite”, icon:E.water,  base:8},
-{id:“reading”,name:“Lecture”,     unit:“pages”, xpPer:5,  daily:true, weekly:false,optional:false,stat:“Esprit”,   icon:E.reading,base:10},
-{id:“run”,    name:“Course”,      unit:“km”,    xpPer:25, daily:false,weekly:true, optional:false,stat:“Endurance”,icon:E.run,    base:7},
-{id:“med”,    name:“M\u00e9ditation”,unit:“min”,xpPer:5,  daily:true, weekly:false,optional:true, stat:“Esprit”,   icon:E.med,    base:5},
-{id:“flex”,   name:“Souplesse”,   unit:“min”,   xpPer:5,  daily:true, weekly:false,optional:true, stat:“Vitalite”, icon:E.flex,   base:5},
-{id:“sleep”,  name:“Sommeil”,     unit:“h”,     xpPer:0,  daily:true, weekly:false,optional:true, stat:“Vitalite”, icon:E.sleep,  base:8,binary:true,binaryXp:50},
+  {id:"push",   name:"Pompes",      unit:"reps",  xpPer:1,  daily:true, weekly:false,optional:false,stat:"Force",    icon:E.push,   base:30},
+  {id:"abs",    name:"Abdominaux",  unit:"reps",  xpPer:1,  daily:true, weekly:false,optional:false,stat:"Force",    icon:E.abs,    base:60},
+  {id:"squats", name:"Squats",      unit:"reps",  xpPer:1,  daily:true, weekly:false,optional:false,stat:"Force",    icon:E.squats, base:15},
+  {id:"water",  name:"Hydratation", unit:"verres",xpPer:5,  daily:true, weekly:false,optional:false,stat:"Vitalite", icon:E.water,  base:8},
+  {id:"reading",name:"Lecture",     unit:"pages", xpPer:5,  daily:true, weekly:false,optional:false,stat:"Esprit",   icon:E.reading,base:10},
+  {id:"run",    name:"Course",      unit:"km",    xpPer:25, daily:false,weekly:true, optional:false,stat:"Endurance",icon:E.run,    base:7},
+  {id:"med",    name:"M\u00e9ditation",unit:"min",xpPer:5,  daily:true, weekly:false,optional:true, stat:"Esprit",   icon:E.med,    base:5},
+  {id:"flex",   name:"Souplesse",   unit:"min",   xpPer:5,  daily:true, weekly:false,optional:true, stat:"Vitalite", icon:E.flex,   base:5},
+  {id:"sleep",  name:"Sommeil",     unit:"h",     xpPer:0,  daily:true, weekly:false,optional:true, stat:"Vitalite", icon:E.sleep,  base:8,binary:true,binaryXp:50},
 ];
 
 // 20 quêtes spéciales - 5 par stat - 1/4 chance par stat = 1/20 par quête
 const SP = {
-Force:[
-{id:“sp_dips”,   name:“Dips”,              icon:”\uD83D\uDCAA”,unit:“reps”,  target:50,  xp:300,days:7, desc:“50 dips en 7 jours”},
-{id:“sp_pull”,   name:“Tractions”,          icon:”\uD83C\uDFCB\uFE0F”,unit:“reps”,target:30,xp:300,days:7,desc:“30 tractions en 7 jours”},
-{id:“sp_lunge”,  name:“Fentes march\u00e9es”,icon:”\uD83E\uDDB5”,unit:“pas”, target:200, xp:200,days:3, desc:“200 pas de fentes en 3 jours”},
-{id:“sp_plank”,  name:“Gainage”,            icon:”\uD83D\uDCAA”,unit:“min”,  target:10,  xp:150,days:3, desc:“10 min cumul\u00e9es en 3 jours”},
-{id:“sp_200push”,name:“200 pompes”,         icon:E.push,        unit:“reps”, target:200, xp:350,days:5, desc:“200 pompes en une s\u00e9ance”},
-],
-Esprit:[
-{id:“sp_pod”,    name:“Podcast”,            icon:”\uD83C\uDF99\uFE0F”,unit:”\u00e9p.”,target:1,xp:100,days:3,desc:“1 podcast complet en 3 jours”},
-{id:“sp_50p”,    name:“50 pages”,           icon:E.reading,     unit:“pages”,target:50,  xp:250,days:3, desc:“50 pages en une journ\u00e9e”},
-{id:“sp_med30”,  name:“M\u00e9ditation 30min”,icon:E.med,       unit:“min”,  target:30,  xp:200,days:5, desc:“30 min en une s\u00e9ance”},
-{id:“sp_learn”,  name:“Apprentissage”,      icon:”\uD83E\uDDE0”,unit:“s\u00e9ances”,target:3,xp:200,days:5,desc:“3 s\u00e9ances d’apprentissage”},
-{id:“sp_write”,  name:“Journaling”,         icon:”\u270D\uFE0F”,unit:“mots”, target:500, xp:150,days:3, desc:“500 mots \u00e9crits en 3 jours”},
-],
-Endurance:[
-{id:“sp_jump”,   name:“Corde \u00e0 sauter”,icon:”\uD83E\uDE62”,unit:“min”,  target:20,  xp:250,days:3, desc:“20 min non-stop”},
-{id:“sp_sprint”, name:“Sprints”,            icon:”\u26A1”,       unit:“s\u00e9ries”,target:10,xp:300,days:3,desc:“10 x 100m sprint/r\u00e9cup”},
-{id:“sp_5km”,    name:“5km d’une traite”,   icon:E.run,         unit:“km”,   target:5,   xp:300,days:7, desc:“5km sans s’arr\u00eater”},
-{id:“sp_5sess”,  name:“5 s\u00e9ances cardio”,icon:”\uD83D\uDD25”,unit:“s\u00e9ances”,target:5,xp:350,days:7,desc:“5 s\u00e9ances cardio en 7 jours”},
-{id:“sp_30cardio”,name:“30 min cardio”,     icon:”\uD83E\uDE96”,unit:“min”,  target:30,  xp:300,days:5, desc:“30 min cardio non-stop”},
-],
-Vitalite:[
-{id:“sp_nosg”,   name:“Sans sucre”,         icon:”\uD83E\uDD57”,unit:“jours”,target:5,   xp:300,days:5, desc:“5 jours sans junk food”},
-{id:“sp_flex30”, name:“Souplesse 30min”,    icon:E.flex,        unit:“min”,  target:30,  xp:150,days:3, desc:“30 min de souplesse en une s\u00e9ance”},
-{id:“sp_sleep22”,name:“Coucher t\u00f4t”,   icon:E.sleep,       unit:“nuits”,target:3,   xp:200,days:5, desc:“Dormir avant 22h30 \u2014 3 nuits”},
-{id:“sp_fasting”,name:“Je\u00fbne 16h”,     icon:”\u23F3”,       unit:“fois”, target:3,   xp:300,days:7, desc:“Je\u00fbne 16h \u2014 3 fois en 7 jours”},
-{id:“sp_fruits”, name:“5 fruits/l\u00e9gumes”,icon:”\uD83E\uDD57”,unit:“jours”,target:4, xp:250,days:5, desc:“5 fruits/l\u00e9gumes/jour \u2014 4 jours”},
-],
+  Force:[
+    {id:"sp_dips",   name:"Dips",              icon:"\uD83D\uDCAA",unit:"reps",  target:50,  xp:300,days:7, desc:"50 dips en 7 jours"},
+    {id:"sp_pull",   name:"Tractions",          icon:"\uD83C\uDFCB\uFE0F",unit:"reps",target:30,xp:300,days:7,desc:"30 tractions en 7 jours"},
+    {id:"sp_lunge",  name:"Fentes march\u00e9es",icon:"\uD83E\uDDB5",unit:"pas", target:200, xp:200,days:3, desc:"200 pas de fentes en 3 jours"},
+    {id:"sp_plank",  name:"Gainage",            icon:"\uD83D\uDCAA",unit:"min",  target:10,  xp:150,days:3, desc:"10 min cumul\u00e9es en 3 jours"},
+    {id:"sp_200push",name:"200 pompes",         icon:E.push,        unit:"reps", target:200, xp:350,days:5, desc:"200 pompes en une s\u00e9ance"},
+  ],
+  Esprit:[
+    {id:"sp_pod",    name:"Podcast",            icon:"\uD83C\uDF99\uFE0F",unit:"\u00e9p.",target:1,xp:100,days:3,desc:"1 podcast complet en 3 jours"},
+    {id:"sp_50p",    name:"50 pages",           icon:E.reading,     unit:"pages",target:50,  xp:250,days:3, desc:"50 pages en une journ\u00e9e"},
+    {id:"sp_med30",  name:"M\u00e9ditation 30min",icon:E.med,       unit:"min",  target:30,  xp:200,days:5, desc:"30 min en une s\u00e9ance"},
+    {id:"sp_learn",  name:"Apprentissage",      icon:"\uD83E\uDDE0",unit:"s\u00e9ances",target:3,xp:200,days:5,desc:"3 s\u00e9ances d'apprentissage"},
+    {id:"sp_write",  name:"Journaling",         icon:"\u270D\uFE0F",unit:"mots", target:500, xp:150,days:3, desc:"500 mots \u00e9crits en 3 jours"},
+  ],
+  Endurance:[
+    {id:"sp_jump",   name:"Corde \u00e0 sauter",icon:"\uD83E\uDE62",unit:"min",  target:20,  xp:250,days:3, desc:"20 min non-stop"},
+    {id:"sp_sprint", name:"Sprints",            icon:"\u26A1",       unit:"s\u00e9ries",target:10,xp:300,days:3,desc:"10 x 100m sprint/r\u00e9cup"},
+    {id:"sp_5km",    name:"5km d'une traite",   icon:E.run,         unit:"km",   target:5,   xp:300,days:7, desc:"5km sans s'arr\u00eater"},
+    {id:"sp_5sess",  name:"5 s\u00e9ances cardio",icon:"\uD83D\uDD25",unit:"s\u00e9ances",target:5,xp:350,days:7,desc:"5 s\u00e9ances cardio en 7 jours"},
+    {id:"sp_30cardio",name:"30 min cardio",     icon:"\uD83E\uDE96",unit:"min",  target:30,  xp:300,days:5, desc:"30 min cardio non-stop"},
+  ],
+  Vitalite:[
+    {id:"sp_nosg",   name:"Sans sucre",         icon:"\uD83E\uDD57",unit:"jours",target:5,   xp:300,days:5, desc:"5 jours sans junk food"},
+    {id:"sp_flex30", name:"Souplesse 30min",    icon:E.flex,        unit:"min",  target:30,  xp:150,days:3, desc:"30 min de souplesse en une s\u00e9ance"},
+    {id:"sp_sleep22",name:"Coucher t\u00f4t",   icon:E.sleep,       unit:"nuits",target:3,   xp:200,days:5, desc:"Dormir avant 22h30 \u2014 3 nuits"},
+    {id:"sp_fasting",name:"Je\u00fbne 16h",     icon:"\u23F3",       unit:"fois", target:3,   xp:300,days:7, desc:"Je\u00fbne 16h \u2014 3 fois en 7 jours"},
+    {id:"sp_fruits", name:"5 fruits/l\u00e9gumes",icon:"\uD83E\uDD57",unit:"jours",target:4, xp:250,days:5, desc:"5 fruits/l\u00e9gumes/jour \u2014 4 jours"},
+  ],
 };
 
 // Probabilités : 1/4 par stat, 1/20 par quête
 function pickRandomSp(usedIds){
-const stats=[“Force”,“Esprit”,“Endurance”,“Vitalite”];
-const stat=stats[Math.floor(Math.random()*4)];
-const avail=SP[stat].filter(t=>!usedIds.includes(t.id));
-if(avail.length===0){
-// fallback : autre stat
-const others=stats.filter(s=>s!==stat);
-for(const s of others){
-const a=SP[s].filter(t=>!usedIds.includes(t.id));
-if(a.length>0)return {…a[Math.floor(Math.random()*a.length)],stat:s};
-}
-return null;
-}
-return {…avail[Math.floor(Math.random()*avail.length)],stat};
+  const stats=["Force","Esprit","Endurance","Vitalite"];
+  const stat=stats[Math.floor(Math.random()*4)];
+  const avail=SP[stat].filter(t=>!usedIds.includes(t.id));
+  if(avail.length===0){
+    // fallback : autre stat
+    const others=stats.filter(s=>s!==stat);
+    for(const s of others){
+      const a=SP[s].filter(t=>!usedIds.includes(t.id));
+      if(a.length>0)return {...a[Math.floor(Math.random()*a.length)],stat:s};
+    }
+    return null;
+  }
+  return {...avail[Math.floor(Math.random()*avail.length)],stat};
 }
 
 const IMPORTED = {
-totalXp:2510.5, streak:3, lastActiveDay:“2026-04-09”,
-streakBonusDay:“2026-04-09”, weeklyBonusWk:“2026-W15”,
-dailyLog:{
-“2026-04-06”:{water:8,push:36,abs:72,sleep:8},
-“2026-04-07”:{water:8,push:36,abs:72,squats:15,reading:11,flex:5,sleep:8,med:6},
-“2026-04-08”:{water:11,push:100,abs:115,squats:35,reading:48,sleep:8,med:6,flex:20},
-“2026-04-09”:{water:2,sleep:8,push:41,abs:64,squats:16}
-},
-weeklyLog:{“2026-W15”:{run:10}},
-stats:{Vitalite:4,Force:5,Esprit:3,Endurance:2,Discipline:4},
-statXp:{Vitalite:515,Force:700.5,Esprit:457.5,Endurance:287.5,Discipline:550},
-specialQuests:[]
+  totalXp:2510.5, streak:3, lastActiveDay:"2026-04-09",
+  streakBonusDay:"2026-04-09", weeklyBonusWk:"2026-W15",
+  dailyLog:{
+    "2026-04-06":{water:8,push:36,abs:72,sleep:8},
+    "2026-04-07":{water:8,push:36,abs:72,squats:15,reading:11,flex:5,sleep:8,med:6},
+    "2026-04-08":{water:11,push:100,abs:115,squats:35,reading:48,sleep:8,med:6,flex:20},
+    "2026-04-09":{water:2,sleep:8,push:41,abs:64,squats:16}
+  },
+  weeklyLog:{"2026-W15":{run:10}},
+  stats:{Vitalite:4,Force:5,Esprit:3,Endurance:2,Discipline:4},
+  statXp:{Vitalite:515,Force:700.5,Esprit:457.5,Endurance:287.5,Discipline:550},
+  specialQuests:[]
 };
 
-const getRank   = xp => { for(let i=RANKS.length-1;i>=0;i–)if(xp>=RANKS[i].xpRequired)return RANKS[i];return RANKS[0]; };
+const getRank   = xp => { for(let i=RANKS.length-1;i>=0;i--)if(xp>=RANKS[i].xpRequired)return RANKS[i];return RANKS[0]; };
 const getNext   = id => { const i=RANKS.findIndex(r=>r.id===id);return i<RANKS.length-1?RANKS[i+1]:null; };
 const getTarget = (base,ri) => Math.round(base*Math.pow(1.25,ri));
 const todayStr  = () => new Date().toISOString().slice(0,10);
-const wkStr     = (d=new Date()) => { const j=new Date(d.getFullYear(),0,1);return d.getFullYear()+”-W”+Math.ceil(((d-j)/86400000+j.getDay()+1)/7); };
-const sortStat  = arr => […arr].sort((a,b)=>STAT_ORDER.indexOf(a.stat)-STAT_ORDER.indexOf(b.stat));
+const wkStr     = (d=new Date()) => { const j=new Date(d.getFullYear(),0,1);return d.getFullYear()+"-W"+Math.ceil(((d-j)/86400000+j.getDay()+1)/7); };
+const sortStat  = arr => [...arr].sort((a,b)=>STAT_ORDER.indexOf(a.stat)-STAT_ORDER.indexOf(b.stat));
 const xpForLvl  = l => Math.round(100*Math.pow(1.1,l));
 const totForLvl = l => { let t=0;for(let i=0;i<l;i++)t+=xpForLvl(i);return t; };
 const getLvl    = xp => { let l=0;while(xp>=totForLvl(l+1))l++;return l; };
 
 function calcXp(obj,total,ri){
-if(total<=0)return 0;
-if(obj.binary){const t=getTarget(obj.base,ri);return total>=t?(obj.binaryXp||50):0;}
-const t=getTarget(obj.base,ri);
-if(total<=t)return total*obj.xpPer;
-return t*obj.xpPer+(total-t)*obj.xpPer*1.5;
+  if(total<=0)return 0;
+  if(obj.binary){const t=getTarget(obj.base,ri);return total>=t?(obj.binaryXp||50):0;}
+  const t=getTarget(obj.base,ri);
+  if(total<=t)return total*obj.xpPer;
+  return t*obj.xpPer+(total-t)*obj.xpPer*1.5;
 }
 
-const loadState = () => {try{const r=localStorage.getItem(“sl_v3”);return r?JSON.parse(r):null;}catch{return null;}};
-const saveState = s => {try{localStorage.setItem(“sl_v3”,JSON.stringify(s));}catch{}};
+const loadState = () => {try{const r=localStorage.getItem("sl_v3");return r?JSON.parse(r):null;}catch{return null;}};
+const saveState = s => {try{localStorage.setItem("sl_v3",JSON.stringify(s));}catch{}};
 
-function buildFromImported(){ return {…IMPORTED,objectives:DEFS}; }
+function buildFromImported(){ return {...IMPORTED,objectives:DEFS}; }
 function emptyState(){
-return {totalXp:0,streak:0,lastActiveDay:null,streakBonusDay:null,weeklyBonusWk:null,
-objectives:DEFS,dailyLog:{},weeklyLog:{},specialQuests:[],
-stats:{Vitalite:0,Force:0,Esprit:0,Endurance:0,Discipline:0},
-statXp:{Vitalite:0,Force:0,Esprit:0,Endurance:0,Discipline:0}};
+  return {totalXp:0,streak:0,lastActiveDay:null,streakBonusDay:null,weeklyBonusWk:null,
+    objectives:DEFS,dailyLog:{},weeklyLog:{},specialQuests:[],
+    stats:{Vitalite:0,Force:0,Esprit:0,Endurance:0,Discipline:0},
+    statXp:{Vitalite:0,Force:0,Esprit:0,Endurance:0,Discipline:0}};
 }
 
 function migrate(saved){
-const P={push:{icon:E.push,stat:“Force”,xpPer:1},abs:{icon:E.abs,stat:“Force”,xpPer:1},
-squats:{icon:E.squats,stat:“Force”,xpPer:1},water:{icon:E.water,stat:“Vitalite”,xpPer:5},
-reading:{icon:E.reading,stat:“Esprit”,xpPer:5},run:{icon:E.run,stat:“Endurance”,xpPer:25},
-med:{icon:E.med,stat:“Esprit”,xpPer:5},flex:{icon:E.flex,stat:“Vitalite”,xpPer:5}};
-let objs=(saved.objectives||DEFS).map(o=>P[o.id]?{…o,…P[o.id]}:o);
-if(!objs.find(o=>o.id===“sleep”))objs=[…objs,DEFS.find(o=>o.id===“sleep”)];
-objs=objs.map(o=>o.id===“sleep”?{…o,binaryXp:50}:o);
-const fixK=k=>({”\u0056italit\u00e9”:“Vitalite”,“Vitalit\u00e9”:“Vitalite”,“Intelligence”:“Esprit”,“Agilit\u00e9”:”_del”,“Agility”:”_del”}[k]||k);
-const stats={};Object.entries(saved.stats||{}).forEach(([k,v])=>{const nk=fixK(k);if(STATS.includes(nk))stats[nk]=v;});
-STATS.forEach(s=>{if(stats[s]===undefined)stats[s]=0;});
-const statXp={};Object.entries(saved.statXp||{}).forEach(([k,v])=>{const nk=fixK(k);if(STATS.includes(nk))statXp[nk]=v;});
-STATS.forEach(s=>{if(statXp[s]===undefined)statXp[s]=0;});
-return {…saved,objectives:objs,stats,statXp,specialQuests:saved.specialQuests||[]};
+  const P={push:{icon:E.push,stat:"Force",xpPer:1},abs:{icon:E.abs,stat:"Force",xpPer:1},
+    squats:{icon:E.squats,stat:"Force",xpPer:1},water:{icon:E.water,stat:"Vitalite",xpPer:5},
+    reading:{icon:E.reading,stat:"Esprit",xpPer:5},run:{icon:E.run,stat:"Endurance",xpPer:25},
+    med:{icon:E.med,stat:"Esprit",xpPer:5},flex:{icon:E.flex,stat:"Vitalite",xpPer:5}};
+  let objs=(saved.objectives||DEFS).map(o=>P[o.id]?{...o,...P[o.id]}:o);
+  if(!objs.find(o=>o.id==="sleep"))objs=[...objs,DEFS.find(o=>o.id==="sleep")];
+  objs=objs.map(o=>o.id==="sleep"?{...o,binaryXp:50}:o);
+  const fixK=k=>({"\u0056italit\u00e9":"Vitalite","Vitalit\u00e9":"Vitalite","Intelligence":"Esprit","Agilit\u00e9":"_del","Agility":"_del"}[k]||k);
+  const stats={};Object.entries(saved.stats||{}).forEach(([k,v])=>{const nk=fixK(k);if(STATS.includes(nk))stats[nk]=v;});
+  STATS.forEach(s=>{if(stats[s]===undefined)stats[s]=0;});
+  const statXp={};Object.entries(saved.statXp||{}).forEach(([k,v])=>{const nk=fixK(k);if(STATS.includes(nk))statXp[nk]=v;});
+  STATS.forEach(s=>{if(statXp[s]===undefined)statXp[s]=0;});
+  return {...saved,objectives:objs,stats,statXp,specialQuests:saved.specialQuests||[]};
 }
 
 function App(){
-const [state,setState]=useState(()=>{const s=loadState();return s?migrate(s):buildFromImported();});
-const [tab,setTab]=useState(“home”);
-const [showAdd,setShowAdd]=useState(false);
-const [rankUp,setRankUp]=useState(null);
-const [floats,setFloats]=useState([]);
-const inputs=useRef({});
-const [newObj,setNewObj]=useState({name:””,unit:“reps”,xpPer:1,daily:true,weekly:false,optional:false,stat:“Force”,icon:”\u26A1”,base:10});
-const [editObj,setEditObj]=useState(null);
-const [showSet,setShowSet]=useState(false);
-const [confirmReset,setConfirmReset]=useState(false);
-const [confirmDelete,setConfirmDelete]=useState(null);
-const [wkOff,setWkOff]=useState(0);
+  const [state,setState]=useState(()=>{const s=loadState();return s?migrate(s):buildFromImported();});
+  const [tab,setTab]=useState("home");
+  const [showAdd,setShowAdd]=useState(false);
+  const [rankUp,setRankUp]=useState(null);
+  const [floats,setFloats]=useState([]);
+  const inputs=useRef({});
+  const [newObj,setNewObj]=useState({name:"",unit:"reps",xpPer:1,daily:true,weekly:false,optional:false,stat:"Force",icon:"\u26A1",base:10});
+  const [editObj,setEditObj]=useState(null);
+  const [showSet,setShowSet]=useState(false);
+  const [confirmReset,setConfirmReset]=useState(false);
+  const [confirmDelete,setConfirmDelete]=useState(null);
+  const [wkOff,setWkOff]=useState(0);
 
-useEffect(()=>{saveState(state);},[state]);
+  useEffect(()=>{saveState(state);},[state]);
 
-const rank=getRank(state.totalXp);
-useEffect(()=>{
-const r=document.documentElement.style;
-r.setProperty(”–rc”,rank.color);r.setProperty(”–rg”,rank.glow);
-r.setProperty(”–ra”,rank.accent);r.setProperty(”–bg”,rank.bg);
-},[rank.id]);
+  const rank=getRank(state.totalXp);
+  useEffect(()=>{
+    const r=document.documentElement.style;
+    r.setProperty("--rc",rank.color);r.setProperty("--rg",rank.glow);
+    r.setProperty("--ra",rank.accent);r.setProperty("--bg",rank.bg);
+  },[rank.id]);
 
-useEffect(()=>{
-const t=todayStr();
-if(state.lastActiveDay&&state.lastActiveDay!==t){
-const diff=Math.round((new Date(t)-new Date(state.lastActiveDay))/86400000);
-if(diff>=2)setState(s=>({…s,totalXp:Math.max(0,s.totalXp-diff*10),streak:0}));
+  useEffect(()=>{
+    const t=todayStr();
+    if(state.lastActiveDay&&state.lastActiveDay!==t){
+      const diff=Math.round((new Date(t)-new Date(state.lastActiveDay))/86400000);
+      if(diff>=2)setState(s=>({...s,totalXp:Math.max(0,s.totalXp-diff*10),streak:0}));
+    }
+  },[]);
+
+  const today=todayStr(),wk=wkStr();
+  const ri=RANKS.findIndex(r=>r.id===rank.id);
+  const nextRank=getNext(rank.id);
+  const xpInRank=state.totalXp-rank.xpRequired;
+  const xpToNext=nextRank?nextRank.xpRequired-rank.xpRequired:1;
+  const rankPct=nextRank?Math.min(100,(xpInRank/xpToNext)*100):100;
+  const tLog=state.dailyLog[today]||{},wLog=state.weeklyLog[wk]||{};
+  const todayXp=Object.entries(tLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id);return s+(o?calcXp(o,a,ri):0);},0)
+    +Object.entries(wLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id&&x.weekly);return s+(o?calcXp(o,a,ri):0);},0);
+
+  const allDailyReqDone=state.objectives.filter(o=>!o.optional&&o.daily).every(o=>(tLog[o.id]||0)>=getTarget(o.base,ri));
+
+  // Bonus hebdo = quête hebdo atteinte + toutes les journalières complétées 7 jours cette semaine
+  const weeklyReqDone=(()=>{
+    // 1. Quête hebdo atteinte
+    const weeklyOk=state.objectives.filter(o=>!o.optional&&o.weekly).every(o=>(wLog[o.id]||0)>=getTarget(o.base,ri));
+    if(!weeklyOk)return false;
+    // 2. Calculer les jours de la semaine en cours
+    const ws=new Date();ws.setDate(ws.getDate()-((ws.getDay()+6)%7));ws.setHours(0,0,0,0);
+    const weekDays=Array.from({length:7},(_,i)=>{const d=new Date(ws);d.setDate(ws.getDate()+i);return d.toISOString().slice(0,10);});
+    const pastDays=weekDays.filter(d=>d<=today);
+    // 3. Pour chaque quête journalière obligatoire, vérifier qu'elle a été faite chaque jour passé de la semaine
+    const dailyReqObjs=state.objectives.filter(o=>!o.optional&&o.daily);
+    return dailyReqObjs.every(o=>
+      pastDays.every(d=>(state.dailyLog[d]?.[o.id]||0)>=getTarget(o.base,ri))
+    );
+  })();
+  const bonusGiven=state.streakBonusDay===today;
+  const weeklyBonusGiven=state.weeklyBonusWk===wk;
+  const missedDays=(()=>{if(!state.lastActiveDay)return 0;const d=Math.round((new Date(today)-new Date(state.lastActiveDay))/86400000);return d>1?d:0;})();
+
+  // Quête spéciale active
+  const now=Date.now();
+  const sqs=state.specialQuests||[];
+  const activeSq=sqs.find(q=>!q.completedAt&&now<q.expiresAt)||null;
+  const completedSq=sqs.find(q=>q.completedAt&&(now-q.completedAt)<86400000)||null;
+
+  // Auto-launch quête spéciale si aucune active
+  useEffect(()=>{
+    if(!activeSq&&!completedSq){
+      const used=sqs.map(q=>q.id);
+      const tpl=pickRandomSp(used);
+      if(tpl){
+        const sq={...tpl,sqid:"sq_"+Date.now(),progress:0,startedAt:Date.now(),expiresAt:Date.now()+tpl.days*86400000,completedAt:null};
+        setState(s=>({...s,specialQuests:[...s.specialQuests.filter(q=>q.completedAt),sq]}));
+      }
+    }
+  },[activeSq,completedSq]);
+
+  function spawnFloat(txt,e){
+    const id=Date.now()+Math.random(),x=e?e.clientX:200,y=e?e.clientY:300;
+    setFloats(f=>[...f,{id,x,y,txt}]);
+    setTimeout(()=>setFloats(f=>f.filter(p=>p.id!==id)),1300);
+  }
+
+  function addXpFn(amount,stat,e){
+    setState(s=>{
+      const nt=s.totalXp+amount;
+      const sx={...s.statXp,[stat]:(s.statXp[stat]||0)+amount};
+      const st={...s.stats,[stat]:getLvl(sx[stat])};
+      if(getRank(nt).id!==getRank(s.totalXp).id)setTimeout(()=>setRankUp(getRank(nt)),100);
+      return {...s,totalXp:nt,statXp:sx,stats:st,lastActiveDay:todayStr()};
+    });
+    if(e)spawnFloat("+"+Math.round(amount)+"xp",e);
+  }
+
+  useEffect(()=>{
+    if(allDailyReqDone&&!bonusGiven&&state.streak>0){
+      setState(s=>({...s,streakBonusDay:today}));
+      addXpFn(100,"Discipline",null);
+    }
+  },[allDailyReqDone]);
+
+  useEffect(()=>{
+    if(weeklyReqDone&&!weeklyBonusGiven){
+      setState(s=>({...s,weeklyBonusWk:wk}));
+      addXpFn(150,"Discipline",null);
+    }
+  },[weeklyReqDone]);
+
+  function validate(obj,e){
+    const raw=(inputs.current[obj.id]||"").toString().replace(",",".");
+    const val=parseFloat(raw);if(!val||val<=0)return;
+    inputs.current[obj.id]="";
+    const cur=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
+    const tgt=getTarget(obj.base,ri);
+    let xp=0;
+    if(obj.binary){const was=cur>=tgt,now2=(cur+val)>=tgt;xp=(!was&&now2)?(obj.binaryXp||50):0;}
+    else{const nt=cur+val;if(cur>=tgt)xp=val*obj.xpPer*1.5;else if(nt<=tgt)xp=val*obj.xpPer;else{const n=tgt-cur;xp=n*obj.xpPer+(val-n)*obj.xpPer*1.5;}}
+    setState(s=>{
+      if(obj.weekly){const w={...s.weeklyLog};w[wk]={...(w[wk]||{}),[obj.id]:(w[wk]?.[obj.id]||0)+val};return{...s,weeklyLog:w,lastActiveDay:todayStr()};}
+      const d={...s.dailyLog};d[today]={...(d[today]||{}),[obj.id]:(d[today]?.[obj.id]||0)+val};return{...s,dailyLog:d,lastActiveDay:todayStr()};
+    });
+    if(xp>0)addXpFn(xp,obj.stat,e);else if(obj.binary)spawnFloat("0 XP",e);
+  }
+
+  function progressSq(sq,e){
+    const el=document.getElementById("sqi_"+sq.sqid);
+    if(!el)return;
+    const raw=el.value.toString().replace(",",".");
+    const val=parseFloat(raw);if(!val||val<=0)return;
+    el.value="";
+    const newProg=Math.min(sq.target,sq.progress+val);
+    const wasComplete=sq.progress>=sq.target;
+    const nowComplete=newProg>=sq.target;
+    if(!wasComplete){
+      const xpE=Math.round(sq.xp*(Math.min(val,sq.target-sq.progress)/sq.target));
+      if(xpE>0)addXpFn(xpE,sq.stat,e);
+      if(nowComplete)spawnFloat("\uD83C\uDFC6 QUETE SPECIALE !",e);
+    }
+    setState(s=>({...s,specialQuests:s.specialQuests.map(q=>q.sqid===sq.sqid
+      ?{...q,progress:newProg,completedAt:(nowComplete&&!wasComplete)?Date.now():q.completedAt}:q)}));
+  }
+
+  function launchNewSq(){
+    const used=sqs.map(q=>q.id);
+    const tpl=pickRandomSp(used);
+    if(!tpl)return;
+    const sq={...tpl,sqid:"sq_"+Date.now(),progress:0,startedAt:Date.now(),expiresAt:Date.now()+tpl.days*86400000,completedAt:null};
+    setState(s=>({...s,specialQuests:[...s.specialQuests.filter(q=>q.completedAt),sq]}));
+  }
+
+  function fmtCD(ms){
+    const d=Math.floor(ms/86400000),hh=Math.floor((ms%86400000)/3600000),mm=Math.floor((ms%3600000)/60000);
+    if(d>0)return d+"j "+hh+"h";if(hh>0)return hh+"h "+mm+"min";return mm+"min";
+  }
+
+  // ─── QI COMPONENT ──────────────────────────────────────────────────────────
+  function QI({obj}){
+    const t=getTarget(obj.base,ri),d=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
+    const pct=(d/t)*100,over=d>t,done=d>=t;
+    return h("div",{class:"qi "+(done?"done":"")},
+      h("div",{class:"qhdr"},
+        h("div",{class:"qname"},h("span",null,obj.icon)," ",obj.name),
+        h("div",{style:"display:flex;gap:4px"},
+          h("button",{class:"delbtn",onClick:()=>setEditObj({...obj})},"\u270F\uFE0F"),
+          h("button",{class:"delbtn",onClick:()=>setConfirmDelete(obj.id)},"\uD83D\uDDD1")
+        )
+      ),
+      h("div",{class:"qrow"},
+        h("div",{class:"qbar"},h("div",{class:"qfill"+(over?" over":done?" done":""),style:"width:"+Math.min(100,pct)+"%"})),
+        h("div",{class:"qxp"},d+"/"+t+" "+obj.unit)
+      ),
+      h("div",{class:"qinrow"},
+        h("input",{class:"qin",type:"text",inputMode:"decimal",placeholder:"+ "+obj.unit,id:"qi_"+obj.id,
+          onInput:ev=>{inputs.current[obj.id]=ev.target.value;}}),
+        h("button",{class:"qbtn",onClick:e=>{
+          const el=document.getElementById("qi_"+obj.id);
+          if(el)inputs.current[obj.id]=el.value;
+          validate(obj,e);
+          if(el)el.value="";
+        }},"+XP")
+      ),
+      h("div",{style:"font-size:10px;color:var(--td);margin-top:4px;font-family:Orbitron,sans-serif"},
+        obj.binary?"50 xp si \u2265 "+t+" "+obj.unit+" \u00b7 "+(STAT_LABELS[obj.stat]||obj.stat)
+                  :obj.xpPer+" xp/"+obj.unit+" \u00b7 "+(STAT_LABELS[obj.stat]||obj.stat)
+      )
+    );
+  }
+
+  function RR({obj,isW}){
+    const t=getTarget(obj.base,ri),d=isW?(wLog[obj.id]||0):(tLog[obj.id]||0);
+    const pct=Math.min(100,(d/t)*100),done=d>=t,over=d>t;
+    return h("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:8px"},
+      h("span",{style:"font-size:16px"},obj.icon),
+      h("div",{style:"flex:1"},
+        h("div",{style:"font-size:12px;color:"+(over?"#f59e0b":done?"var(--rc)":"var(--tx)")+";margin-bottom:3px;display:flex;justify-content:space-between"},
+          h("span",null,obj.name),h("span",{style:"font-family:Orbitron,sans-serif;font-size:10px"},d+"/"+t+" "+obj.unit)
+        ),
+        h("div",{class:"qbar"},h("div",{class:"qfill"+(over?" over":done?" done":""),style:"width:"+pct+"%;opacity:"+(done||over?1:0.7)}))
+      ),
+      done&&h("span",{style:"font-size:16px"},"✅")
+    );
+  }
+
+  function SqCard({sq,showInput}){
+    const remaining=sq.expiresAt-now;
+    const urgent=remaining<86400000&&!sq.completedAt;
+    const pct=Math.min(100,(sq.progress/sq.target)*100);
+    return h("div",{class:"sqcard"+(urgent?" sq-urgent":"")},
+      h("div",{style:"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"},
+        h("div",{style:"display:flex;align-items:center;gap:8px"},
+          h("span",{style:"font-size:18px"},sq.icon),
+          h("div",null,
+            h("div",{style:"font-size:13px;font-weight:700;color:var(--tx)"},sq.name),
+            h("div",{style:"font-size:10px;color:var(--td);margin-top:1px"},sq.desc)
+          )
+        ),
+        h("div",{style:"text-align:right"},
+          h("div",{style:"font-family:Orbitron,sans-serif;font-size:11px;color:"+(urgent?"#ef4444":"#ef4444bb")},fmtCD(remaining)),
+          h("div",{style:"font-size:9px;color:var(--td)"},"restants")
+        )
+      ),
+      h("div",{class:"sqbar"},h("div",{class:"sqbarfill",style:"width:"+pct+"%"})),
+      h("div",{style:"display:flex;justify-content:space-between;font-size:10px;color:var(--td);margin-bottom:showInput?8:0"},
+        h("span",null,sq.progress+"/"+sq.target+" "+sq.unit),
+        h("span",{style:"color:#ef4444;font-family:Orbitron,sans-serif"},"+"+sq.xp+" XP \u00b7 "+(STAT_LABELS[sq.stat]||sq.stat))
+      ),
+      showInput&&h("div",{class:"qinrow",style:"margin-top:8px"},
+        h("input",{id:"sqi_"+sq.sqid,class:"qin",type:"text",inputMode:"decimal",placeholder:"+ "+sq.unit,style:"border-color:#ef444466",
+          onInput:ev=>{inputs.current["sq_"+sq.sqid]=ev.target.value;}}),
+        h("button",{class:"qbtn",style:"border-color:#ef444466;color:#ef4444",onClick:e=>{
+          const el=document.getElementById("sqi_"+sq.sqid);
+          if(el)inputs.current["sq_"+sq.sqid]=el.value;
+          progressSq(sq,e);
+        }},"+XP")
+      )
+    );
+  }
+
+  // ─── HOME ──────────────────────────────────────────────────────────────────
+  function Home(){
+    const secs=[
+      {lb:"\u2694 Qu\u00eates journali\u00e8res",ob:sortStat(state.objectives.filter(o=>o.daily&&!o.optional)),iw:false},
+      {lb:"\u2728 Qu\u00eates bonus",ob:sortStat(state.objectives.filter(o=>o.daily&&o.optional)),iw:false},
+      {lb:"\uD83D\uDCC5 Qu\u00eates hebdomadaires",ob:sortStat(state.objectives.filter(o=>o.weekly)),iw:true},
+    ];
+    return h("div",{class:"tab"},
+      missedDays>=2&&h("div",{class:"warn"},"\u26A0\uFE0F P\u00e9nalit\u00e9 : -"+(missedDays*10)+" XP ("+missedDays+" jours manqu\u00e9s)"),
+      nextRank&&h("div",{class:"card"},
+        h("div",{style:"display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;margin-bottom:12px"},
+          h("div",{style:"display:flex;align-items:center;gap:10px"},
+            h("div",{style:"font-family:Orbitron,sans-serif;font-size:36px;font-weight:900;color:var(--rc);text-shadow:0 0 20px var(--rg);line-height:1"},rank.id),
+            h("div",null,
+              h("div",{style:"font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:var(--rc)"},rank.label),
+              h("div",{style:"font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-top:2px"},"Rang actuel")
+            )
+          ),
+          h("div",{style:"font-size:18px;color:var(--td);text-align:center"},"\u2192"),
+          h("div",{style:"text-align:right"},
+            h("div",{style:"font-family:Orbitron,sans-serif;font-size:22px;font-weight:700;color:var(--td);line-height:1"},nextRank.id),
+            h("div",{style:"font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-top:2px"},nextRank.label)
+          )
+        ),
+        h("div",{class:"xpbar",style:"height:8px"},h("div",{class:"xpfill",style:"width:"+rankPct+"%"})),
+        h("div",{style:"display:flex;justify-content:space-between;font-size:10px;color:var(--td);margin-top:5px;font-family:Orbitron,sans-serif"},
+          h("span",null,state.totalXp.toFixed(0)+" XP"),
+          h("span",{style:"color:var(--rc)"},(nextRank.xpRequired-state.totalXp).toFixed(0)+" XP manquants")
+        ),
+        h("div",{style:"display:grid;grid-template-columns:1fr 1px 1fr;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)"},
+          h("div",{style:"text-align:center"},
+            h("div",{style:"font-family:Orbitron,sans-serif;font-size:16px;font-weight:700;color:var(--rc)"},"\uD83D\uDD25 "+state.streak),
+            h("div",{style:"font-size:10px;color:var(--td);text-transform:uppercase;letter-spacing:1px;margin-top:2px"},"Streak")
+          ),
+          h("div",{style:"width:1px;height:32px;background:rgba(255,255,255,0.06)"}),
+          h("div",{style:"text-align:center"},
+            h("div",{style:"font-family:Orbitron,sans-serif;font-size:16px;font-weight:700;color:var(--rc)"},todayXp.toFixed(0)),
+            h("div",{style:"font-size:10px;color:var(--td);text-transform:uppercase;letter-spacing:1px;margin-top:2px"},"XP du jour")
+          )
+        )
+      ),
+      bonusGiven&&h("div",{class:"card",style:"border:1px solid #a855f788;background:#a855f708;text-align:center;padding:12px"},
+        h("div",{style:"font-size:11px;color:#c084fc;font-family:Orbitron,sans-serif;letter-spacing:2px;margin-bottom:4px"},"\uD83D\uDC9C BONUS STREAK ACCORD\u00c9"),
+        h("div",{style:"font-size:22px;font-family:Orbitron,sans-serif;font-weight:900;color:#c084fc"},"+100 XP Discipline"),
+        h("div",{style:"font-size:11px;color:#c084fc99;margin-top:4px"},state.streak+" jour"+(state.streak>1?"s":"")+" de streak \u26A1"),
+        weeklyBonusGiven&&h("div",{style:"font-size:11px;color:#c084fc88;margin-top:6px;font-family:Orbitron,sans-serif"},"\uD83D\uDCC5 Bonus hebdo +150 XP accord\u00e9 \u2705")
+      ),
+      activeSq&&h("div",{class:"card",style:"border-color:#ef444444"},
+        h("div",{class:"ctitle",style:"color:#ef4444;margin-bottom:8px"},"\uD83C\uDFC6 Qu\u00eate sp\u00e9ciale"),
+        h(SqCard,{sq:activeSq,showInput:false})
+      ),
+      secs.map(({lb,ob,iw})=>ob.length===0?null:
+        h("div",{key:lb,class:"card"},h("div",{class:"ctitle"},lb),ob.map(o=>h(RR,{key:o.id,obj:o,isW:iw})))
+      )
+    );
+  }
+
+  // ─── QUESTS ────────────────────────────────────────────────────────────────
+  function Quests(){
+    const req=sortStat(state.objectives.filter(o=>o.daily&&!o.optional));
+    const bon=sortStat(state.objectives.filter(o=>o.daily&&o.optional));
+    const wkq=sortStat(state.objectives.filter(o=>o.weekly));
+    return h("div",{class:"tab"},
+      h("div",{class:"card",style:"border-color:#ef444444"},
+        h("div",{class:"shdr"},
+          h("div",null,
+            h("div",{class:"ctitle",style:"margin:0;color:#ef4444"},"\uD83C\uDFC6 Qu\u00eate sp\u00e9ciale"),
+            h("div",{style:"font-size:10px;color:var(--td);margin-top:2px"},"1 d\u00e9fi ponctuel \u00e0 la fois")
+          )
+        ),
+        activeSq&&h(SqCard,{sq:activeSq,showInput:true}),
+        completedSq&&h("div",{class:"sqcard"},
+          h("div",{style:"display:flex;align-items:center;gap:10px"},
+            h("span",{style:"font-size:20px"},completedSq.icon),
+            h("div",{style:"flex:1"},
+              h("div",{style:"font-size:13px;font-weight:700;color:#4ade80"},completedSq.name+" \u2014 COMPL\u00c9T\u00c9 \u2705"),
+              h("div",{style:"font-size:11px;color:var(--td);margin-top:2px"},"+"+completedSq.xp+" XP \u00b7 "+(STAT_LABELS[completedSq.stat]||completedSq.stat))
+            )
+          ),
+          h("button",{class:"addbtn",style:"border-color:#ef444466;color:#ef4444;width:100%;margin-top:10px;text-align:center",onClick:()=>{
+            setState(s=>({...s,specialQuests:s.specialQuests.filter(q=>q.sqid!==completedSq.sqid)}));
+            launchNewSq();
+          }},"\uD83C\uDFB2 Lancer un nouveau d\u00e9fi")
+        ),
+        !activeSq&&!completedSq&&h("div",{style:"font-size:12px;color:var(--td);text-align:center;padding:8px 0"},"Chargement du d\u00e9fi...")
+      ),
+      h("div",{class:"card"},h("div",{class:"shdr"},h("div",{class:"ctitle",style:"margin:0"},"\u2694 Qu\u00eates journali\u00e8res")),req.map(o=>h(QI,{key:o.id,obj:o}))),
+      bon.length>0&&h("div",{class:"card"},h("div",{class:"ctitle"},"\u2728 Qu\u00eates bonus"),bon.map(o=>h(QI,{key:o.id,obj:o}))),
+      wkq.length>0&&h("div",{class:"card"},h("div",{class:"ctitle"},"\uD83D\uDCC5 Qu\u00eates hebdomadaires"),wkq.map(o=>h(QI,{key:o.id,obj:o}))),
+      h("div",{class:"card"},
+        h("div",{class:"shdr"},h("div",{class:"ctitle",style:"margin:0"},"Nouvelle qu\u00eate"),h("button",{class:"addbtn",onClick:()=>setShowAdd(v=>!v)},showAdd?"Fermer":"+ Ajouter")),
+        showAdd&&h("div",{class:"addform"},
+          h("div",{class:"fg"},
+            h("input",{class:"fin ff",placeholder:"Nom",value:newObj.name,onInput:e=>setNewObj(v=>({...v,name:e.target.value}))}),
+            h("input",{class:"fin",placeholder:"Ic\u00f4ne",value:newObj.icon,onInput:e=>setNewObj(v=>({...v,icon:e.target.value}))}),
+            h("input",{class:"fin",placeholder:"Unit\u00e9",value:newObj.unit,onInput:e=>setNewObj(v=>({...v,unit:e.target.value}))}),
+            h("input",{class:"fin",type:"number",placeholder:"XP/unit\u00e9",value:newObj.xpPer,onInput:e=>setNewObj(v=>({...v,xpPer:parseFloat(e.target.value)}))}),
+            h("input",{class:"fin",type:"number",placeholder:"Objectif base",value:newObj.base,onInput:e=>setNewObj(v=>({...v,base:parseInt(e.target.value)}))}),
+            h("select",{class:"fsel",value:newObj.stat,onChange:e=>setNewObj(v=>({...v,stat:e.target.value}))},STATS.map(s=>h("option",{key:s,value:s},STAT_LABELS[s]||s))),
+            h("label",{class:"fck"},h("input",{type:"checkbox",checked:newObj.optional,onChange:e=>setNewObj(v=>({...v,optional:e.target.checked}))}),"Bonus"),
+            h("label",{class:"fck"},h("input",{type:"checkbox",checked:newObj.weekly,onChange:e=>setNewObj(v=>({...v,weekly:e.target.checked,daily:!e.target.checked}))}),"Hebdo")
+          ),
+          h("button",{class:"qbtn",style:"width:100%;margin-top:10px",onClick:()=>{
+            if(!newObj.name)return;
+            setState(s=>({...s,objectives:[...s.objectives,{...newObj,id:"c_"+Date.now()}]}));
+            setNewObj({name:"",unit:"reps",xpPer:1,daily:true,weekly:false,optional:false,stat:"Force",icon:"\u26A1",base:10});
+            setShowAdd(false);
+          }},"Cr\u00e9er la qu\u00eate")
+        )
+      )
+    );
+  }
+
+  // ─── STATS ─────────────────────────────────────────────────────────────────
+  function Stats(){
+    const days=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return d.toISOString().slice(0,10);});
+    const dlbls=days.map(d=>["D","L","M","M","J","V","S"][new Date(d).getDay()]);
+    return h("div",{class:"tab"},
+      h("div",{class:"card"},
+        h("div",{class:"ctitle"},"Chemin vers le rang S"),
+        h("div",{class:"rpath"},RANKS.map((r,i)=>{
+          const reached=state.totalXp>=r.xpRequired,cur=r.id===rank.id;
+          return h(Fragment,{key:r.id},
+            h("div",{class:"rnode"},
+              h("div",{class:"rcirc",style:"border-color:"+(reached?r.color:"#333")+";color:"+(reached?r.color:"#444")+";background:"+(cur?r.color+"22":"transparent")+";box-shadow:"+(cur?"0 0 15px "+r.glow:"none")},r.id),
+              h("div",{class:"rname",style:"color:"+(reached?r.color:"#444")},r.label)
+            ),
+            i<RANKS.length-1&&h("div",{class:"rconn",style:"background:"+(state.totalXp>=RANKS[i+1].xpRequired?r.color:"#222")})
+          );
+        })),
+        nextRank&&h("div",{style:"margin-top:8px"},
+          h("div",{style:"display:flex;justify-content:space-between;font-size:11px;color:var(--td);margin-bottom:4px;font-family:Orbitron,sans-serif"},
+            h("span",null,"Rang "+rank.id+" \u2192 "+nextRank.id),h("span",null,state.totalXp.toFixed(0)+" / "+nextRank.xpRequired+" XP")),
+          h("div",{class:"xpbar"},h("div",{class:"xpfill",style:"width:"+rankPct+"%"}))
+        )
+      ),
+      h("div",{class:"card"},
+        h("div",{class:"ctitle"},"Caract\u00e9ristiques"),
+        STATS.map(s=>{
+          const lvl=state.stats[s]||0,sx=state.statXp[s]||0;
+          const xpIn=sx-totForLvl(lvl),xpNeed=xpForLvl(lvl),pct=Math.min(100,(xpIn/xpNeed)*100);
+          return h("div",{key:s,class:"schr"},
+            h("div",{class:"schn"},h("span",null,STAT_LABELS[s]||s),h("span",{class:"schlvl"},"Niv. "+lvl)),
+            h("div",{class:"schb"},h("div",{class:"schf",style:"width:"+pct+"%;background:linear-gradient(90deg,"+(STAT_COLORS[s]||"#fff")+"88,"+(STAT_COLORS[s]||"#fff")+")"})),
+            h("div",{style:"font-size:9px;color:var(--td);margin-top:2px;font-family:Orbitron,sans-serif"},Math.round(xpIn)+"/"+xpNeed+" XP vers niveau "+(lvl+1))
+          );
+        })
+      ),
+      h("div",{class:"card"},
+        h("div",{class:"ctitle"},"Activit\u00e9 (7 derniers jours)"),
+        h("div",{class:"wgrid"},days.map((d,i)=>{
+          const log=state.dailyLog[d]||{};
+          const xp=Object.entries(log).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id);return s+(o?calcXp(o,a,ri):0);},0);
+          const rgb=rank.color.replace("#","").match(/../g).map(x=>parseInt(x,16)).join(",");
+          const int=xp>100?1:xp>50?.7:xp>10?.4:xp>0?.2:0;
+          return h("div",{key:d,class:"wday"},
+            h("div",{class:"wdlbl"},dlbls[i]),
+            h("div",{class:"wddot",style:"background:"+(int>0?"rgba("+rgb+","+int+")":"rgba(255,255,255,0.04)")+";border:"+(d===today?"1px solid "+rank.color:"1px solid transparent")+";color:"+(xp>0?"var(--rc)":"var(--td)")},
+              xp>0?Math.round(xp):"·")
+          );
+        }))
+      )
+    );
+  }
+
+  // ─── HISTORY ───────────────────────────────────────────────────────────────
+  function History(){
+    function getWS(off){const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7)-off*7);d.setHours(0,0,0,0);return d;}
+    function getWK(ws){const j=new Date(ws.getFullYear(),0,1);return ws.getFullYear()+"-W"+Math.ceil(((ws-j)/86400000+j.getDay()+1)/7);}
+    const ws=getWS(wkOff),wKey=getWK(ws);
+    const dt={};
+    for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);const dk=d.toISOString().slice(0,10);Object.entries(state.dailyLog[dk]||{}).forEach(([id,v])=>{dt[id]=(dt[id]||0)+v;});}
+    const tots={...dt,...(state.weeklyLog[wKey]||{})};
+    const we=new Date(ws);we.setDate(ws.getDate()+6);
+    const fmt=d=>d.getDate().toString().padStart(2,"0")+"/"+(d.getMonth()+1).toString().padStart(2,"0");
+    const lbl=wkOff===0?"Cette semaine":wkOff===1?"Semaine derni\u00e8re":fmt(ws)+" \u2013 "+fmt(we);
+    const ordered=[...sortStat(state.objectives.filter(o=>o.daily&&!o.optional)),...sortStat(state.objectives.filter(o=>o.daily&&o.optional)),...sortStat(state.objectives.filter(o=>o.weekly))];
+    return h("div",{class:"tab"},
+      h("div",{class:"card",style:"padding:12px 16px"},
+        h("div",{style:"display:flex;align-items:center;justify-content:space-between;gap:8px"},
+          h("button",{style:"background:var(--sf2);border:1px solid var(--rc);border-radius:8px;color:var(--rc);font-size:18px;width:40px;height:40px;cursor:pointer;opacity:"+(wkOff>=51?.3:.8),onClick:()=>setWkOff(o=>Math.min(o+1,51))},"\u2039"),
+          h("div",{style:"text-align:center;flex:1"},
+            h("div",{style:"font-family:Orbitron,sans-serif;font-size:12px;color:var(--rc);letter-spacing:1px"},lbl),
+            h("div",{style:"font-size:10px;color:var(--td);margin-top:2px"},fmt(ws)+" \u2013 "+fmt(we))
+          ),
+          h("button",{style:"background:var(--sf2);border:1px solid var(--rc);border-radius:8px;color:var(--rc);font-size:18px;width:40px;height:40px;cursor:pointer;opacity:"+(wkOff===0?.3:.8),onClick:()=>setWkOff(o=>Math.max(o-1,0))},"\u203A")
+        ),
+        wkOff>0&&h("button",{style:"width:100%;margin-top:10px;background:rgba(255,255,255,0.03);border:1px solid var(--rc);border-radius:8px;color:var(--rc);font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:2px;padding:7px;cursor:pointer;text-transform:uppercase",onClick:()=>setWkOff(0)},"Aujourd'hui")
+      ),
+      h("div",{class:"card"},
+        h("div",{class:"ctitle",style:"margin-bottom:12px"},"\uD83D\uDCCA Activit\u00e9 de la semaine"),
+        ordered.map(obj=>{
+          const val=tots[obj.id]||0,wt=obj.weekly?getTarget(obj.base,ri):getTarget(obj.base,ri)*7;
+          const pct=Math.min(100,(val/wt)*100),complete=val>=wt;
+          return h("div",{key:obj.id,style:"margin-bottom:10px"},
+            h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"},
+              h("span",{style:"font-size:13px;display:flex;align-items:center;gap:6px"},
+                h("span",null,obj.icon),
+                h("span",{style:"color:"+(val>0?"var(--tx)":"var(--td)")+";font-weight:"+(val>0?600:400)},obj.name),
+                obj.weekly&&h("span",{style:"font-size:9px;color:#818cf8;font-family:Orbitron,sans-serif;border:1px solid #818cf855;border-radius:4px;padding:1px 4px"},"SEMAINE"),
+                obj.optional&&h("span",{style:"font-size:9px;color:#fbbf24;font-family:Orbitron,sans-serif;border:1px solid #fbbf2455;border-radius:4px;padding:1px 4px"},"BONUS")
+              ),
+              h("span",{style:"font-family:Orbitron,sans-serif;font-size:10px;color:"+(complete?"var(--rc)":val>0?"var(--tx)":"var(--td)")},
+                (val%1===0?val:val.toFixed(1)),h("span",{style:"color:var(--td)"},"/"+wt)," ",obj.unit,complete&&" \u2705"
+              )
+            ),
+            h("div",{class:"qbar",style:"height:5px"},h("div",{class:"qfill",style:"width:"+pct+"%;opacity:"+(val>0?1:0.15)}))
+          );
+        }),
+        ordered.every(o=>!(tots[o.id]>0))&&h("div",{style:"text-align:center;font-size:13px;color:var(--td);padding:16px 0"},"Aucune activit\u00e9 cette semaine")
+      )
+    );
+  }
+
+  // ─── SETTINGS ──────────────────────────────────────────────────────────────
+  function Settings(){
+    if(!showSet)return null;
+    const ordered=[...sortStat(state.objectives.filter(o=>o.daily&&!o.optional)),...sortStat(state.objectives.filter(o=>o.daily&&o.optional)),...sortStat(state.objectives.filter(o=>o.weekly))];
+    function applyEdit(){
+      setState(s=>{
+        let xpD=0;const ndl={...s.dailyLog},nwl={...s.weeklyLog},nsx={...s.statXp};
+        ordered.forEach(obj=>{
+          const el=document.getElementById("cd_"+obj.id);if(!el)return;
+          const nv=parseFloat(el.value.replace(",","."));if(isNaN(nv)||nv<0)return;
+          const ov=obj.weekly?(s.weeklyLog[wk]?.[obj.id]||0):(s.dailyLog[today]?.[obj.id]||0);
+          const oxp=calcXp(obj,ov,ri),nxp=calcXp(obj,nv,ri);
+          xpD+=nxp-oxp;nsx[obj.stat]=Math.max(0,(nsx[obj.stat]||0)+(nxp-oxp));
+          if(obj.weekly)nwl[wk]={...(nwl[wk]||{}),[obj.id]:nv};else ndl[today]={...(ndl[today]||{}),[obj.id]:nv};
+        });
+        const ns={...s.stats};Object.keys(nsx).forEach(st=>{ns[st]=getLvl(nsx[st]);});
+        return {...s,totalXp:Math.max(0,s.totalXp+xpD),dailyLog:ndl,weeklyLog:nwl,statXp:nsx,stats:ns};
+      });
+      setShowSet(false);
+    }
+    return h("div",{class:"modal-ov",onClick:e=>{if(e.target===e.currentTarget){setShowSet(false);setConfirmReset(false);}}},
+      h("div",{class:"modal"},
+        h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"},
+          h("div",{class:"mtitle",style:"margin-bottom:0"},"\u2699 R\u00e9glages"),
+          h("button",{style:"background:none;border:none;color:var(--td);font-size:22px;cursor:pointer;line-height:1;padding:0 4px",onClick:()=>{setShowSet(false);setConfirmReset(false);}},"\u2715")
+        ),
+        h("div",{class:"msec"},
+          h("div",{class:"mlbl"},"\uD83D\uDCDD Corriger les donn\u00e9es du jour"),
+          h("div",{style:"font-size:11px;color:var(--td);margin-bottom:10px;line-height:1.5"},"Modifie les valeurs si tu t'es tromp\u00e9. L'XP sera recalcul\u00e9."),
+          ordered.map(obj=>{
+            const cur=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
+            return h("div",{key:obj.id,style:"display:flex;align-items:center;gap:10px;margin-bottom:8px"},
+              h("span",{style:"font-size:16px;min-width:24px"},obj.icon),
+              h("span",{style:"flex:1;font-size:13px"},obj.name),
+              h("input",{id:"cd_"+obj.id,class:"min",type:"text",inputMode:"decimal",defaultValue:String(cur),style:"width:80px;margin:0;text-align:center"}),
+              h("span",{style:"font-size:11px;color:var(--td);min-width:28px"},obj.unit)
+            );
+          }),
+          h("button",{class:"mbtn mprim",style:"width:100%;margin-top:8px",onClick:applyEdit},"\u2705 Appliquer")
+        ),
+        h("div",{class:"divider"}),
+        h("div",{class:"msec"},
+          h("div",{class:"mlbl"},"\uD83D\uDCBE Sauvegarde / Restauration"),
+          h("div",{class:"mrow",style:"margin-bottom:8px"},
+            h("button",{class:"mbtn mprim",style:"flex:1",onClick:()=>{
+              const json=JSON.stringify(state);
+              navigator.clipboard.writeText(json).then(()=>alert("\u2705 Donn\u00e9es copi\u00e9es !")).catch(()=>window.prompt("Copie ce texte :",json));
+            }},"\uD83D\uDCCB Exporter"),
+            h("button",{class:"mbtn mprim",style:"flex:1",onClick:()=>{
+              const json=window.prompt("Colle tes donn\u00e9es ici :");
+              if(!json)return;
+              try{setState(JSON.parse(json));alert("\u2705 Restaur\u00e9 !");setShowSet(false);}catch{alert("\u274C Donn\u00e9es invalides.");}
+            }},"\uD83D\uDCE5 Importer")
+          )
+        ),
+        h("div",{class:"divider"}),
+        h("div",{class:"msec"},
+          h("div",{class:"mlbl"},"\uD83D\uDD04 Restaurer les donn\u00e9es sauvegard\u00e9es"),
+          h("button",{class:"mbtn",style:"width:100%;background:#16a34a22;border:1px solid #16a34a88;color:#4ade80",onClick:()=>{localStorage.removeItem("sl_v3");setState(buildFromImported());setShowSet(false);}},"\u21A9 Restaurer les donn\u00e9es")
+        ),
+        h("div",{class:"divider"}),
+        h("div",{class:"msec"},
+          h("div",{class:"mlbl"},"\u2620 Zone dangereuse"),
+          !confirmReset
+            ?h("button",{class:"mbtn mdng",style:"width:100%",onClick:()=>setConfirmReset(true)},"R\u00e9initialiser toutes les donn\u00e9es")
+            :h("div",{class:"modal-ov",style:"align-items:center;position:fixed",onClick:e=>{if(e.target===e.currentTarget)setConfirmReset(false);}},
+                h("div",{class:"modal",style:"border-radius:12px;max-width:320px;width:90%"},
+                  h("div",{class:"mtitle"},"\u2620 R\u00e9initialisation"),
+                  h("div",{style:"font-size:13px;color:#ef4444;margin-bottom:16px;text-align:center;line-height:1.5"},"\u26A0\uFE0F Action ",h("strong",null,"irr\u00e9versible"),".",h("br"),"Toute ta progression sera perdue."),
+                  h("div",{class:"mrow"},
+                    h("button",{class:"mbtn mdng",style:"flex:1",onClick:()=>{localStorage.removeItem("sl_v3");setState(emptyState());setConfirmReset(false);setShowSet(false);}},"\u2705 Confirmer"),
+                    h("button",{class:"mbtn mcan",style:"flex:1",onClick:()=>setConfirmReset(false)},"Annuler")
+                  )
+                )
+              )
+        )
+      )
+    );
+  }
+
+  // ─── EDIT MODAL ────────────────────────────────────────────────────────────
+  function EditModal(){
+    if(!editObj)return null;
+    const id="em_"+editObj.id;
+    function save(){
+      const get=f=>{const el=document.getElementById(id+"_"+f);return el?el.value:null;};
+      const name=get("name")||editObj.name,icon=get("icon")||editObj.icon,unit=get("unit")||editObj.unit;
+      const xpPer=parseFloat(get("xper"))||editObj.xpPer,base=parseInt(get("base"))||editObj.base;
+      const optional=document.getElementById(id+"_opt")?.checked??editObj.optional;
+      const weekly=document.getElementById(id+"_wkly")?.checked??editObj.weekly;
+      const stat=document.getElementById(id+"_stat")?.value||editObj.stat;
+      setState(s=>({...s,objectives:s.objectives.map(o=>o.id===editObj.id?{...o,name,icon,unit,xpPer,base,optional,weekly,daily:!weekly,stat}:o)}));
+      setEditObj(null);
+    }
+    return h("div",{class:"modal-ov",onClick:e=>{if(e.target===e.currentTarget)setEditObj(null);}},
+      h("div",{class:"modal"},
+        h("div",{class:"mtitle"},"\u270F\uFE0F Modifier la qu\u00eate"),
+        h("div",{class:"fg",style:"display:grid;grid-template-columns:1fr 1fr;gap:8px"},
+          h("input",{id:id+"_name",class:"fin ff",placeholder:"Nom",defaultValue:editObj.name}),
+          h("input",{id:id+"_icon",class:"fin",placeholder:"Ic\u00f4ne",defaultValue:editObj.icon}),
+          h("input",{id:id+"_unit",class:"fin",placeholder:"Unit\u00e9",defaultValue:editObj.unit}),
+          h("input",{id:id+"_xper",class:"fin",type:"text",inputMode:"decimal",placeholder:"XP/unit\u00e9",defaultValue:editObj.xpPer}),
+          h("input",{id:id+"_base",class:"fin",type:"text",inputMode:"decimal",placeholder:"Objectif base",defaultValue:editObj.base}),
+          h("select",{id:id+"_stat",class:"fsel ff"},STATS.map(s=>h("option",{key:s,value:s,selected:s===editObj.stat},STAT_LABELS[s]||s))),
+          h("label",{class:"fck",style:"font-size:13px"},h("input",{id:id+"_opt",type:"checkbox",defaultChecked:editObj.optional}),"Bonus"),
+          h("label",{class:"fck",style:"font-size:13px"},h("input",{id:id+"_wkly",type:"checkbox",defaultChecked:editObj.weekly}),"Hebdo")
+        ),
+        h("div",{class:"mrow",style:"margin-top:16px"},
+          h("button",{class:"mbtn mprim",style:"flex:2",onClick:save},"\u2705 Sauvegarder"),
+          h("button",{class:"mbtn mcan",style:"flex:1",onClick:()=>setEditObj(null)},"Annuler")
+        )
+      )
+    );
+  }
+
+  // ─── RANK UP ───────────────────────────────────────────────────────────────
+  function RankUp(){
+    if(!rankUp)return null;
+    const lines=Array.from({length:12},(_,i)=>({t:Math.random()*100+"%",l:Math.random()*100+"%",a:(Math.random()-.5)*40+"deg",d:Math.random()*1.5+"s"}));
+    return h("div",{class:"ruov",style:"--rc:"+rankUp.color+";--rg:"+rankUp.glow},
+      h("div",{class:"rulines"},lines.map((l,i)=>h("div",{key:i,class:"ruline",style:"top:"+l.t+";left:"+l.l+";--ang:"+l.a+";animation-delay:"+l.d}))),
+      h("div",{class:"rucont"},
+        h("div",{class:"rutitle"},"Rang atteint"),
+        h("div",{class:"rurank"},rankUp.id),
+        h("div",{class:"rulabel"},rankUp.label),
+        h("button",{class:"rudis",onClick:()=>setRankUp(null)},"Continuer")
+      )
+    );
+  }
+
+  const parts=Array.from({length:15},(_,i)=>({id:i,s:Math.random()*3+1,l:Math.random()*100,dur:Math.random()*10+8,del:Math.random()*10}));
+
+  return h(Fragment,null,
+    h("div",{id:"app"},
+      h("div",{class:"particles"},parts.map(p=>h("div",{key:p.id,class:"particle",style:"width:"+p.s+"px;height:"+p.s+"px;left:"+p.l+"%;bottom:-10px;background:"+rank.color+";box-shadow:0 0 4px "+rank.glow+";animation-duration:"+p.dur+"s;animation-delay:"+p.del+"s"}))),
+      h("div",{class:"hdr"},
+        h("div",{class:"hdr-top"},
+          h("div",null,h("div",{class:"pname"},"VAL")),
+          h("button",{class:"gbtn",onClick:()=>setShowSet(true)},"\u2699")
+        )
+      ),
+      tab==="home"&&h(Home,null),
+      tab==="quests"&&h(Quests,null),
+      tab==="stats"&&h(Stats,null),
+      tab==="history"&&h(History,null),
+      h("nav",{class:"nav"},
+        [["home","\uD83C\uDFE0","Accueil"],["quests","\u2694","Qu\u00eates"],["stats","\uD83D\uDCCA","Stats"],["history","\uD83D\uDCC5","Historique"]].map(([id,icon,lbl])=>
+          h("button",{key:id,class:"nbtn "+(tab===id?"on":""),onClick:()=>setTab(id)},h("span",{class:"nicon"},icon),lbl)
+        )
+      ),
+      floats.map(f=>h("div",{key:f.id,class:"xpfloat",style:"left:"+f.x+"px;top:"+f.y+"px"},f.txt)),
+      h(EditModal,null),
+      h(Settings,null),
+      h(RankUp,null),
+      confirmDelete&&h("div",{class:"modal-ov",style:"align-items:center",onClick:()=>setConfirmDelete(null)},
+        h("div",{class:"modal",style:"border-radius:12px;max-width:320px;width:90%"},
+          h("div",{class:"mtitle"},"\uD83D\uDDD1 Supprimer la qu\u00eate"),
+          h("div",{style:"background:#ef444411;border:1px solid #ef444466;border-radius:8px;padding:12px;margin-bottom:16px"},
+            h("div",{style:"font-size:13px;color:#ef4444;text-align:center;line-height:1.5"},
+              "\u26A0\uFE0F Supprimer ",h("strong",null,state.objectives.find(o=>o.id===confirmDelete)?.name||"cette qu\u00eate")," ?",
+              h("br"),"Cette action est irr\u00e9versible."
+            )
+          ),
+          h("div",{class:"mrow"},
+            h("button",{class:"mbtn mdng",style:"flex:1",onClick:()=>{setState(s=>({...s,objectives:s.objectives.filter(o=>o.id!==confirmDelete)}));setConfirmDelete(null);}},"\u2705 Confirmer"),
+            h("button",{class:"mbtn mcan",style:"flex:1",onClick:()=>setConfirmDelete(null)},"Annuler")
+          )
+        )
+      )
+    )
+  );
 }
-},[]);
 
-const today=todayStr(),wk=wkStr();
-const ri=RANKS.findIndex(r=>r.id===rank.id);
-const nextRank=getNext(rank.id);
-const xpInRank=state.totalXp-rank.xpRequired;
-const xpToNext=nextRank?nextRank.xpRequired-rank.xpRequired:1;
-const rankPct=nextRank?Math.min(100,(xpInRank/xpToNext)*100):100;
-const tLog=state.dailyLog[today]||{},wLog=state.weeklyLog[wk]||{};
-const todayXp=Object.entries(tLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id);return s+(o?calcXp(o,a,ri):0);},0)
-+Object.entries(wLog).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id&&x.weekly);return s+(o?calcXp(o,a,ri):0);},0);
-
-const allDailyReqDone=state.objectives.filter(o=>!o.optional&&o.daily).every(o=>(tLog[o.id]||0)>=getTarget(o.base,ri));
-
-// Bonus hebdo = quête hebdo atteinte + toutes les journalières complétées 7 jours cette semaine
-const weeklyReqDone=(()=>{
-// 1. Quête hebdo atteinte
-const weeklyOk=state.objectives.filter(o=>!o.optional&&o.weekly).every(o=>(wLog[o.id]||0)>=getTarget(o.base,ri));
-if(!weeklyOk)return false;
-// 2. Calculer les jours de la semaine en cours
-const ws=new Date();ws.setDate(ws.getDate()-((ws.getDay()+6)%7));ws.setHours(0,0,0,0);
-const weekDays=Array.from({length:7},(_,i)=>{const d=new Date(ws);d.setDate(ws.getDate()+i);return d.toISOString().slice(0,10);});
-const pastDays=weekDays.filter(d=>d<=today);
-// 3. Pour chaque quête journalière obligatoire, vérifier qu’elle a été faite chaque jour passé de la semaine
-const dailyReqObjs=state.objectives.filter(o=>!o.optional&&o.daily);
-return dailyReqObjs.every(o=>
-pastDays.every(d=>(state.dailyLog[d]?.[o.id]||0)>=getTarget(o.base,ri))
-);
-})();
-const bonusGiven=state.streakBonusDay===today;
-const weeklyBonusGiven=state.weeklyBonusWk===wk;
-const missedDays=(()=>{if(!state.lastActiveDay)return 0;const d=Math.round((new Date(today)-new Date(state.lastActiveDay))/86400000);return d>1?d:0;})();
-
-// Quête spéciale active
-const now=Date.now();
-const sqs=state.specialQuests||[];
-const activeSq=sqs.find(q=>!q.completedAt&&now<q.expiresAt)||null;
-const completedSq=sqs.find(q=>q.completedAt&&(now-q.completedAt)<86400000)||null;
-
-// Auto-launch quête spéciale si aucune active
-useEffect(()=>{
-if(!activeSq&&!completedSq){
-const used=sqs.map(q=>q.id);
-const tpl=pickRandomSp(used);
-if(tpl){
-const sq={…tpl,sqid:“sq_”+Date.now(),progress:0,startedAt:Date.now(),expiresAt:Date.now()+tpl.days*86400000,completedAt:null};
-setState(s=>({…s,specialQuests:[…s.specialQuests.filter(q=>q.completedAt),sq]}));
-}
-}
-},[activeSq,completedSq]);
-
-function spawnFloat(txt,e){
-const id=Date.now()+Math.random(),x=e?e.clientX:200,y=e?e.clientY:300;
-setFloats(f=>[…f,{id,x,y,txt}]);
-setTimeout(()=>setFloats(f=>f.filter(p=>p.id!==id)),1300);
-}
-
-function addXpFn(amount,stat,e){
-setState(s=>{
-const nt=s.totalXp+amount;
-const sx={…s.statXp,[stat]:(s.statXp[stat]||0)+amount};
-const st={…s.stats,[stat]:getLvl(sx[stat])};
-if(getRank(nt).id!==getRank(s.totalXp).id)setTimeout(()=>setRankUp(getRank(nt)),100);
-return {…s,totalXp:nt,statXp:sx,stats:st,lastActiveDay:todayStr()};
-});
-if(e)spawnFloat(”+”+Math.round(amount)+“xp”,e);
-}
-
-useEffect(()=>{
-if(allDailyReqDone&&!bonusGiven&&state.streak>0){
-setState(s=>({…s,streakBonusDay:today}));
-addXpFn(100,“Discipline”,null);
-}
-},[allDailyReqDone]);
-
-useEffect(()=>{
-if(weeklyReqDone&&!weeklyBonusGiven){
-setState(s=>({…s,weeklyBonusWk:wk}));
-addXpFn(150,“Discipline”,null);
-}
-},[weeklyReqDone]);
-
-function validate(obj,e){
-const raw=(inputs.current[obj.id]||””).toString().replace(”,”,”.”);
-const val=parseFloat(raw);if(!val||val<=0)return;
-inputs.current[obj.id]=””;
-const cur=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
-const tgt=getTarget(obj.base,ri);
-let xp=0;
-if(obj.binary){const was=cur>=tgt,now2=(cur+val)>=tgt;xp=(!was&&now2)?(obj.binaryXp||50):0;}
-else{const nt=cur+val;if(cur>=tgt)xp=val*obj.xpPer*1.5;else if(nt<=tgt)xp=val*obj.xpPer;else{const n=tgt-cur;xp=n*obj.xpPer+(val-n)*obj.xpPer*1.5;}}
-setState(s=>{
-if(obj.weekly){const w={…s.weeklyLog};w[wk]={…(w[wk]||{}),[obj.id]:(w[wk]?.[obj.id]||0)+val};return{…s,weeklyLog:w,lastActiveDay:todayStr()};}
-const d={…s.dailyLog};d[today]={…(d[today]||{}),[obj.id]:(d[today]?.[obj.id]||0)+val};return{…s,dailyLog:d,lastActiveDay:todayStr()};
-});
-if(xp>0)addXpFn(xp,obj.stat,e);else if(obj.binary)spawnFloat(“0 XP”,e);
-}
-
-function progressSq(sq,e){
-const el=document.getElementById(“sqi_”+sq.sqid);
-if(!el)return;
-const raw=el.value.toString().replace(”,”,”.”);
-const val=parseFloat(raw);if(!val||val<=0)return;
-el.value=””;
-const newProg=Math.min(sq.target,sq.progress+val);
-const wasComplete=sq.progress>=sq.target;
-const nowComplete=newProg>=sq.target;
-if(!wasComplete){
-const xpE=Math.round(sq.xp*(Math.min(val,sq.target-sq.progress)/sq.target));
-if(xpE>0)addXpFn(xpE,sq.stat,e);
-if(nowComplete)spawnFloat(”\uD83C\uDFC6 QUETE SPECIALE !”,e);
-}
-setState(s=>({…s,specialQuests:s.specialQuests.map(q=>q.sqid===sq.sqid
-?{…q,progress:newProg,completedAt:(nowComplete&&!wasComplete)?Date.now():q.completedAt}:q)}));
-}
-
-function launchNewSq(){
-const used=sqs.map(q=>q.id);
-const tpl=pickRandomSp(used);
-if(!tpl)return;
-const sq={…tpl,sqid:“sq_”+Date.now(),progress:0,startedAt:Date.now(),expiresAt:Date.now()+tpl.days*86400000,completedAt:null};
-setState(s=>({…s,specialQuests:[…s.specialQuests.filter(q=>q.completedAt),sq]}));
-}
-
-function fmtCD(ms){
-const d=Math.floor(ms/86400000),hh=Math.floor((ms%86400000)/3600000),mm=Math.floor((ms%3600000)/60000);
-if(d>0)return d+“j “+hh+“h”;if(hh>0)return hh+“h “+mm+“min”;return mm+“min”;
-}
-
-// ─── QI COMPONENT ──────────────────────────────────────────────────────────
-function QI({obj}){
-const t=getTarget(obj.base,ri),d=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
-const pct=(d/t)*100,over=d>t,done=d>=t;
-return h(“div”,{class:“qi “+(done?“done”:””)},
-h(“div”,{class:“qhdr”},
-h(“div”,{class:“qname”},h(“span”,null,obj.icon),” “,obj.name),
-h(“div”,{style:“display:flex;gap:4px”},
-h(“button”,{class:“delbtn”,onClick:()=>setEditObj({…obj})},”\u270F\uFE0F”),
-h(“button”,{class:“delbtn”,onClick:()=>setConfirmDelete(obj.id)},”\uD83D\uDDD1”)
-)
-),
-h(“div”,{class:“qrow”},
-h(“div”,{class:“qbar”},h(“div”,{class:“qfill”+(over?” over”:done?” done”:””),style:“width:”+Math.min(100,pct)+”%”})),
-h(“div”,{class:“qxp”},d+”/”+t+” “+obj.unit)
-),
-h(“div”,{class:“qinrow”},
-h(“input”,{class:“qin”,type:“text”,inputMode:“decimal”,placeholder:”+ “+obj.unit,id:“qi_”+obj.id,
-onInput:ev=>{inputs.current[obj.id]=ev.target.value;}}),
-h(“button”,{class:“qbtn”,onClick:e=>{
-const el=document.getElementById(“qi_”+obj.id);
-if(el)inputs.current[obj.id]=el.value;
-validate(obj,e);
-if(el)el.value=””;
-}},”+XP”)
-),
-h(“div”,{style:“font-size:10px;color:var(–td);margin-top:4px;font-family:Orbitron,sans-serif”},
-obj.binary?“50 xp si \u2265 “+t+” “+obj.unit+” \u00b7 “+(STAT_LABELS[obj.stat]||obj.stat)
-:obj.xpPer+” xp/”+obj.unit+” \u00b7 “+(STAT_LABELS[obj.stat]||obj.stat)
-)
-);
-}
-
-function RR({obj,isW}){
-const t=getTarget(obj.base,ri),d=isW?(wLog[obj.id]||0):(tLog[obj.id]||0);
-const pct=Math.min(100,(d/t)*100),done=d>=t,over=d>t;
-return h(“div”,{style:“display:flex;align-items:center;gap:10px;margin-bottom:8px”},
-h(“span”,{style:“font-size:16px”},obj.icon),
-h(“div”,{style:“flex:1”},
-h(“div”,{style:“font-size:12px;color:”+(over?”#f59e0b”:done?“var(–rc)”:“var(–tx)”)+”;margin-bottom:3px;display:flex;justify-content:space-between”},
-h(“span”,null,obj.name),h(“span”,{style:“font-family:Orbitron,sans-serif;font-size:10px”},d+”/”+t+” “+obj.unit)
-),
-h(“div”,{class:“qbar”},h(“div”,{class:“qfill”+(over?” over”:done?” done”:””),style:“width:”+pct+”%;opacity:”+(done||over?1:0.7)}))
-),
-done&&h(“span”,{style:“font-size:16px”},“✅”)
-);
-}
-
-function SqCard({sq,showInput}){
-const remaining=sq.expiresAt-now;
-const urgent=remaining<86400000&&!sq.completedAt;
-const pct=Math.min(100,(sq.progress/sq.target)*100);
-return h(“div”,{class:“sqcard”+(urgent?” sq-urgent”:””)},
-h(“div”,{style:“display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px”},
-h(“div”,{style:“display:flex;align-items:center;gap:8px”},
-h(“span”,{style:“font-size:18px”},sq.icon),
-h(“div”,null,
-h(“div”,{style:“font-size:13px;font-weight:700;color:var(–tx)”},sq.name),
-h(“div”,{style:“font-size:10px;color:var(–td);margin-top:1px”},sq.desc)
-)
-),
-h(“div”,{style:“text-align:right”},
-h(“div”,{style:“font-family:Orbitron,sans-serif;font-size:11px;color:”+(urgent?”#ef4444”:”#ef4444bb”)},fmtCD(remaining)),
-h(“div”,{style:“font-size:9px;color:var(–td)”},“restants”)
-)
-),
-h(“div”,{class:“sqbar”},h(“div”,{class:“sqbarfill”,style:“width:”+pct+”%”})),
-h(“div”,{style:“display:flex;justify-content:space-between;font-size:10px;color:var(–td);margin-bottom:showInput?8:0”},
-h(“span”,null,sq.progress+”/”+sq.target+” “+sq.unit),
-h(“span”,{style:“color:#ef4444;font-family:Orbitron,sans-serif”},”+”+sq.xp+” XP \u00b7 “+(STAT_LABELS[sq.stat]||sq.stat))
-),
-showInput&&h(“div”,{class:“qinrow”,style:“margin-top:8px”},
-h(“input”,{id:“sqi_”+sq.sqid,class:“qin”,type:“text”,inputMode:“decimal”,placeholder:”+ “+sq.unit,style:“border-color:#ef444466”,
-onInput:ev=>{inputs.current[“sq_”+sq.sqid]=ev.target.value;}}),
-h(“button”,{class:“qbtn”,style:“border-color:#ef444466;color:#ef4444”,onClick:e=>{
-const el=document.getElementById(“sqi_”+sq.sqid);
-if(el)inputs.current[“sq_”+sq.sqid]=el.value;
-progressSq(sq,e);
-}},”+XP”)
-)
-);
-}
-
-// ─── HOME ──────────────────────────────────────────────────────────────────
-function Home(){
-const secs=[
-{lb:”\u2694 Qu\u00eates journali\u00e8res”,ob:sortStat(state.objectives.filter(o=>o.daily&&!o.optional)),iw:false},
-{lb:”\u2728 Qu\u00eates bonus”,ob:sortStat(state.objectives.filter(o=>o.daily&&o.optional)),iw:false},
-{lb:”\uD83D\uDCC5 Qu\u00eates hebdomadaires”,ob:sortStat(state.objectives.filter(o=>o.weekly)),iw:true},
-];
-return h(“div”,{class:“tab”},
-missedDays>=2&&h(“div”,{class:“warn”},”\u26A0\uFE0F P\u00e9nalit\u00e9 : -”+(missedDays*10)+” XP (”+missedDays+” jours manqu\u00e9s)”),
-nextRank&&h(“div”,{class:“card”},
-h(“div”,{style:“display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;margin-bottom:12px”},
-h(“div”,{style:“display:flex;align-items:center;gap:10px”},
-h(“div”,{style:“font-family:Orbitron,sans-serif;font-size:36px;font-weight:900;color:var(–rc);text-shadow:0 0 20px var(–rg);line-height:1”},rank.id),
-h(“div”,null,
-h(“div”,{style:“font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:var(–rc)”},rank.label),
-h(“div”,{style:“font-size:10px;color:var(–td);letter-spacing:1px;text-transform:uppercase;margin-top:2px”},“Rang actuel”)
-)
-),
-h(“div”,{style:“font-size:18px;color:var(–td);text-align:center”},”\u2192”),
-h(“div”,{style:“text-align:right”},
-h(“div”,{style:“font-family:Orbitron,sans-serif;font-size:22px;font-weight:700;color:var(–td);line-height:1”},nextRank.id),
-h(“div”,{style:“font-size:10px;color:var(–td);letter-spacing:1px;text-transform:uppercase;margin-top:2px”},nextRank.label)
-)
-),
-h(“div”,{class:“xpbar”,style:“height:8px”},h(“div”,{class:“xpfill”,style:“width:”+rankPct+”%”})),
-h(“div”,{style:“display:flex;justify-content:space-between;font-size:10px;color:var(–td);margin-top:5px;font-family:Orbitron,sans-serif”},
-h(“span”,null,state.totalXp.toFixed(0)+” XP”),
-h(“span”,{style:“color:var(–rc)”},(nextRank.xpRequired-state.totalXp).toFixed(0)+” XP manquants”)
-),
-h(“div”,{style:“display:grid;grid-template-columns:1fr 1px 1fr;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)”},
-h(“div”,{style:“text-align:center”},
-h(“div”,{style:“font-family:Orbitron,sans-serif;font-size:16px;font-weight:700;color:var(–rc)”},”\uD83D\uDD25 “+state.streak),
-h(“div”,{style:“font-size:10px;color:var(–td);text-transform:uppercase;letter-spacing:1px;margin-top:2px”},“Streak”)
-),
-h(“div”,{style:“width:1px;height:32px;background:rgba(255,255,255,0.06)”}),
-h(“div”,{style:“text-align:center”},
-h(“div”,{style:“font-family:Orbitron,sans-serif;font-size:16px;font-weight:700;color:var(–rc)”},todayXp.toFixed(0)),
-h(“div”,{style:“font-size:10px;color:var(–td);text-transform:uppercase;letter-spacing:1px;margin-top:2px”},“XP du jour”)
-)
-)
-),
-bonusGiven&&h(“div”,{class:“card”,style:“border:1px solid #a855f788;background:#a855f708;text-align:center;padding:12px”},
-h(“div”,{style:“font-size:11px;color:#c084fc;font-family:Orbitron,sans-serif;letter-spacing:2px;margin-bottom:4px”},”\uD83D\uDC9C BONUS STREAK ACCORD\u00c9”),
-h(“div”,{style:“font-size:22px;font-family:Orbitron,sans-serif;font-weight:900;color:#c084fc”},”+100 XP Discipline”),
-h(“div”,{style:“font-size:11px;color:#c084fc99;margin-top:4px”},state.streak+” jour”+(state.streak>1?“s”:””)+” de streak \u26A1”),
-weeklyBonusGiven&&h(“div”,{style:“font-size:11px;color:#c084fc88;margin-top:6px;font-family:Orbitron,sans-serif”},”\uD83D\uDCC5 Bonus hebdo +150 XP accord\u00e9 \u2705”)
-),
-activeSq&&h(“div”,{class:“card”,style:“border-color:#ef444444”},
-h(“div”,{class:“ctitle”,style:“color:#ef4444;margin-bottom:8px”},”\uD83C\uDFC6 Qu\u00eate sp\u00e9ciale”),
-h(SqCard,{sq:activeSq,showInput:false})
-),
-secs.map(({lb,ob,iw})=>ob.length===0?null:
-h(“div”,{key:lb,class:“card”},h(“div”,{class:“ctitle”},lb),ob.map(o=>h(RR,{key:o.id,obj:o,isW:iw})))
-)
-);
-}
-
-// ─── QUESTS ────────────────────────────────────────────────────────────────
-function Quests(){
-const req=sortStat(state.objectives.filter(o=>o.daily&&!o.optional));
-const bon=sortStat(state.objectives.filter(o=>o.daily&&o.optional));
-const wkq=sortStat(state.objectives.filter(o=>o.weekly));
-return h(“div”,{class:“tab”},
-h(“div”,{class:“card”,style:“border-color:#ef444444”},
-h(“div”,{class:“shdr”},
-h(“div”,null,
-h(“div”,{class:“ctitle”,style:“margin:0;color:#ef4444”},”\uD83C\uDFC6 Qu\u00eate sp\u00e9ciale”),
-h(“div”,{style:“font-size:10px;color:var(–td);margin-top:2px”},“1 d\u00e9fi ponctuel \u00e0 la fois”)
-)
-),
-activeSq&&h(SqCard,{sq:activeSq,showInput:true}),
-completedSq&&h(“div”,{class:“sqcard”},
-h(“div”,{style:“display:flex;align-items:center;gap:10px”},
-h(“span”,{style:“font-size:20px”},completedSq.icon),
-h(“div”,{style:“flex:1”},
-h(“div”,{style:“font-size:13px;font-weight:700;color:#4ade80”},completedSq.name+” \u2014 COMPL\u00c9T\u00c9 \u2705”),
-h(“div”,{style:“font-size:11px;color:var(–td);margin-top:2px”},”+”+completedSq.xp+” XP \u00b7 “+(STAT_LABELS[completedSq.stat]||completedSq.stat))
-)
-),
-h(“button”,{class:“addbtn”,style:“border-color:#ef444466;color:#ef4444;width:100%;margin-top:10px;text-align:center”,onClick:()=>{
-setState(s=>({…s,specialQuests:s.specialQuests.filter(q=>q.sqid!==completedSq.sqid)}));
-launchNewSq();
-}},”\uD83C\uDFB2 Lancer un nouveau d\u00e9fi”)
-),
-!activeSq&&!completedSq&&h(“div”,{style:“font-size:12px;color:var(–td);text-align:center;padding:8px 0”},“Chargement du d\u00e9fi…”)
-),
-h(“div”,{class:“card”},h(“div”,{class:“shdr”},h(“div”,{class:“ctitle”,style:“margin:0”},”\u2694 Qu\u00eates journali\u00e8res”)),req.map(o=>h(QI,{key:o.id,obj:o}))),
-bon.length>0&&h(“div”,{class:“card”},h(“div”,{class:“ctitle”},”\u2728 Qu\u00eates bonus”),bon.map(o=>h(QI,{key:o.id,obj:o}))),
-wkq.length>0&&h(“div”,{class:“card”},h(“div”,{class:“ctitle”},”\uD83D\uDCC5 Qu\u00eates hebdomadaires”),wkq.map(o=>h(QI,{key:o.id,obj:o}))),
-h(“div”,{class:“card”},
-h(“div”,{class:“shdr”},h(“div”,{class:“ctitle”,style:“margin:0”},“Nouvelle qu\u00eate”),h(“button”,{class:“addbtn”,onClick:()=>setShowAdd(v=>!v)},showAdd?“Fermer”:”+ Ajouter”)),
-showAdd&&h(“div”,{class:“addform”},
-h(“div”,{class:“fg”},
-h(“input”,{class:“fin ff”,placeholder:“Nom”,value:newObj.name,onInput:e=>setNewObj(v=>({…v,name:e.target.value}))}),
-h(“input”,{class:“fin”,placeholder:“Ic\u00f4ne”,value:newObj.icon,onInput:e=>setNewObj(v=>({…v,icon:e.target.value}))}),
-h(“input”,{class:“fin”,placeholder:“Unit\u00e9”,value:newObj.unit,onInput:e=>setNewObj(v=>({…v,unit:e.target.value}))}),
-h(“input”,{class:“fin”,type:“number”,placeholder:“XP/unit\u00e9”,value:newObj.xpPer,onInput:e=>setNewObj(v=>({…v,xpPer:parseFloat(e.target.value)}))}),
-h(“input”,{class:“fin”,type:“number”,placeholder:“Objectif base”,value:newObj.base,onInput:e=>setNewObj(v=>({…v,base:parseInt(e.target.value)}))}),
-h(“select”,{class:“fsel”,value:newObj.stat,onChange:e=>setNewObj(v=>({…v,stat:e.target.value}))},STATS.map(s=>h(“option”,{key:s,value:s},STAT_LABELS[s]||s))),
-h(“label”,{class:“fck”},h(“input”,{type:“checkbox”,checked:newObj.optional,onChange:e=>setNewObj(v=>({…v,optional:e.target.checked}))}),“Bonus”),
-h(“label”,{class:“fck”},h(“input”,{type:“checkbox”,checked:newObj.weekly,onChange:e=>setNewObj(v=>({…v,weekly:e.target.checked,daily:!e.target.checked}))}),“Hebdo”)
-),
-h(“button”,{class:“qbtn”,style:“width:100%;margin-top:10px”,onClick:()=>{
-if(!newObj.name)return;
-setState(s=>({…s,objectives:[…s.objectives,{…newObj,id:“c_”+Date.now()}]}));
-setNewObj({name:””,unit:“reps”,xpPer:1,daily:true,weekly:false,optional:false,stat:“Force”,icon:”\u26A1”,base:10});
-setShowAdd(false);
-}},“Cr\u00e9er la qu\u00eate”)
-)
-)
-);
-}
-
-// ─── STATS ─────────────────────────────────────────────────────────────────
-function Stats(){
-const days=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return d.toISOString().slice(0,10);});
-const dlbls=days.map(d=>[“D”,“L”,“M”,“M”,“J”,“V”,“S”][new Date(d).getDay()]);
-return h(“div”,{class:“tab”},
-h(“div”,{class:“card”},
-h(“div”,{class:“ctitle”},“Chemin vers le rang S”),
-h(“div”,{class:“rpath”},RANKS.map((r,i)=>{
-const reached=state.totalXp>=r.xpRequired,cur=r.id===rank.id;
-return h(Fragment,{key:r.id},
-h(“div”,{class:“rnode”},
-h(“div”,{class:“rcirc”,style:“border-color:”+(reached?r.color:”#333”)+”;color:”+(reached?r.color:”#444”)+”;background:”+(cur?r.color+“22”:“transparent”)+”;box-shadow:”+(cur?“0 0 15px “+r.glow:“none”)},r.id),
-h(“div”,{class:“rname”,style:“color:”+(reached?r.color:”#444”)},r.label)
-),
-i<RANKS.length-1&&h(“div”,{class:“rconn”,style:“background:”+(state.totalXp>=RANKS[i+1].xpRequired?r.color:”#222”)})
-);
-})),
-nextRank&&h(“div”,{style:“margin-top:8px”},
-h(“div”,{style:“display:flex;justify-content:space-between;font-size:11px;color:var(–td);margin-bottom:4px;font-family:Orbitron,sans-serif”},
-h(“span”,null,“Rang “+rank.id+” \u2192 “+nextRank.id),h(“span”,null,state.totalXp.toFixed(0)+” / “+nextRank.xpRequired+” XP”)),
-h(“div”,{class:“xpbar”},h(“div”,{class:“xpfill”,style:“width:”+rankPct+”%”}))
-)
-),
-h(“div”,{class:“card”},
-h(“div”,{class:“ctitle”},“Caract\u00e9ristiques”),
-STATS.map(s=>{
-const lvl=state.stats[s]||0,sx=state.statXp[s]||0;
-const xpIn=sx-totForLvl(lvl),xpNeed=xpForLvl(lvl),pct=Math.min(100,(xpIn/xpNeed)*100);
-return h(“div”,{key:s,class:“schr”},
-h(“div”,{class:“schn”},h(“span”,null,STAT_LABELS[s]||s),h(“span”,{class:“schlvl”},“Niv. “+lvl)),
-h(“div”,{class:“schb”},h(“div”,{class:“schf”,style:“width:”+pct+”%;background:linear-gradient(90deg,”+(STAT_COLORS[s]||”#fff”)+“88,”+(STAT_COLORS[s]||”#fff”)+”)”})),
-h(“div”,{style:“font-size:9px;color:var(–td);margin-top:2px;font-family:Orbitron,sans-serif”},Math.round(xpIn)+”/”+xpNeed+” XP vers niveau “+(lvl+1))
-);
-})
-),
-h(“div”,{class:“card”},
-h(“div”,{class:“ctitle”},“Activit\u00e9 (7 derniers jours)”),
-h(“div”,{class:“wgrid”},days.map((d,i)=>{
-const log=state.dailyLog[d]||{};
-const xp=Object.entries(log).reduce((s,[id,a])=>{const o=state.objectives.find(x=>x.id===id);return s+(o?calcXp(o,a,ri):0);},0);
-const rgb=rank.color.replace(”#”,””).match(/../g).map(x=>parseInt(x,16)).join(”,”);
-const int=xp>100?1:xp>50?.7:xp>10?.4:xp>0?.2:0;
-return h(“div”,{key:d,class:“wday”},
-h(“div”,{class:“wdlbl”},dlbls[i]),
-h(“div”,{class:“wddot”,style:“background:”+(int>0?“rgba(”+rgb+”,”+int+”)”:“rgba(255,255,255,0.04)”)+”;border:”+(d===today?“1px solid “+rank.color:“1px solid transparent”)+”;color:”+(xp>0?“var(–rc)”:“var(–td)”)},
-xp>0?Math.round(xp):”·”)
-);
-}))
-)
-);
-}
-
-// ─── HISTORY ───────────────────────────────────────────────────────────────
-function History(){
-function getWS(off){const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7)-off*7);d.setHours(0,0,0,0);return d;}
-function getWK(ws){const j=new Date(ws.getFullYear(),0,1);return ws.getFullYear()+”-W”+Math.ceil(((ws-j)/86400000+j.getDay()+1)/7);}
-const ws=getWS(wkOff),wKey=getWK(ws);
-const dt={};
-for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);const dk=d.toISOString().slice(0,10);Object.entries(state.dailyLog[dk]||{}).forEach(([id,v])=>{dt[id]=(dt[id]||0)+v;});}
-const tots={…dt,…(state.weeklyLog[wKey]||{})};
-const we=new Date(ws);we.setDate(ws.getDate()+6);
-const fmt=d=>d.getDate().toString().padStart(2,“0”)+”/”+(d.getMonth()+1).toString().padStart(2,“0”);
-const lbl=wkOff===0?“Cette semaine”:wkOff===1?“Semaine derni\u00e8re”:fmt(ws)+” \u2013 “+fmt(we);
-const ordered=[…sortStat(state.objectives.filter(o=>o.daily&&!o.optional)),…sortStat(state.objectives.filter(o=>o.daily&&o.optional)),…sortStat(state.objectives.filter(o=>o.weekly))];
-return h(“div”,{class:“tab”},
-h(“div”,{class:“card”,style:“padding:12px 16px”},
-h(“div”,{style:“display:flex;align-items:center;justify-content:space-between;gap:8px”},
-h(“button”,{style:“background:var(–sf2);border:1px solid var(–rc);border-radius:8px;color:var(–rc);font-size:18px;width:40px;height:40px;cursor:pointer;opacity:”+(wkOff>=51?.3:.8),onClick:()=>setWkOff(o=>Math.min(o+1,51))},”\u2039”),
-h(“div”,{style:“text-align:center;flex:1”},
-h(“div”,{style:“font-family:Orbitron,sans-serif;font-size:12px;color:var(–rc);letter-spacing:1px”},lbl),
-h(“div”,{style:“font-size:10px;color:var(–td);margin-top:2px”},fmt(ws)+” \u2013 “+fmt(we))
-),
-h(“button”,{style:“background:var(–sf2);border:1px solid var(–rc);border-radius:8px;color:var(–rc);font-size:18px;width:40px;height:40px;cursor:pointer;opacity:”+(wkOff===0?.3:.8),onClick:()=>setWkOff(o=>Math.max(o-1,0))},”\u203A”)
-),
-wkOff>0&&h(“button”,{style:“width:100%;margin-top:10px;background:rgba(255,255,255,0.03);border:1px solid var(–rc);border-radius:8px;color:var(–rc);font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:2px;padding:7px;cursor:pointer;text-transform:uppercase”,onClick:()=>setWkOff(0)},“Aujourd’hui”)
-),
-h(“div”,{class:“card”},
-h(“div”,{class:“ctitle”,style:“margin-bottom:12px”},”\uD83D\uDCCA Activit\u00e9 de la semaine”),
-ordered.map(obj=>{
-const val=tots[obj.id]||0,wt=obj.weekly?getTarget(obj.base,ri):getTarget(obj.base,ri)*7;
-const pct=Math.min(100,(val/wt)*100),complete=val>=wt;
-return h(“div”,{key:obj.id,style:“margin-bottom:10px”},
-h(“div”,{style:“display:flex;justify-content:space-between;align-items:center;margin-bottom:4px”},
-h(“span”,{style:“font-size:13px;display:flex;align-items:center;gap:6px”},
-h(“span”,null,obj.icon),
-h(“span”,{style:“color:”+(val>0?“var(–tx)”:“var(–td)”)+”;font-weight:”+(val>0?600:400)},obj.name),
-obj.weekly&&h(“span”,{style:“font-size:9px;color:#818cf8;font-family:Orbitron,sans-serif;border:1px solid #818cf855;border-radius:4px;padding:1px 4px”},“SEMAINE”),
-obj.optional&&h(“span”,{style:“font-size:9px;color:#fbbf24;font-family:Orbitron,sans-serif;border:1px solid #fbbf2455;border-radius:4px;padding:1px 4px”},“BONUS”)
-),
-h(“span”,{style:“font-family:Orbitron,sans-serif;font-size:10px;color:”+(complete?“var(–rc)”:val>0?“var(–tx)”:“var(–td)”)},
-(val%1===0?val:val.toFixed(1)),h(“span”,{style:“color:var(–td)”},”/”+wt),” “,obj.unit,complete&&” \u2705”
-)
-),
-h(“div”,{class:“qbar”,style:“height:5px”},h(“div”,{class:“qfill”,style:“width:”+pct+”%;opacity:”+(val>0?1:0.15)}))
-);
-}),
-ordered.every(o=>!(tots[o.id]>0))&&h(“div”,{style:“text-align:center;font-size:13px;color:var(–td);padding:16px 0”},“Aucune activit\u00e9 cette semaine”)
-)
-);
-}
-
-// ─── SETTINGS ──────────────────────────────────────────────────────────────
-function Settings(){
-if(!showSet)return null;
-const ordered=[…sortStat(state.objectives.filter(o=>o.daily&&!o.optional)),…sortStat(state.objectives.filter(o=>o.daily&&o.optional)),…sortStat(state.objectives.filter(o=>o.weekly))];
-function applyEdit(){
-setState(s=>{
-let xpD=0;const ndl={…s.dailyLog},nwl={…s.weeklyLog},nsx={…s.statXp};
-ordered.forEach(obj=>{
-const el=document.getElementById(“cd_”+obj.id);if(!el)return;
-const nv=parseFloat(el.value.replace(”,”,”.”));if(isNaN(nv)||nv<0)return;
-const ov=obj.weekly?(s.weeklyLog[wk]?.[obj.id]||0):(s.dailyLog[today]?.[obj.id]||0);
-const oxp=calcXp(obj,ov,ri),nxp=calcXp(obj,nv,ri);
-xpD+=nxp-oxp;nsx[obj.stat]=Math.max(0,(nsx[obj.stat]||0)+(nxp-oxp));
-if(obj.weekly)nwl[wk]={…(nwl[wk]||{}),[obj.id]:nv};else ndl[today]={…(ndl[today]||{}),[obj.id]:nv};
-});
-const ns={…s.stats};Object.keys(nsx).forEach(st=>{ns[st]=getLvl(nsx[st]);});
-return {…s,totalXp:Math.max(0,s.totalXp+xpD),dailyLog:ndl,weeklyLog:nwl,statXp:nsx,stats:ns};
-});
-setShowSet(false);
-}
-return h(“div”,{class:“modal-ov”,onClick:e=>{if(e.target===e.currentTarget){setShowSet(false);setConfirmReset(false);}}},
-h(“div”,{class:“modal”},
-h(“div”,{style:“display:flex;justify-content:space-between;align-items:center;margin-bottom:20px”},
-h(“div”,{class:“mtitle”,style:“margin-bottom:0”},”\u2699 R\u00e9glages”),
-h(“button”,{style:“background:none;border:none;color:var(–td);font-size:22px;cursor:pointer;line-height:1;padding:0 4px”,onClick:()=>{setShowSet(false);setConfirmReset(false);}},”\u2715”)
-),
-h(“div”,{class:“msec”},
-h(“div”,{class:“mlbl”},”\uD83D\uDCDD Corriger les donn\u00e9es du jour”),
-h(“div”,{style:“font-size:11px;color:var(–td);margin-bottom:10px;line-height:1.5”},“Modifie les valeurs si tu t’es tromp\u00e9. L’XP sera recalcul\u00e9.”),
-ordered.map(obj=>{
-const cur=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
-return h(“div”,{key:obj.id,style:“display:flex;align-items:center;gap:10px;margin-bottom:8px”},
-h(“span”,{style:“font-size:16px;min-width:24px”},obj.icon),
-h(“span”,{style:“flex:1;font-size:13px”},obj.name),
-h(“input”,{id:“cd_”+obj.id,class:“min”,type:“text”,inputMode:“decimal”,defaultValue:String(cur),style:“width:80px;margin:0;text-align:center”}),
-h(“span”,{style:“font-size:11px;color:var(–td);min-width:28px”},obj.unit)
-);
-}),
-h(“button”,{class:“mbtn mprim”,style:“width:100%;margin-top:8px”,onClick:applyEdit},”\u2705 Appliquer”)
-),
-h(“div”,{class:“divider”}),
-h(“div”,{class:“msec”},
-h(“div”,{class:“mlbl”},”\uD83D\uDCBE Sauvegarde / Restauration”),
-h(“div”,{class:“mrow”,style:“margin-bottom:8px”},
-h(“button”,{class:“mbtn mprim”,style:“flex:1”,onClick:()=>{
-const json=JSON.stringify(state);
-navigator.clipboard.writeText(json).then(()=>alert(”\u2705 Donn\u00e9es copi\u00e9es !”)).catch(()=>window.prompt(“Copie ce texte :”,json));
-}},”\uD83D\uDCCB Exporter”),
-h(“button”,{class:“mbtn mprim”,style:“flex:1”,onClick:()=>{
-const json=window.prompt(“Colle tes donn\u00e9es ici :”);
-if(!json)return;
-try{setState(JSON.parse(json));alert(”\u2705 Restaur\u00e9 !”);setShowSet(false);}catch{alert(”\u274C Donn\u00e9es invalides.”);}
-}},”\uD83D\uDCE5 Importer”)
-)
-),
-h(“div”,{class:“divider”}),
-h(“div”,{class:“msec”},
-h(“div”,{class:“mlbl”},”\uD83D\uDD04 Restaurer les donn\u00e9es sauvegard\u00e9es”),
-h(“button”,{class:“mbtn”,style:“width:100%;background:#16a34a22;border:1px solid #16a34a88;color:#4ade80”,onClick:()=>{localStorage.removeItem(“sl_v3”);setState(buildFromImported());setShowSet(false);}},”\u21A9 Restaurer les donn\u00e9es”)
-),
-h(“div”,{class:“divider”}),
-h(“div”,{class:“msec”},
-h(“div”,{class:“mlbl”},”\u2620 Zone dangereuse”),
-!confirmReset
-?h(“button”,{class:“mbtn mdng”,style:“width:100%”,onClick:()=>setConfirmReset(true)},“R\u00e9initialiser toutes les donn\u00e9es”)
-:h(“div”,{class:“modal-ov”,style:“align-items:center;position:fixed”,onClick:e=>{if(e.target===e.currentTarget)setConfirmReset(false);}},
-h(“div”,{class:“modal”,style:“border-radius:12px;max-width:320px;width:90%”},
-h(“div”,{class:“mtitle”},”\u2620 R\u00e9initialisation”),
-h(“div”,{style:“font-size:13px;color:#ef4444;margin-bottom:16px;text-align:center;line-height:1.5”},”\u26A0\uFE0F Action “,h(“strong”,null,“irr\u00e9versible”),”.”,h(“br”),“Toute ta progression sera perdue.”),
-h(“div”,{class:“mrow”},
-h(“button”,{class:“mbtn mdng”,style:“flex:1”,onClick:()=>{localStorage.removeItem(“sl_v3”);setState(emptyState());setConfirmReset(false);setShowSet(false);}},”\u2705 Confirmer”),
-h(“button”,{class:“mbtn mcan”,style:“flex:1”,onClick:()=>setConfirmReset(false)},“Annuler”)
-)
-)
-)
-)
-)
-);
-}
-
-// ─── EDIT MODAL ────────────────────────────────────────────────────────────
-function EditModal(){
-if(!editObj)return null;
-const id=“em_”+editObj.id;
-function save(){
-const get=f=>{const el=document.getElementById(id+”_”+f);return el?el.value:null;};
-const name=get(“name”)||editObj.name,icon=get(“icon”)||editObj.icon,unit=get(“unit”)||editObj.unit;
-const xpPer=parseFloat(get(“xper”))||editObj.xpPer,base=parseInt(get(“base”))||editObj.base;
-const optional=document.getElementById(id+”_opt”)?.checked??editObj.optional;
-const weekly=document.getElementById(id+”_wkly”)?.checked??editObj.weekly;
-const stat=document.getElementById(id+”_stat”)?.value||editObj.stat;
-setState(s=>({…s,objectives:s.objectives.map(o=>o.id===editObj.id?{…o,name,icon,unit,xpPer,base,optional,weekly,daily:!weekly,stat}:o)}));
-setEditObj(null);
-}
-return h(“div”,{class:“modal-ov”,onClick:e=>{if(e.target===e.currentTarget)setEditObj(null);}},
-h(“div”,{class:“modal”},
-h(“div”,{class:“mtitle”},”\u270F\uFE0F Modifier la qu\u00eate”),
-h(“div”,{class:“fg”,style:“display:grid;grid-template-columns:1fr 1fr;gap:8px”},
-h(“input”,{id:id+”_name”,class:“fin ff”,placeholder:“Nom”,defaultValue:editObj.name}),
-h(“input”,{id:id+”_icon”,class:“fin”,placeholder:“Ic\u00f4ne”,defaultValue:editObj.icon}),
-h(“input”,{id:id+”_unit”,class:“fin”,placeholder:“Unit\u00e9”,defaultValue:editObj.unit}),
-h(“input”,{id:id+”_xper”,class:“fin”,type:“text”,inputMode:“decimal”,placeholder:“XP/unit\u00e9”,defaultValue:editObj.xpPer}),
-h(“input”,{id:id+”_base”,class:“fin”,type:“text”,inputMode:“decimal”,placeholder:“Objectif base”,defaultValue:editObj.base}),
-h(“select”,{id:id+”_stat”,class:“fsel ff”},STATS.map(s=>h(“option”,{key:s,value:s,selected:s===editObj.stat},STAT_LABELS[s]||s))),
-h(“label”,{class:“fck”,style:“font-size:13px”},h(“input”,{id:id+”_opt”,type:“checkbox”,defaultChecked:editObj.optional}),“Bonus”),
-h(“label”,{class:“fck”,style:“font-size:13px”},h(“input”,{id:id+”_wkly”,type:“checkbox”,defaultChecked:editObj.weekly}),“Hebdo”)
-),
-h(“div”,{class:“mrow”,style:“margin-top:16px”},
-h(“button”,{class:“mbtn mprim”,style:“flex:2”,onClick:save},”\u2705 Sauvegarder”),
-h(“button”,{class:“mbtn mcan”,style:“flex:1”,onClick:()=>setEditObj(null)},“Annuler”)
-)
-)
-);
-}
-
-// ─── RANK UP ───────────────────────────────────────────────────────────────
-function RankUp(){
-if(!rankUp)return null;
-const lines=Array.from({length:12},(_,i)=>({t:Math.random()*100+”%”,l:Math.random()*100+”%”,a:(Math.random()-.5)*40+“deg”,d:Math.random()*1.5+“s”}));
-return h(“div”,{class:“ruov”,style:”–rc:”+rankUp.color+”;–rg:”+rankUp.glow},
-h(“div”,{class:“rulines”},lines.map((l,i)=>h(“div”,{key:i,class:“ruline”,style:“top:”+l.t+”;left:”+l.l+”;–ang:”+l.a+”;animation-delay:”+l.d}))),
-h(“div”,{class:“rucont”},
-h(“div”,{class:“rutitle”},“Rang atteint”),
-h(“div”,{class:“rurank”},rankUp.id),
-h(“div”,{class:“rulabel”},rankUp.label),
-h(“button”,{class:“rudis”,onClick:()=>setRankUp(null)},“Continuer”)
-)
-);
-}
-
-const parts=Array.from({length:15},(_,i)=>({id:i,s:Math.random()*3+1,l:Math.random()*100,dur:Math.random()*10+8,del:Math.random()*10}));
-
-return h(Fragment,null,
-h(“div”,{id:“app”},
-h(“div”,{class:“particles”},parts.map(p=>h(“div”,{key:p.id,class:“particle”,style:“width:”+p.s+“px;height:”+p.s+“px;left:”+p.l+”%;bottom:-10px;background:”+rank.color+”;box-shadow:0 0 4px “+rank.glow+”;animation-duration:”+p.dur+“s;animation-delay:”+p.del+“s”}))),
-h(“div”,{class:“hdr”},
-h(“div”,{class:“hdr-top”},
-h(“div”,null,h(“div”,{class:“pname”},“VAL”)),
-h(“button”,{class:“gbtn”,onClick:()=>setShowSet(true)},”\u2699”)
-)
-),
-tab===“home”&&h(Home,null),
-tab===“quests”&&h(Quests,null),
-tab===“stats”&&h(Stats,null),
-tab===“history”&&h(History,null),
-h(“nav”,{class:“nav”},
-[[“home”,”\uD83C\uDFE0”,“Accueil”],[“quests”,”\u2694”,“Qu\u00eates”],[“stats”,”\uD83D\uDCCA”,“Stats”],[“history”,”\uD83D\uDCC5”,“Historique”]].map(([id,icon,lbl])=>
-h(“button”,{key:id,class:“nbtn “+(tab===id?“on”:””),onClick:()=>setTab(id)},h(“span”,{class:“nicon”},icon),lbl)
-)
-),
-floats.map(f=>h(“div”,{key:f.id,class:“xpfloat”,style:“left:”+f.x+“px;top:”+f.y+“px”},f.txt)),
-h(EditModal,null),
-h(Settings,null),
-h(RankUp,null),
-confirmDelete&&h(“div”,{class:“modal-ov”,style:“align-items:center”,onClick:()=>setConfirmDelete(null)},
-h(“div”,{class:“modal”,style:“border-radius:12px;max-width:320px;width:90%”},
-h(“div”,{class:“mtitle”},”\uD83D\uDDD1 Supprimer la qu\u00eate”),
-h(“div”,{style:“background:#ef444411;border:1px solid #ef444466;border-radius:8px;padding:12px;margin-bottom:16px”},
-h(“div”,{style:“font-size:13px;color:#ef4444;text-align:center;line-height:1.5”},
-“\u26A0\uFE0F Supprimer “,h(“strong”,null,state.objectives.find(o=>o.id===confirmDelete)?.name||“cette qu\u00eate”),” ?”,
-h(“br”),“Cette action est irr\u00e9versible.”
-)
-),
-h(“div”,{class:“mrow”},
-h(“button”,{class:“mbtn mdng”,style:“flex:1”,onClick:()=>{setState(s=>({…s,objectives:s.objectives.filter(o=>o.id!==confirmDelete)}));setConfirmDelete(null);}},”\u2705 Confirmer”),
-h(“button”,{class:“mbtn mcan”,style:“flex:1”,onClick:()=>setConfirmDelete(null)},“Annuler”)
-)
-)
-)
-)
-);
-}
-
-render(h(App,null),document.getElementById(“app”));
+render(h(App,null),document.getElementById("app"));
 </script>
-
 </body>
 </html>
