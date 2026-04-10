@@ -97,6 +97,10 @@ html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Rajdhani
 .sqbarfill{height:100%;border-radius:2px;background:linear-gradient(90deg,#991b1b,#ef4444);transition:width .4s}
 .sq-urgent{animation:urgentPulse 1s ease-in-out infinite}
 @keyframes urgentPulse{0%,100%{box-shadow:0 0 0 0 #ef444444}50%{box-shadow:0 0 0 6px #ef444400}}
+.trial-card{border-radius:12px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.trial-task{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.trial-bar{flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
+.trial-fill{height:100%;border-radius:3px;transition:width .4s}
 </style>
 </head>
 <body>
@@ -207,6 +211,60 @@ const IMPORTED = {
 
 const getRank   = xp => { for(let i=RANKS.length-1;i>=0;i--)if(xp>=RANKS[i].xpRequired)return RANKS[i];return RANKS[0]; };
 const getNext   = id => { const i=RANKS.findIndex(r=>r.id===id);return i<RANKS.length-1?RANKS[i+1]:null; };
+
+// Épreuves d'évolution — débloquent le rang suivant
+const TRIALS = {
+  "E": { // E → D
+    label:"Épreuve du Rang D",
+    tasks:[
+      {id:"run",  name:"Course",    unit:"km",   target:3.2,  icon:"\uD83C\uDFC3\uD83C\uDFFB", daily:false},
+      {id:"push", name:"Pompes",    unit:"reps", target:63,   icon:"\uD83E\uDDBE",              daily:true},
+      {id:"abs",  name:"Abdominaux",unit:"reps", target:63,   icon:"\uD83E\uDDCE\uD83C\uDFFB\u200D\u2642\uFE0F", daily:true},
+      {id:"squats",name:"Squats",   unit:"reps", target:32,   icon:"\uD83E\uDDBF",              daily:true},
+      {id:"reading",name:"Lecture", unit:"pages",target:32,   icon:"\uD83D\uDCDA",              daily:true},
+    ]
+  },
+  "D": { // D → C
+    label:"Épreuve du Rang C",
+    tasks:[
+      {id:"run",  name:"Course",    unit:"km",   target:4.2,  icon:"\uD83C\uDFC3\uD83C\uDFFB", daily:false},
+      {id:"push", name:"Pompes",    unit:"reps", target:84,   icon:"\uD83E\uDDBE",              daily:true},
+      {id:"abs",  name:"Abdominaux",unit:"reps", target:84,   icon:"\uD83E\uDDCE\uD83C\uDFFB\u200D\u2642\uFE0F", daily:true},
+      {id:"squats",name:"Squats",   unit:"reps", target:42,   icon:"\uD83E\uDDBF",              daily:true},
+      {id:"reading",name:"Lecture", unit:"pages",target:42,   icon:"\uD83D\uDCDA",              daily:true},
+    ]
+  },
+  "C": { // C → B
+    label:"Épreuve du Rang B",
+    tasks:[
+      {id:"run",  name:"Course",    unit:"km",   target:5.6,  icon:"\uD83C\uDFC3\uD83C\uDFFB", daily:false},
+      {id:"push", name:"Pompes",    unit:"reps", target:113,  icon:"\uD83E\uDDBE",              daily:true},
+      {id:"abs",  name:"Abdominaux",unit:"reps", target:113,  icon:"\uD83E\uDDCE\uD83C\uDFFB\u200D\u2642\uFE0F", daily:true},
+      {id:"squats",name:"Squats",   unit:"reps", target:56,   icon:"\uD83E\uDDBF",              daily:true},
+      {id:"reading",name:"Lecture", unit:"pages",target:56,   icon:"\uD83D\uDCDA",              daily:true},
+    ]
+  },
+  "B": { // B → A
+    label:"Épreuve du Rang A",
+    tasks:[
+      {id:"run",  name:"Course",    unit:"km",   target:7.5,  icon:"\uD83C\uDFC3\uD83C\uDFFB", daily:false},
+      {id:"push", name:"Pompes",    unit:"reps", target:150,  icon:"\uD83E\uDDBE",              daily:true},
+      {id:"abs",  name:"Abdominaux",unit:"reps", target:150,  icon:"\uD83E\uDDCE\uD83C\uDFFB\u200D\u2642\uFE0F", daily:true},
+      {id:"squats",name:"Squats",   unit:"reps", target:75,   icon:"\uD83E\uDDBF",              daily:true},
+      {id:"reading",name:"Lecture", unit:"pages",target:75,   icon:"\uD83D\uDCDA",              daily:true},
+    ]
+  },
+  "A": { // A → S
+    label:"Épreuve du Rang S",
+    tasks:[
+      {id:"run",  name:"Course",    unit:"km",   target:10,   icon:"\uD83C\uDFC3\uD83C\uDFFB", daily:false},
+      {id:"push", name:"Pompes",    unit:"reps", target:200,  icon:"\uD83E\uDDBE",              daily:true},
+      {id:"abs",  name:"Abdominaux",unit:"reps", target:200,  icon:"\uD83E\uDDCE\uD83C\uDFFB\u200D\u2642\uFE0F", daily:true},
+      {id:"squats",name:"Squats",   unit:"reps", target:100,  icon:"\uD83E\uDDBF",              daily:true},
+      {id:"reading",name:"Lecture", unit:"pages",target:100,  icon:"\uD83D\uDCDA",              daily:true},
+    ]
+  },
+};
 const getTarget = (base,ri) => Math.round(base*Math.pow(1.25,ri));
 const todayStr  = () => new Date().toISOString().slice(0,10);
 const wkStr     = (d=new Date()) => { const j=new Date(d.getFullYear(),0,1);return d.getFullYear()+"-W"+Math.ceil(((d-j)/86400000+j.getDay()+1)/7); };
@@ -301,7 +359,24 @@ function App(){
   const today=todayStr(),wk=wkStr();
   const ri=RANKS.findIndex(r=>r.id===rank.id);
   const nextRank=getNext(rank.id);
-  const xpInRank=state.totalXp-rank.xpRequired;
+
+  // Épreuve d'évolution
+  const trial=TRIALS[rank.id]||null;
+  const trialCompleted=state.trialCompleted||{};
+  const trialProgress=state.trialProgress||{};
+  const currentTrialDone=trial&&trialCompleted[rank.id];
+
+  // Progression du trial : tâches daily = log du jour, weekly = log semaine
+  function getTrialTaskProgress(task){
+    if(task.daily) return Object.values(state.dailyLog).reduce((t,l)=>Math.max(t,l[task.id]||0),0);
+    return Object.values(state.weeklyLog).reduce((t,l)=>Math.max(t,l[task.id]||0),0);
+  }
+  const trialTasksDone=trial?trial.tasks.every(t=>getTrialTaskProgress(t)>=t.target):true;
+
+  // XP bloqué au seuil du rang suivant si trial non complété ET seuil atteint
+  const xpCap=nextRank&&trial&&!currentTrialDone&&state.totalXp>=nextRank.xpRequired?nextRank.xpRequired:Infinity;
+  const effectiveXp=Math.min(state.totalXp,xpCap);
+  const xpInRank=effectiveXp-rank.xpRequired;
   const xpToNext=nextRank?nextRank.xpRequired-rank.xpRequired:1;
   const rankPct=nextRank?Math.min(100,(xpInRank/xpToNext)*100):100;
   const tLog=state.dailyLog[today]||{},wLog=state.weeklyLog[wk]||{};
@@ -378,14 +453,32 @@ function App(){
 
   function addXpFn(amount,stat,e){
     setState(s=>{
-      const nt=s.totalXp+amount;
+      const currentRank=getRank(s.totalXp);
+      const nextR=getNext(currentRank.id);
+      const hasTrial=TRIALS[currentRank.id];
+      const trialDone=(s.trialCompleted||{})[currentRank.id];
+      // Cap XP si trial non complété
+      const cap=(nextR&&hasTrial&&!trialDone)?nextR.xpRequired:Infinity;
+      const nt=Math.min(s.totalXp+amount,cap);
       const sx={...s.statXp,[stat]:(s.statXp[stat]||0)+amount};
       const st={...s.stats,[stat]:getLvl(sx[stat])};
-      if(getRank(nt).id!==getRank(s.totalXp).id)setTimeout(()=>setRankUp(getRank(nt)),100);
+      // Rank up seulement si trial complété
+      if(trialDone&&nextR&&getRank(nt).id!==currentRank.id)setTimeout(()=>setRankUp(getRank(nt)),100);
       return {...s,totalXp:nt,statXp:sx,stats:st,lastActiveDay:todayStr()};
     });
     if(e)spawnFloat("+"+Math.round(amount)+"xp",e);
   }
+
+  // Vérifier complétion du trial automatiquement
+  useEffect(()=>{
+    if(!trial||currentTrialDone)return;
+    // L'épreuve n'est active que si l'XP a atteint le seuil
+    if(state.totalXp<nextRank.xpRequired)return;
+    if(trialTasksDone){
+      setState(s=>({...s,trialCompleted:{...(s.trialCompleted||{}),[rank.id]:true}}));
+      setTimeout(()=>setRankUp(nextRank),500);
+    }
+  },[trialTasksDone,state.totalXp]);
 
   useEffect(()=>{
     if(!allDailyReqDone)return;
@@ -537,6 +630,39 @@ function App(){
     );
   }
 
+  function TrialCard({compact}){
+    if(!trial||currentTrialDone||!nextRank||state.totalXp<nextRank.xpRequired)return null;
+    const nr=nextRank;
+    const tasksProgress=trial.tasks.map(t=>({...t,progress:getTrialTaskProgress(t),done:getTrialTaskProgress(t)>=t.target}));
+    const doneCnt=tasksProgress.filter(t=>t.done).length;
+    return h("div",{class:"trial-card",style:"background:linear-gradient(135deg,"+nr.color+"15,"+nr.color+"05);border:1px solid "+nr.color+"55"},
+      h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"},
+        h("div",null,
+          h("div",{style:"font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:2px;color:"+nr.color+";text-transform:uppercase;margin-bottom:3px"},"\u2694 \u00c9PREUVE D'\u00c9VOLUTION"),
+          h("div",{style:"font-family:Orbitron,sans-serif;font-size:14px;font-weight:700;color:"+nr.color},trial.label)
+        ),
+        h("div",{style:"font-family:Orbitron,sans-serif;font-size:12px;color:"+nr.color},doneCnt+"/"+trial.tasks.length)
+      ),
+      tasksProgress.map(t=>
+        h("div",{key:t.id,class:"trial-task"},
+          h("span",{style:"font-size:16px"},t.icon),
+          h("div",{style:"flex:1"},
+            h("div",{style:"display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"},
+              h("span",{style:"color:"+(t.done?nr.color:"var(--tx)")},t.name),
+              h("span",{style:"font-family:Orbitron,sans-serif;font-size:10px;color:"+(t.done?nr.color:"var(--td)")},
+                (t.progress%1===0?t.progress:t.progress.toFixed(1))+"/"+t.target+" "+t.unit)
+            ),
+            h("div",{class:"trial-bar"},
+              h("div",{class:"trial-fill",style:"width:"+Math.min(100,(t.progress/t.target)*100)+"%;background:"+nr.color})
+            )
+          ),
+          t.done&&h("span",{style:"font-size:18px"},"✅")
+        )
+      ),
+      compact&&h("div",{style:"font-size:10px;color:"+nr.color+"99;margin-top:8px;text-align:center;font-family:Orbitron,sans-serif"},"XP bloqu\u00e9 jusqu'\u00e0 la validation de l'\u00e9preuve")
+    );
+  }
+
   // ─── HOME ──────────────────────────────────────────────────────────────────
   function Home(){
     const secs=[
@@ -583,6 +709,7 @@ function App(){
         h("div",{style:"font-size:22px;font-family:Orbitron,sans-serif;font-weight:900;color:#c084fc"},"+100 XP Discipline"),
         weeklyBonusGiven&&h("div",{style:"font-size:11px;color:#c084fc88;margin-top:6px;font-family:Orbitron,sans-serif"},"\uD83D\uDCC5 Bonus hebdo +150 XP accord\u00e9 \u2705")
       ),
+      trial&&!currentTrialDone&&h(TrialCard,{compact:true}),
       activeSq&&h("div",{class:"card",style:"border-color:#ef444444"},
         h("div",{class:"ctitle",style:"color:#ef4444;margin-bottom:8px"},"\uD83C\uDFC6 Qu\u00eate sp\u00e9ciale"),
         h(SqCard,{sq:activeSq,showInput:false})
@@ -599,6 +726,7 @@ function App(){
     const bon=sortStat(state.objectives.filter(o=>o.daily&&o.optional));
     const wkq=sortStat(state.objectives.filter(o=>o.weekly));
     return h("div",{class:"tab"},
+      trial&&!currentTrialDone&&h(TrialCard,{compact:false}),
       h("div",{class:"card",style:"border-color:#ef444444"},
         h("div",{class:"shdr"},
           h("div",null,
