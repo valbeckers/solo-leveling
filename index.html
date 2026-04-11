@@ -45,7 +45,7 @@ html,body{height:100%;background:#0a0a0f;color:var(--tx);font-family:'Rajdhani',
 .qinrow{display:flex;gap:8px;margin-top:8px}
 .qin{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--rc);border-radius:8px;padding:8px 12px;color:var(--tx);font-family:'Rajdhani',sans-serif;font-size:16px;outline:none;opacity:.8}
 .qbtn{background:rgba(255,255,255,0.05);border:1px solid var(--rc);border-radius:8px;padding:8px 14px;color:var(--rc);cursor:pointer;font-family:'Orbitron',sans-serif;font-size:11px}
-.xpfloat{position:fixed;pointer-events:none;z-index:800;font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--rc);text-shadow:0 0 16px var(--rg),0 0 32px var(--rg);animation:fup 2.2s ease-out forwards;left:50%;transform:translateX(-50%)}
+.xpfloat{position:fixed;pointer-events:none;z-index:800;font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--rc);text-shadow:0 0 16px var(--rg),0 0 32px var(--rg);animation:fup 2.2s ease-out forwards;left:50%;transform:translateX(-50%);white-space:nowrap}
 @keyframes fup{0%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}20%{opacity:1;transform:translateX(-50%) translateY(-20px) scale(1.2)}100%{opacity:0;transform:translateX(-50%) translateY(-120px) scale(0.8)}}
 .warn{background:#ef444411;border:1px solid #ef444466;border-radius:10px;padding:12px 16px;margin-bottom:12px;font-size:13px;color:#ef4444}
 .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:flex;align-items:flex-end;justify-content:center}
@@ -135,35 +135,32 @@ const DEFS = [
   {id:"nosugar",name:"Sans sucres",    unit:"jour", xpPer:0,  daily:true, weekly:false,optional:true, stat:"Vitalite", icon:"\uD83D\uDEAB",              base:1, binary:true, binaryXp:200},
 ];
 
-// Quetes speciales — 5 par stat
+// Quetes speciales — par stat
 const SP = {
   Force:[
-    {id:"sp_dips",   name:"Dips",              icon:"\uD83D\uDCAA",unit:"reps",   target:50,  xp:300,days:1,desc:"50 dips en 24h"},
+    {id:"sp_dips",   name:"Dips",              icon:"\uD83D\uDCAA",unit:"reps",   target:50,  xp:200,days:1,desc:"50 dips en 24h"},
     {id:"sp_pull",   name:"Tractions",          icon:"\uD83C\uDFCB\uFE0F",unit:"reps",target:30,xp:300,days:1,desc:"30 tractions en 24h"},
-    {id:"sp_lunge",  name:"Fentes march\u00e9es",icon:"\uD83E\uDDB5",unit:"pas",  target:200, xp:200,days:1,desc:"200 pas de fentes en 24h"},
+    {id:"sp_lunge",  name:"Fentes march\u00e9es",icon:"\uD83E\uDDB5",unit:"pas",  target:100, xp:200,days:1,desc:"100 pas de fentes en 24h"},
     {id:"sp_plank",  name:"Gainage",            icon:"\uD83D\uDCAA",unit:"min",   target:10,  xp:150,days:1,desc:"10 min cumul\u00e9es en 24h"},
     {id:"sp_200push",name:"200 pompes",         icon:"\uD83E\uDDBE",unit:"reps",  target:200, xp:350,days:1,desc:"200 pompes en une s\u00e9ance"},
   ],
   Esprit:[
     {id:"sp_pod",   name:"Podcast",             icon:"\uD83C\uDF99\uFE0F",unit:"\u00e9p.",target:1,xp:100,days:1,desc:"1 podcast complet en 24h"},
     {id:"sp_50p",   name:"50 pages",            icon:"\uD83D\uDCDA",unit:"pages", target:50,  xp:250,days:1,desc:"50 pages en une journ\u00e9e"},
-    {id:"sp_med30", name:"M\u00e9ditation 30min",icon:"\uD83E\uDDD8\uD83C\uDFFB",unit:"min",target:30,xp:200,days:1,desc:"30 min en une s\u00e9ance"},
-    {id:"sp_learn", name:"Apprentissage",       icon:"\uD83E\uDDE0",unit:"s\u00e9ances",target:3,xp:200,days:1,desc:"3 s\u00e9ances d'apprentissage"},
-    {id:"sp_write", name:"Journaling",          icon:"\u270D\uFE0F",unit:"mots",  target:500, xp:150,days:1,desc:"500 mots \u00e9crits en 24h"},
+    {id:"sp_med20", name:"M\u00e9ditation 20min",icon:"\uD83E\uDDD8\uD83C\uDFFB",unit:"min",target:20,xp:150,days:1,desc:"20 min en une s\u00e9ance"},
   ],
   Endurance:[
-    {id:"sp_jump",    name:"Corde \u00e0 sauter",icon:"\uD83E\uDE62",unit:"min",  target:20,  xp:250,days:1,desc:"20 min non-stop"},
-    {id:"sp_sprint",  name:"Sprints",            icon:"\u26A1",      unit:"s\u00e9ries",target:10,xp:300,days:1,desc:"10 x 100m sprint/r\u00e9cup"},
-    {id:"sp_5km",     name:"5km d'une traite",   icon:"\uD83C\uDFC3\uD83C\uDFFB",unit:"km",target:5,xp:300,days:1,desc:"5km sans s'arr\u00eater"},
-    {id:"sp_5sess",   name:"5 s\u00e9ances cardio",icon:"\uD83D\uDD25",unit:"s\u00e9ances",target:5,xp:350,days:1,desc:"5 s\u00e9ances cardio en 24h"},
-    {id:"sp_30cardio",name:"30 min cardio",      icon:"\uD83E\uDE96",unit:"min",  target:30,  xp:300,days:1,desc:"30 min cardio non-stop"},
+    {id:"sp_jump",   name:"Corde \u00e0 sauter", icon:"\uD83E\uDE62",unit:"min",     target:20, xp:250,days:1,desc:"20 min non-stop"},
+    {id:"sp_sprint", name:"Sprints",             icon:"\u26A1",      unit:"s\u00e9ries",target:10,xp:300,days:1,desc:"10 x 100m sprint/r\u00e9cup"},
+    {id:"sp_5km",    name:"5km d'une traite",    icon:"\uD83C\uDFC3\uD83C\uDFFB",unit:"km",target:5,xp:300,days:1,desc:"5km sans s'arr\u00eater"},
+    {id:"sp_stairs", name:"Escaliers",           icon:"\uD83C\uDFD7\uFE0F",unit:"A/R",target:30,xp:300,days:1,desc:"30 mont\u00e9es/descentes non-stop"},
   ],
   Vitalite:[
-    {id:"sp_nosg",   name:"Sans sucre",          icon:"\uD83E\uDD57",unit:"jours",target:5,   xp:300,days:1,desc:"5 jours sans junk food"},
-    {id:"sp_flex30", name:"Souplesse 30min",     icon:"\uD83E\uDD38\uD83C\uDFFB",unit:"min",target:30,xp:150,days:1,desc:"30 min de souplesse en une s\u00e9ance"},
-    {id:"sp_sleep22",name:"Coucher t\u00f4t",    icon:"\uD83D\uDECF\uFE0F",unit:"nuits",target:3,xp:200,days:1,desc:"Dormir avant 22h30 - 3 nuits"},
-    {id:"sp_fasting",name:"Je\u00fbne 16h",      icon:"\u23F3",      unit:"fois",  target:3,   xp:300,days:1,desc:"Je\u00fbne 16h - 3 fois en 24h"},
-    {id:"sp_fruits", name:"5 fruits/l\u00e9gumes",icon:"\uD83E\uDD57",unit:"jours",target:4, xp:250,days:1,desc:"5 fruits/l\u00e9gumes/jour - 4 jours"},
+    {id:"sp_nosg",   name:"Sans sucre",          icon:"\uD83D\uDEAB",unit:"jour",  target:1,   xp:300,days:1,desc:"Pas de sucres ajout\u00e9s en 24h"},
+    {id:"sp_flex30", name:"Souplesse 30min",     icon:"\uD83E\uDD38\uD83C\uDFFB",unit:"min",target:30,xp:300,days:1,desc:"30 min de souplesse en une s\u00e9ance"},
+    {id:"sp_noscreen",name:"Pas d'\u00e9cran",   icon:"\uD83D\uDCF5",unit:"jour",  target:1,   xp:150,days:1,desc:"Pas d'\u00e9cran apr\u00e8s 20h"},
+    {id:"sp_fasting",name:"Je\u00fbne 16h",      icon:"\u23F3",      unit:"jour",  target:1,   xp:300,days:1,desc:"Je\u00fbne 16h dans la journ\u00e9e"},
+    {id:"sp_fruits", name:"5 fruits/l\u00e9gumes",icon:"\uD83E\uDD57",unit:"fruit/l\u00e9gume", target:5, xp:200,days:1,desc:"Manger 5 fruits et l\u00e9gumes"},
   ],
 };
 
@@ -241,7 +238,7 @@ const IMPORTED = {
   weeklyLog:{"2026-W15":{run:11.5}},
   stats:{Vitalite:3,Force:3,Esprit:3,Endurance:2,Discipline:2},
   statXp:{Vitalite:775,Force:1301.5,Esprit:747.5,Endurance:687.5,Discipline:650},
-  specialQuests:[{id:"sp_pull",name:"Tractions",icon:"\uD83C\uDFCB\uFE0F",unit:"reps",target:30,xp:300,days:1,desc:"30 tractions en 24h",stat:"Force",sqid:"sq_1775836505456",progress:20,startedAt:1775836505456,expiresAt:1775922905456,completedAt:null}],
+  specialQuests:[],
   objectives:DEFS,
 };
 
@@ -436,7 +433,7 @@ function App(){
     setTimeout(()=>setFloats(f=>f.filter(p=>p.id!==id)),2300);
   }
 
-  function addXp(amount,stat,e){
+  function addXp(amount,stat,e,silent){
     setState(s=>{
       const nt=s.totalXp+amount;
       const sx={...s.statXp,[stat]:(s.statXp[stat]||0)+amount};
@@ -444,7 +441,7 @@ function App(){
       if(nrk&&getRank(nt).id!==rk.id)setTimeout(()=>setRankUp(getRank(nt)),100);
       return {...s,totalXp:nt,statXp:sx,stats:{...s.stats,[stat]:getLvl(sx[stat])},lastActiveDay:todayStr()};
     });
-    if(e)spawnFloat("+"+Math.round(amount)+"xp",e);
+    if(e&&!silent)spawnFloat("+"+Math.round(amount)+"xp",e);
   }
 
   function validate(obj,e){
@@ -469,10 +466,16 @@ function App(){
     const newProg=Math.min(sq.target,sq.progress+val);
     const wasComplete=sq.progress>=sq.target;
     const nowComplete=newProg>=sq.target;
-    if(!wasComplete){
-      const xpE=Math.round(sq.xp*((Math.min(val,sq.target-sq.progress))/sq.target));
-      if(xpE>0)addXp(xpE,sq.stat,e);
-      if(nowComplete)spawnFloat("\uD83C\uDFC6 QUETE URGENTE !",e);
+    // XP uniquement à la complétion totale
+    if(!wasComplete&&nowComplete){
+      addXp(sq.xp,sq.stat,null,true);
+      const id1=Date.now()+Math.random();
+      const id2=id1+0.1;
+      setFloats(f=>[...f,
+        {id:id1,y:"35%",txt:"\uD83C\uDFC6 QU\u00c9TE VALID\u00c9E !"},
+        {id:id2,y:"42%",txt:"+"+sq.xp+" XP"}
+      ]);
+      setTimeout(()=>setFloats(f=>f.filter(p=>p.id!==id1&&p.id!==id2)),1400);
     }
     setState(s=>({...s,specialQuests:s.specialQuests.map(q=>q.sqid===sq.sqid?{...q,progress:newProg,completedAt:(nowComplete&&!wasComplete)?Date.now():q.completedAt}:q)}));
   }
@@ -1035,7 +1038,7 @@ function App(){
             h("span",{class:"nicon"},icon),lbl)
         )
       ),
-      floats.map(f=>h("div",{key:f.id,class:"xpfloat",style:"top:40%"},f.txt)),
+      floats.map(f=>h("div",{key:f.id,class:"xpfloat",style:"top:"+(f.y||"40%")+(typeof f.y==="number"?"px":"")+";left:50%;transform:translateX(-50%)"},f.txt)),
       h(EditModal,null),
       h(Settings,null),
       h(RankUp,null),
