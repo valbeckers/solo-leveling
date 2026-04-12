@@ -327,11 +327,9 @@ function App(){
   const xpToNext = nextRank ? nextRank.xpRequired - rank.xpRequired : 1;
   const rankPct  = nextRank ? Math.min(100,(xpInRank/xpToNext)*100) : 100;
 
-  // 6. XP du jour
+  // 6. XP du jour (journalières uniquement, pas l'hebdo)
   const todayXp = Object.entries(tLog).reduce((s,[id,a])=>{
     const o=objs.find(x=>x.id===id); return s+(o?calcXp(o,a):0);
-  },0) + Object.entries(wLog).reduce((s,[id,a])=>{
-    const o=objs.find(x=>x.id===id&&x.weekly); return s+(o?calcXp(o,a):0);
   },0);
 
   // 7. Quetes journalieres obligatoires toutes faites ?
