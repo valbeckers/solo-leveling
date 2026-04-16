@@ -834,14 +834,11 @@ const allDone=d===today
 ?reqDailyObjs.every(o=>(log[o.id]||0)>=getTarget(o.base))
 :reqDailyObjs.every(o=>(log[o.id]||0)>0);
 const isPast=d<today;
-const rgb=rank.color.replace("#","").match(/../g).map(x=>parseInt(x,16)).join(",");
-const int=xp>100?1:xp>50?.7:xp>10?.4:xp>0?.2:0;
-const border=allDone?"2px solid #4ade80":isPast&&xp>0?"2px solid #ef4444":d===today?"1px solid "+rank.color:"1px solid transparent";
+const border=allDone?"2px solid #4ade80":isPast&&xp>0?"2px solid #ef4444":d===today?"1px solid "+rank.color:"1px solid #ffffff18";
 const shadow=allDone?"0 0 6px #4ade8066":isPast&&xp>0?"0 0 6px #ef444466":"";
 return h("div",{key:d,class:"wday"},
 h("div",{class:"wdlbl"},dlbls[i]),
-h("div",{class:"wddot",style:"background:"+(int>0?"rgba("+rgb+","+int+")":"rgba(255,255,255,0.04)")+";border:"+border+";color:"+(xp>0?"var(--rc)":"var(--td)")+(shadow?";box-shadow:"+shadow:"")},
-xp>0?Math.round(xp):"·")
+h("div",{class:"wddot",style:"background:#0a0a0f;border:"+border+(shadow?";box-shadow:"+shadow:"")},"")
 );
 }))
 )
