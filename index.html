@@ -132,6 +132,7 @@ const DEFS = [
 {id:"flex", name:"Souplesse", unit:"min", xpPer:5, daily:true, weekly:false,optional:true, stat:"Vitalite", icon:"\uD83E\uDD38\uD83C\uDFFB", base:5},
 {id:"sleep", name:"Sommeil", unit:"nuit", xpPer:0, daily:true, weekly:false,optional:true, stat:"Vitalite", icon:"\uD83D\uDECF\uFE0F", base:1, binary:true, binaryXp:50},
 {id:"nosugar",name:"Sans sucres", unit:"jour", xpPer:0, daily:true, weekly:false,optional:true, stat:"Vitalite", icon:"\uD83D\uDEAB", base:1, binary:true, binaryXp:200},
+{id:"grips", name:"Hand grips", unit:"reps", xpPer:0.1,daily:true, weekly:false,optional:true, stat:"Force", icon:"\u270A\uD83C\uDFFB", base:500},
 ];
 
 // Quetes speciales — par stat
@@ -143,7 +144,6 @@ Force:[
 {id:"sp_plank", name:"Gainage", icon:"\uD83E\uDDCE\uD83C\uDFFB", unit:"min", target:10, xp:200, days:1, desc:"10 min cumul\u00e9es en 24h"},
 {id:"sp_200push", name:"200 pompes", icon:"\uD83E\uDDBE", unit:"reps", target:200, xp:350, days:1, desc:"200 pompes en une s\u00e9ance"},
 {id:"sp_wallsit", name:"Wall sit", icon:"\uD83E\uDDF1", unit:"min", target:10, xp:200, days:1, desc:"10 min cumul\u00e9es en 24h"},
-{id:"sp_grips", name:"Hand grips", icon:"\u270A\uD83C\uDFFB", unit:"reps", target:200, xp:300, days:1, desc:"200 reps par main"},
 ],
 Esprit:[
 {id:"sp_pod", name:"Podcast", icon:"\uD83C\uDF99\uFE0F", unit:"\u00e9p.", target:1, xp:100, days:1, desc:"1 podcast complet en 24h", binary:true},
@@ -234,8 +234,8 @@ const saveState = s => { try{ localStorage.setItem("sl_v3",JSON.stringify(s)); }
 // ─── DONNEES IMPORTEES ─────────────────────────────────────────────────────
 
 const IMPORTED = {
-totalXp:6321, streak:6, lastActiveDay:"2026-04-13",
-streakBonusDay:"2026-04-12", weeklyBonusWk:"2026-W15", lastStreakDay:"2026-04-12",
+totalXp:9690.5, streak:9, lastActiveDay:"2026-04-16",
+streakBonusDay:"2026-04-15", weeklyBonusWk:"2026-W15", lastStreakDay:"2026-04-15",
 streakMilestones:[5],
 dailyLog:{
 "2026-04-06":{water:8,push:36,abs:72,sleep:1},
@@ -245,12 +245,15 @@ dailyLog:{
 "2026-04-10":{water:13,sleep:1,push:77,abs:110,squats:40,reading:14,flex:5,med:20},
 "2026-04-11":{water:10,push:45,sleep:1,abs:130,flex:3,squats:25,reading:32,nosugar:1},
 "2026-04-12":{water:8,sleep:1,reading:29,push:64,abs:99,squats:37,flex:3,nosugar:1},
-"2026-04-13":{water:10,push:45,sleep:1,abs:110}
+"2026-04-13":{water:11,push:45,sleep:1,abs:110,squats:23,reading:14,nosugar:1},
+"2026-04-14":{push:65,abs:108,squats:25,water:10,sleep:1,reading:20,nosugar:1},
+"2026-04-15":{water:9,sleep:1,push:90,abs:111,squats:22,med:10,reading:19,nosugar:0,grips:250,flex:0},
+"2026-04-16":{sleep:1,push:70,water:2,abs:130,squats:34}
 },
-weeklyLog:{"2026-W15":{run:13},"2026-W16":{}},
-stats:{Vitalite:4,Force:4,Esprit:3,Endurance:3,Discipline:3},
-statXp:{Vitalite:1585,Force:1951,Esprit:1135,Endurance:800,Discipline:850},
-specialQuests:[{id:"sp_stairs",name:"Escaliers",icon:"\uD83C\uDFD7\uFE0F",unit:"A/R",target:30,xp:300,days:1,desc:"30 mont\u00e9es/descentes",stat:"Endurance",sqid:"sq_1776077146539",progress:0,startedAt:1776077146540,expiresAt:1776163546540,completedAt:null}],
+weeklyLog:{"2026-W15":{run:13},"2026-W16":{run:4.52}},
+stats:{Vitalite:4,Force:4,Esprit:4,Endurance:3,Discipline:3},
+statXp:{Vitalite:2255,Force:3077,Esprit:1882.5,Endurance:1326,Discipline:1150},
+specialQuests:[{id:"sp_pod",name:"Podcast",icon:"\uD83C\uDF99\uFE0F",unit:"\u00e9p.",target:1,xp:100,days:1,desc:"1 podcast complet en 24h",binary:true,stat:"Esprit",sqid:"sq_1776316626968",progress:1,startedAt:1776316626969,expiresAt:1776403026969,completedAt:1776330689940}],
 objectives:DEFS,
 };
 
@@ -293,7 +296,6 @@ return base;
 const [tab,setTab] = useState("home");
 const [rankUp,setRankUp] = useState(null);
 const [floats,setFloats] = useState([]);
-const [showAdd,setShowAdd] = useState(false);
 const [editObj,setEditObj] = useState(null);
 const [showSet,setShowSet] = useState(false);
 const [confirmReset,setConfirmReset] = useState(false);
@@ -615,6 +617,20 @@ obj.xpPer+" xp/"+obj.unit+" \u00b7 "+(STAT_LBL[obj.stat]||obj.stat)
 function RR({obj,isW}){
 const t=getRankBase(obj.id,ri), d=isW?(wLog[obj.id]||0):(tLog[obj.id]||0);
 const pct=Math.min(100,(d/t)*100), done=d>=t, over=d>t;
+const validated=isW?(wLog[obj.id]!==undefined):(tLog[obj.id]!==undefined);
+if(obj.binary){
+return h("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:8px"},
+h("span",{style:"font-size:16px"},obj.icon),
+h("div",{style:"flex:1"},
+h("div",{style:"font-size:12px;color:"+(done?"#4ade80":validated?"#ef4444":"var(--tx)")+";display:flex;justify-content:space-between;align-items:center"},
+h("span",null,obj.name),
+validated
+?h("span",{style:"font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;color:"+(done?"#4ade80":"#ef4444")},done?"\u2705 Succ\u00e8s":"\u274C \u00c9chec")
+:h("span",{style:"font-size:10px;color:var(--td)"},"non valid\u00e9")
+)
+)
+);
+}
 return h("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:8px"},
 h("span",{style:"font-size:16px"},obj.icon),
 h("div",{style:"flex:1"},
@@ -767,44 +783,7 @@ launchNewSq();
 ),
 h("div",{class:"card"},h("div",{class:"shdr"},h("div",{class:"ctitle",style:"margin:0"},"\u2694 Qu\u00eates journali\u00e8res")),req.map(o=>h(QI,{key:o.id,obj:o}))),
 bon.length>0&&h("div",{class:"card"},h("div",{class:"ctitle"},"\u2728 Qu\u00eates bonus"),bon.map(o=>h(QI,{key:o.id,obj:o}))),
-wkq.length>0&&h("div",{class:"card"},h("div",{class:"ctitle"},"\uD83D\uDCC5 Qu\u00eates hebdomadaires"),wkq.map(o=>h(QI,{key:o.id,obj:o}))),
-h("div",{class:"card"},
-h("div",{class:"shdr"},h("div",{class:"ctitle",style:"margin:0"},"Nouvelle qu\u00eate"),h("button",{class:"addbtn",onClick:()=>setShowAdd(v=>!v)},showAdd?"Fermer":"+ Ajouter")),
-showAdd&&h("div",{class:"addform"},
-h("div",{class:"fg"},
-h("input",{id:"nq_name",class:"fin ff",placeholder:"Nom"}),
-h("input",{id:"nq_icon",class:"fin",placeholder:"Ic\u00f4ne",defaultValue:"\u26A1"}),
-h("input",{id:"nq_unit",class:"fin",placeholder:"Unit\u00e9",defaultValue:"reps"}),
-h("input",{id:"nq_xper",class:"fin",type:"text",inputMode:"decimal",placeholder:"XP/unit\u00e9",defaultValue:"1"}),
-h("input",{id:"nq_base",class:"fin",type:"text",inputMode:"decimal",placeholder:"Objectif base",defaultValue:"10"}),
-h("select",{id:"nq_stat",class:"fsel"},STATS.map(s=>h("option",{key:s,value:s},STAT_LBL[s]||s))),
-h("label",{class:"fck"},h("input",{id:"nq_opt",type:"checkbox"}),"Bonus"),
-h("label",{class:"fck"},h("input",{id:"nq_wkly",type:"checkbox"}),"Hebdo"),
-h("label",{class:"fck"},h("input",{id:"nq_bin",type:"checkbox"}),"Binaire (oui/non)")
-),
-h("button",{class:"qbtn",style:"width:100%;margin-top:10px",onClick:()=>{
-const g=id=>document.getElementById(id);
-const name=(g("nq_name")?.value||"").trim();
-if(!name)return;
-const binary=g("nq_bin")?.checked||false;
-const weekly=g("nq_wkly")?.checked||false;
-const obj={
-id:"c_"+Date.now(),
-name,
-icon:g("nq_icon")?.value||"\u26A1",
-unit:g("nq_unit")?.value||"reps",
-xpPer:binary?0:parseFloat(g("nq_xper")?.value||"1")||1,
-base:parseInt(g("nq_base")?.value||"10")||10,
-stat:g("nq_stat")?.value||"Force",
-optional:g("nq_opt")?.checked||false,
-weekly, daily:!weekly,
-binary, binaryXp:binary?parseFloat(g("nq_xper")?.value||"100")||100:0,
-};
-setState(s=>({...s,objectives:[...(s.objectives||DEFS),obj]}));
-setShowAdd(false);
-}},"Cr\u00e9er la qu\u00eate")
-)
-)
+wkq.length>0&&h("div",{class:"card"},h("div",{class:"ctitle"},"\uD83D\uDCC5 Qu\u00eates hebdomadaires"),wkq.map(o=>h(QI,{key:o.id,obj:o})))
 );
 }
 
