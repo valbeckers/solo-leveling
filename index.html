@@ -138,7 +138,7 @@ const DEFS = [
 {id:"flex", name:"Souplesse", unit:"min", xpPer:5, daily:true, weekly:false,optional:true, stat:"Vitalite", icon:"\uD83E\uDD38\uD83C\uDFFB", base:5},
 {id:"sleep", name:"Sommeil", unit:"nuit", xpPer:0, daily:true, weekly:false,optional:true, stat:"Vitalite", icon:"\uD83D\uDECF\uFE0F", base:1, binary:true, binaryXp:50},
 {id:"nosugar",name:"Sans sucres", unit:"jour", xpPer:0, daily:true, weekly:false,optional:true, stat:"Vitalite", icon:"\uD83D\uDEAB", base:1, binary:true, binaryXp:200},
-{id:"grips", name:"Hand grips", unit:"reps", xpPer:0.1,daily:true, weekly:false,optional:true, stat:"Force", icon:"\u270A\uD83C\uDFFB", base:500},
+{id:"grips", name:"Hand grips", unit:"sec", xpPer:0.1,daily:true, weekly:false,optional:true, stat:"Force", icon:"\u270A\uD83C\uDFFB", base:500},
 ];
 
 // Quetes speciales — par stat
@@ -707,14 +707,14 @@ done&&showInput&&h("div",{style:"text-align:center;padding:8px 0;font-size:12px;
 
 function Home(){
 const secs=[
+{lb:"\uD83D\uDCC5 Qu\u00eates hebdomadaires",ob:sortStat(objs.filter(o=>o.weekly)), iw:true},
 {lb:"\u2694 Qu\u00eates journali\u00e8res",ob:sortStat(objs.filter(o=>o.daily&&!o.optional)),iw:false},
 {lb:"\u2728 Qu\u00eates bonus", ob:sortStat(objs.filter(o=>o.daily&&o.optional)), iw:false},
-{lb:"\uD83D\uDCC5 Qu\u00eates hebdomadaires",ob:sortStat(objs.filter(o=>o.weekly)), iw:true},
 ];
 return h("div",{class:"tab"},
 missedDays>=2&&h("div",{class:"warn"},"\u26A0\uFE0F P\u00e9nalit\u00e9 : -"+(missedDays*10)+" XP ("+missedDays+" jours manqu\u00e9s)"),
 nextRank&&h("div",{class:"card"},
-h("div",{style:"display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;margin-bottom:12px"},
+h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"},
 h("div",{style:"display:flex;align-items:center;gap:10px"},
 h("div",{style:"font-family:Orbitron,sans-serif;font-size:36px;font-weight:900;color:var(--rc);text-shadow:0 0 20px var(--rg);line-height:1"},rank.id),
 h("div",null,
@@ -722,10 +722,13 @@ h("div",{style:"font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;c
 h("div",{style:"font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-top:2px"},"Rang actuel")
 )
 ),
-h("div",{style:"font-size:18px;color:var(--td);text-align:center"},"\u2192"),
+h("div",{style:"font-size:18px;color:var(--td)"},"\u2192"),
+nextRank&&h("div",{style:"display:flex;align-items:center;gap:10px"},
 h("div",{style:"text-align:right"},
-h("div",{style:"font-family:Orbitron,sans-serif;font-size:22px;font-weight:700;color:var(--td);line-height:1"},nextRank.id),
-h("div",{style:"font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-top:2px"},nextRank.label)
+h("div",{style:"font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:var(--td)"},nextRank.label),
+h("div",{style:"font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-top:2px"},"Rang suivant")
+),
+h("div",{style:"font-family:Orbitron,sans-serif;font-size:36px;font-weight:900;color:var(--td);line-height:1"},nextRank.id)
 )
 ),
 h("div",{class:"xpbar",style:"height:8px"},h("div",{class:"xpfill",style:"width:"+rankPct+"%"})),
@@ -787,9 +790,9 @@ launchNewSq();
 ),
 !activeSq&&!completedSq&&h("div",{style:"font-size:12px;color:var(--td);text-align:center;padding:8px 0"},"Chargement du d\u00e9fi...")
 ),
+wkq.length>0&&h("div",{class:"card"},h("div",{class:"ctitle"},"\uD83D\uDCC5 Qu\u00eates hebdomadaires"),wkq.map(o=>h(QI,{key:o.id,obj:o}))),
 h("div",{class:"card"},h("div",{class:"shdr"},h("div",{class:"ctitle",style:"margin:0"},"\u2694 Qu\u00eates journali\u00e8res")),req.map(o=>h(QI,{key:o.id,obj:o}))),
-bon.length>0&&h("div",{class:"card"},h("div",{class:"ctitle"},"\u2728 Qu\u00eates bonus"),bon.map(o=>h(QI,{key:o.id,obj:o}))),
-wkq.length>0&&h("div",{class:"card"},h("div",{class:"ctitle"},"\uD83D\uDCC5 Qu\u00eates hebdomadaires"),wkq.map(o=>h(QI,{key:o.id,obj:o})))
+bon.length>0&&h("div",{class:"card"},h("div",{class:"ctitle"},"\u2728 Qu\u00eates bonus"),bon.map(o=>h(QI,{key:o.id,obj:o})))
 );
 }
 
@@ -846,7 +849,7 @@ const tots={...dt,...(state.weeklyLog[wKey]||{})};
 const we=new Date(ws); we.setDate(ws.getDate()+6);
 const fmt=d=>d.getDate().toString().padStart(2,"0")+"/"+(d.getMonth()+1).toString().padStart(2,"0");
 const lbl=wkOff===0?"Cette semaine":wkOff===1?"Semaine derni\u00e8re":fmt(ws)+" \u2013 "+fmt(we);
-const ordered=[...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>o.daily&&o.optional)),...sortStat(objs.filter(o=>o.weekly))];
+const ordered=[...sortStat(objs.filter(o=>o.weekly)),...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>o.daily&&o.optional))];
 
 // ── 7 derniers jours ──
 const last7=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return localDate(d);});
@@ -970,7 +973,7 @@ ordered.every(o=>!(tots[o.id]>0))&&h("div",{style:"text-align:center;font-size:1
 // Records personnels
 h("div",{class:"card"},
 h("div",{class:"ctitle"},"\uD83C\uDFC6 Records personnels"),
-[...sortStat(objs.filter(o=>o.daily&&!o.optional&&!o.binary)),...sortStat(objs.filter(o=>o.daily&&o.optional&&!o.binary)),...sortStat(objs.filter(o=>o.weekly&&!o.binary))].map(o=>{
+[...sortStat(objs.filter(o=>o.weekly&&!o.binary)),...sortStat(objs.filter(o=>o.daily&&!o.optional&&!o.binary)),...sortStat(objs.filter(o=>o.daily&&o.optional&&!o.binary))].map(o=>{
 const rec=records[o.id];
 if(!rec)return h("div",{key:o.id,style:"display:flex;align-items:center;gap:10px;margin-bottom:8px;opacity:.4"},
 h("span",{style:"font-size:16px"},o.icon),
@@ -996,7 +999,7 @@ h("span",{style:"font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;
 
 function Settings(){
 if(!showSet)return null;
-const ordered=[...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>o.daily&&o.optional)),...sortStat(objs.filter(o=>o.weekly))];
+const ordered=[...sortStat(objs.filter(o=>o.weekly)),...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>o.daily&&o.optional))];
 function applyEdit(){
 setState(s=>{
 let xpD=0;
