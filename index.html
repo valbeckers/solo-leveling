@@ -13,11 +13,12 @@
 *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
 :root{--rc:#9ca3af;--rg:#9ca3af55;--ra:#6b7280;--bg:#0a0a0f;--sf:rgba(255,255,255,0.03);--sf2:rgba(255,255,255,0.06);--tx:#e2e8f0;--td:#64748b}
 html,body{height:100%;background:#0a0a0f;color:var(--tx);font-family:'Rajdhani',sans-serif;overflow-x:hidden}
-#app{max-width:430px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:80px;background:#0a0a0f}
+#app{max-width:430px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:80px;padding-top:90px;background:#0a0a0f}
+.hdr-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:430px;max-width:100vw;z-index:100;background:#0a0a0f}
 .particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
 .particle{position:absolute;border-radius:50%;animation:floatP linear infinite}
 @keyframes floatP{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-100px) scale(1);opacity:0}}
-.hdr{position:sticky;top:0;z-index:100;background:#0a0a0f;padding:54px 20px 12px 32px}
+.hdr{background:#0a0a0f;padding:54px 20px 12px 32px}
 .hdr-top{display:flex;justify-content:space-between;align-items:center}
 .pname{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--rc);text-shadow:0 0 20px var(--rg);letter-spacing:3px}
 .gbtn{background:none;border:none;width:43px;height:43px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:var(--rc);opacity:.8}
@@ -1282,11 +1283,13 @@ const parts=Array.from({length:15},(_,i)=>({id:i,s:Math.random()*3+1,l:Math.rand
 return h(Fragment,null,
 h("div",{id:"app"},
 h("div",{class:"particles"},parts.map(p=>h("div",{key:p.id,class:"particle",style:"width:"+p.s+"px;height:"+p.s+"px;left:"+p.l+"%;bottom:-10px;background:"+rank.color+";box-shadow:0 0 4px "+rank.glow+";animation-duration:"+p.dur+"s;animation-delay:"+p.del+"s"}))),
+h("div",{class:"hdr-wrap"},
 h("div",{class:"hdr"},
 h("div",{class:"hdr-top",style:"position:relative"},
 h("div",null,h("div",{class:"pname"},"VAL")),
 prestige>0&&h("div",{class:"prestige-badge"},"\u269B\uFE0F Ascension "+ROMAN[prestige-1]),
 h("button",{class:"gbtn",onClick:()=>setShowSet(true)},"\u2699")
+)
 )
 ),
 tab==="home" &&h(Home,null),
