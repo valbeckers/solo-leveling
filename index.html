@@ -29,7 +29,7 @@ html,body{height:100%;width:100%;overflow:hidden;background:#0a0a0f;color:var(--
 .nav{flex-shrink:0;width:100%;background:#0a0a0f;display:flex;z-index:200;border-top:1px solid rgba(255,255,255,0.06)}
 .nbtn{flex:1;padding:4px 0;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--td);font-family:'Rajdhani',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:color .2s}
 .nbtn.on{color:var(--rc)}
-.nicon{font-size:18px}
+.nicon{font-size:16px}
 .tab{padding:16px 16px 0;position:relative;z-index:1}
 .card{background:var(--sf);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--rc),transparent);opacity:.4}
@@ -1307,7 +1307,7 @@ function App(){
       ),
       h("nav",{class:"nav"},
         [["home","\uD83C\uDFE0","Accueil"],["quests","\u2694","Qu\u00eates"],["stats","\uD83D\uDCCA","Stats"],["history","\uD83D\uDCC5","Historique"]].map(([id,icon,lbl])=>
-          h("button",{key:id,class:"nbtn "+(tab===id?"on":""),style:tab===id?"border:1px solid "+rank.color+"88;border-radius:10px;margin:6px 4px;padding:8px 0":"margin:6px 4px;padding:8px 0",onClick:()=>setTab(id)},
+          h("button",{key:id,class:"nbtn "+(tab===id?"on":""),style:tab===id?"border:1px solid "+rank.color+"88;border-radius:10px;margin:3px 4px":"margin:3px 4px",onClick:()=>setTab(id)},
             h("span",{class:"nicon"},icon),lbl)
         )
       ),
