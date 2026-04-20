@@ -101,6 +101,24 @@ html,body{height:100%;background:#0a0a0f;color:var(--tx);font-family:'Rajdhani',
 .sqbar{height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;margin:6px 0}
 .sqbarfill{height:100%;border-radius:2px;background:linear-gradient(90deg,#991b1b,#ef4444);transition:width .4s}
 .divider{height:1px;background:linear-gradient(90deg,transparent,var(--rc),transparent);margin:8px 0 16px;opacity:.3}
+.prestige-badge{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;letter-spacing:2px;color:#a855f7;text-shadow:0 0 12px #a855f766;display:flex;align-items:center;gap:5px;white-space:nowrap;position:absolute;left:50%;transform:translateX(-50%)}
+.puov{position:fixed;inset:0;z-index:950;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.97)}
+.pubg{position:absolute;inset:0;background:radial-gradient(ellipse at center,#1a0533 0%,#0a0a0f 70%);animation:pubgPulse 3s ease-in-out infinite}
+.puparts{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.pupart{position:absolute;border-radius:50%;animation:purise linear infinite;opacity:0}
+.pustars{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.pustar{position:absolute;width:2px;height:2px;border-radius:50%;background:#a855f7;animation:putwinkle linear infinite}
+.pucont{text-align:center;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px}
+.puatom{font-size:72px;line-height:1;animation:puatomGlitch 3s ease-in-out infinite}
+.pubadge{font-family:'Orbitron',sans-serif;font-size:24px;font-weight:900;color:#a855f7;letter-spacing:4px;text-shadow:0 0 30px #a855f7;animation:pubadgePulse 2s ease-in-out infinite}
+.puline{position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#a855f7,transparent);animation:pulineSlide 2.5s ease-in-out infinite}
+.pudis{margin-top:32px;background:rgba(168,85,247,0.08);border:1px solid #a855f7;border-radius:8px;padding:12px 32px;color:#a855f7;font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;cursor:pointer;text-transform:uppercase}
+@keyframes pubgPulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes purise{0%{transform:translateY(0);opacity:0}15%{opacity:1}85%{opacity:.5}100%{transform:translateY(-100vh);opacity:0}}
+@keyframes putwinkle{0%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1.5)}100%{opacity:0;transform:scale(0)}}
+@keyframes puatomGlitch{0%,65%,100%{transform:none;filter:none}67%{transform:translate(-4px,0);filter:hue-rotate(90deg) brightness(1.5)}69%{transform:translate(4px,0);filter:hue-rotate(-90deg)}71%{transform:translate(-2px,0);filter:none}73%{transform:none}75%{transform:translate(3px,-2px);filter:hue-rotate(60deg) brightness(1.3)}77%{transform:none;filter:none}}
+@keyframes pubadgePulse{0%,100%{text-shadow:0 0 20px #a855f7;opacity:.85}50%{text-shadow:0 0 40px #a855f7,0 0 80px #a855f744;opacity:1}}
+@keyframes pulineSlide{0%{transform-origin:center;transform:scaleX(0);opacity:0}50%{transform:scaleX(1);opacity:1}100%{transform:scaleX(0);opacity:0}}
 </style>
 </head>
 <body>
@@ -192,9 +210,14 @@ reading: [10, 14, 18, 22, 26, 30],
 run: [7, 10, 12, 15, 17, 20],
 };
 
-function getRankBase(objId, rankIdx){
-return RANK_BASES[objId]?.[rankIdx] ?? (DEFS.find(o=>o.id===objId)?.base ?? 0);
+function getRankBase(objId, rankIdx, prestige){
+const base = RANK_BASES[objId]?.[rankIdx] ?? (DEFS.find(o=>o.id===objId)?.base ?? 0);
+if(!prestige||prestige===0)return base;
+return Math.round(base * Math.pow(2, prestige));
 }
+
+const ROMAN = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
+const MAX_PRESTIGE = 10;
 const getTarget = base => base; // pas de scaling rang pour l'instant
 const todayStr = () => { const d=new Date(); const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0"); return y+"-"+m+"-"+day; };
 const wkStr = (d=new Date()) => {
@@ -280,6 +303,7 @@ dailyLog:saved.dailyLog||IMPORTED.dailyLog,
 weeklyLog:saved.weeklyLog||IMPORTED.weeklyLog,
 // Ne jamais garder un totalXp inférieur à ce qu'on a calculé
 totalXp:Math.max(saved.totalXp||0, IMPORTED.totalXp),
+prestige:saved.prestige||IMPORTED.prestige||0,
 };
 }
 
@@ -304,6 +328,7 @@ return base;
 });
 const [tab,setTab] = useState("home");
 const [rankUp,setRankUp] = useState(null);
+const [prestigeUp,setPrestigeUp] = useState(null);
 const [floats,setFloats] = useState([]);
 const [showSet,setShowSet] = useState(false);
 const [confirmReset,setConfirmReset] = useState(false);
@@ -353,6 +378,7 @@ const wk = wkStr();
 const objs = state.objectives||DEFS;
 const tLog = state.dailyLog[today]||{};
 const wLog = state.weeklyLog[wk]||{};
+const prestige = state.prestige||0;
 
 const effectiveXp = state.totalXp;
 const rank = getRank(effectiveXp);
@@ -364,6 +390,12 @@ const xpInRank = effectiveXp - rank.xpRequired;
 const xpToNext = nextRank ? nextRank.xpRequired - rank.xpRequired : 1;
 const rankPct = nextRank ? Math.min(100,(xpInRank/xpToNext)*100) : 100;
 
+// 5b. Prestige disponible : rang S atteint + XP max du rang S
+const S_RANK = RANKS[RANKS.length-1];
+const S_PREV = RANKS[RANKS.length-2];
+const S_XP_MAX = S_RANK.xpRequired + (S_RANK.xpRequired - S_PREV.xpRequired);
+const prestigeAvailable = prestige < MAX_PRESTIGE && !nextRank && effectiveXp >= S_XP_MAX;
+
 // 6. XP du jour (journalières uniquement, pas l'hebdo)
 const todayXp = Object.entries(tLog).reduce((s,[id,a])=>{
 const o=objs.find(x=>x.id===id); return s+(o?calcXp(o,a):0);
@@ -371,7 +403,7 @@ const o=objs.find(x=>x.id===id); return s+(o?calcXp(o,a):0);
 
 // 7. Quetes journalieres obligatoires toutes faites ?
 const reqDailyObjs = objs.filter(o=>!o.optional&&o.daily);
-const allDailyDone = reqDailyObjs.every(o=>(tLog[o.id]||0)>=getRankBase(o.id,ri));
+const allDailyDone = reqDailyObjs.every(o=>(tLog[o.id]||0)>=getRankBase(o.id,ri,prestige));
 
 // 8. Streak : calculé depuis dailyLog mais ne descend jamais sous le streak sauvegardé si hier était complet
 const computedStreak = (()=>{
@@ -396,12 +428,12 @@ return streak;
 
 // 9. Bonus hebdo
 const weeklyDone = (()=>{
-const weeklyOk=objs.filter(o=>!o.optional&&o.weekly).every(o=>(wLog[o.id]||0)>=getRankBase(o.id,ri));
+const weeklyOk=objs.filter(o=>!o.optional&&o.weekly).every(o=>(wLog[o.id]||0)>=getRankBase(o.id,ri,prestige));
 if(!weeklyOk)return false;
 const ws=new Date(); ws.setDate(ws.getDate()-((ws.getDay()+6)%7)); ws.setHours(0,0,0,0);
 const days=Array.from({length:7},(_,i)=>{const d=new Date(ws);d.setDate(ws.getDate()+i);return d.toISOString().slice(0,10);});
 if(days.some(d=>d>today))return false;
-return reqDailyObjs.every(o=>days.every(d=>(state.dailyLog[d]?.[o.id]||0)>=getRankBase(o.id,ri)));
+return reqDailyObjs.every(o=>days.every(d=>(state.dailyLog[d]?.[o.id]||0)>=getRankBase(o.id,ri,prestige)));
 })();
 
 // 10. Quete speciale
@@ -528,8 +560,8 @@ const val=parseFloat(raw); if(!val||val<=0)return;
 inputs.current[obj.id]="";
 const cur=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
 let xp=0;
-if(obj.binary){const was=cur>=getRankBase(obj.id,ri),now2=(cur+val)>=getRankBase(obj.id,ri); xp=(!was&&now2)?(obj.binaryXp||50):0;}
-else{const nt=cur+val; const b=getRankBase(obj.id,ri); if(cur>=b)xp=val*obj.xpPer*1.5; else if(nt<=b)xp=val*obj.xpPer; else{const n=b-cur; xp=n*obj.xpPer+(val-n)*obj.xpPer*1.5;}}
+if(obj.binary){const was=cur>=getRankBase(obj.id,ri,prestige),now2=(cur+val)>=getRankBase(obj.id,ri,prestige); xp=(!was&&now2)?(obj.binaryXp||50):0;}
+else{const nt=cur+val; const b=getRankBase(obj.id,ri,prestige); if(cur>=b)xp=val*obj.xpPer*1.5; else if(nt<=b)xp=val*obj.xpPer; else{const n=b-cur; xp=n*obj.xpPer+(val-n)*obj.xpPer*1.5;}}
 setState(s=>{
 if(obj.weekly){const w={...s.weeklyLog};w[wk]={...(w[wk]||{}),[obj.id]:(w[wk]?.[obj.id]||0)+val};return{...s,weeklyLog:w,lastActiveDay:todayStr()};}
 const d={...s.dailyLog};d[today]={...(d[today]||{}),[obj.id]:(d[today]?.[obj.id]||0)+val};return{...s,dailyLog:d,lastActiveDay:todayStr()};
@@ -573,7 +605,7 @@ if(d>0)return d+"j "+hh+"h"; if(hh>0)return hh+"h "+mm+"min"; return mm+"min";
 // ─── SOUS-COMPOSANTS ──────────────────────────────────────────────────
 
 function QI({obj}){
-const t=getRankBase(obj.id,ri), d=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
+const t=getRankBase(obj.id,ri,prestige), d=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
 const done=obj.binary?(d>=1):(d>=t);
 
 // Quêtes binaires : boutons Échec / Succès
@@ -647,7 +679,7 @@ obj.xpPer+" xp/"+obj.unit+" \u00b7 "+(STAT_LBL[obj.stat]||obj.stat)
 }
 
 function RR({obj,isW}){
-const t=getRankBase(obj.id,ri), d=isW?(wLog[obj.id]||0):(tLog[obj.id]||0);
+const t=getRankBase(obj.id,ri,prestige), d=isW?(wLog[obj.id]||0):(tLog[obj.id]||0);
 const pct=Math.min(100,(d/t)*100), done=d>=t, over=d>t;
 const validated=isW?(wLog[obj.id]!==undefined):(tLog[obj.id]!==undefined);
 if(obj.binary){
@@ -740,7 +772,7 @@ const secs=[
 return h("div",{class:"tab"},
 missedDays>=2&&h("div",{class:"warn"},"\u26A0\uFE0F P\u00e9nalit\u00e9 : -"+(missedDays*10)+" XP ("+missedDays+" jours manqu\u00e9s)"),
 yesterdayIncomplete&&h("div",{class:"warn",style:"background:#ef444411;border:1px solid #ef444466;color:#ef4444"},"\uD83D\uDEA8 Hier incomplet \u2014 -200 XP \u2022 -200 XP Discipline"),
-nextRank&&h("div",{class:"card"},
+h("div",{class:"card"},
 h("div",{style:"display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"},
 h("div",{style:"display:flex;align-items:center;gap:10px"},
 h("div",{style:"font-family:Orbitron,sans-serif;font-size:36px;font-weight:900;color:var(--rc);text-shadow:0 0 20px var(--rg);line-height:1"},rank.id),
@@ -750,19 +782,36 @@ h("div",{style:"font-size:10px;color:var(--td);letter-spacing:1px;text-transform
 )
 ),
 h("div",{style:"font-size:18px;color:var(--td)"},"\u2192"),
-nextRank&&h("div",{style:"display:flex;align-items:center;gap:10px"},
+nextRank
+? h("div",{style:"display:flex;align-items:center;gap:10px"},
 h("div",{style:"text-align:right"},
 h("div",{style:"font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:var(--td)"},nextRank.label),
 h("div",{style:"font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-top:2px"},"Rang suivant")
 ),
 h("div",{style:"font-family:Orbitron,sans-serif;font-size:36px;font-weight:900;color:var(--td);line-height:1"},nextRank.id)
 )
+: h("div",{style:"text-align:right"},
+h("div",{style:"font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:#a855f755"},prestige<MAX_PRESTIGE?"Ascension "+(ROMAN[prestige]||""):"Maximum"),
+h("div",{style:"font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-top:2px"},"Prestige")
+)
 ),
-h("div",{class:"xpbar",style:"height:8px"},h("div",{class:"xpfill",style:"width:"+rankPct+"%"})),
+h("div",{class:"xpbar",style:"height:8px"},h("div",{class:"xpfill",style:"width:"+(nextRank?rankPct:Math.min(100,((effectiveXp-S_RANK.xpRequired)/(S_XP_MAX-S_RANK.xpRequired))*100))+"%"})),
 h("div",{style:"display:flex;justify-content:space-between;font-size:10px;color:var(--td);margin-top:5px;font-family:Orbitron,sans-serif"},
 h("span",null,state.totalXp.toFixed(0)+" XP"),
-h("span",{style:"color:var(--rc)"},(nextRank.xpRequired-state.totalXp).toFixed(0)+" XP manquants")
+nextRank
+? h("span",{style:"color:var(--rc)"},(nextRank.xpRequired-state.totalXp).toFixed(0)+" XP manquants")
+: prestigeAvailable
+? h("span",{style:"color:#a855f7"},"Ascension disponible !")
+: h("span",{style:"color:var(--rc)"},(S_XP_MAX-effectiveXp).toFixed(0)+" XP avant Ascension")
 ),
+prestigeAvailable&&h("button",{
+onClick:()=>{
+const newPrestige=(state.prestige||0)+1;
+setState(s=>({...s,totalXp:0,streak:0,lastActiveDay:null,streakBonusDay:null,weeklyBonusWk:null,streakMilestones:[],penaltyDay:null,dailyLog:{},weeklyLog:{},specialQuests:[],prestige:newPrestige}));
+setPrestigeUp(newPrestige);
+},
+style:"width:100%;margin-top:12px;padding:12px;background:rgba(168,85,247,0.1);border:1px solid #a855f7;border-radius:10px;color:#a855f7;font-family:Orbitron,sans-serif;font-size:12px;letter-spacing:3px;cursor:pointer;text-transform:uppercase;text-shadow:0 0 12px #a855f7"
+},"\u269B\uFE0F Montée en Ascension"),
 h("div",{style:"display:grid;grid-template-columns:1fr 1px 1fr;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)"},
 h("div",{style:"text-align:center"},
 h("div",{style:"font-family:Orbitron,sans-serif;font-size:16px;font-weight:700;color:var(--rc)"},"\uD83D\uDD25 "+state.streak),
@@ -976,7 +1025,7 @@ h("div",{class:"qbar"},h("div",{class:"qfill"+(complete?" done":""),style:"width
 complete&&h("span",{style:"font-size:22px"},"✅")
 );
 }
-const val=tots[obj.id]||0, wt=obj.weekly?getRankBase(obj.id,ri):getRankBase(obj.id,ri)*7;
+const val=tots[obj.id]||0, wt=obj.weekly?getRankBase(obj.id,ri):getRankBase(obj.id,ri,prestige)*7;
 const pct=Math.min(100,(val/wt)*100), complete=val>=wt, over=val>wt;
 return h("div",{key:obj.id,style:"display:flex;align-items:center;gap:10px;margin-bottom:10px"},
 h("span",{style:"font-size:18px"},obj.icon),
@@ -1128,6 +1177,25 @@ h("button",{class:"rudis",onClick:()=>setRankUp(null)},"Continuer")
 );
 }
 
+// ─── ANIMATION PRESTIGE ───────────────────────────────────────────────
+
+function PrestigeUp(){
+if(!prestigeUp)return null;
+const particles=Array.from({length:40},(_,i)=>({id:i,left:Math.random()*100,delay:Math.random()*3,dur:1.2+Math.random()*2,size:2+Math.random()*4}));
+const stars=Array.from({length:30},(_,i)=>({id:i,left:Math.random()*100,top:Math.random()*100,delay:Math.random()*4,dur:2+Math.random()*3}));
+return h("div",{class:"puov"},
+h("div",{class:"pubg",style:"pointer-events:none"}),
+h("div",{class:"pustars",style:"pointer-events:none"},stars.map(s=>h("div",{key:s.id,class:"pustar",style:"left:"+s.left+"%;top:"+s.top+"%;animation-delay:"+s.delay+"s;animation-duration:"+s.dur+"s"}))),
+h("div",{class:"puparts",style:"pointer-events:none"},particles.map(p=>h("div",{key:p.id,class:"pupart",style:"left:"+p.left+"%;bottom:0;width:"+p.size+"px;height:"+p.size+"px;background:"+(Math.random()>.6?"#c084fc":"#a855f7")+";animation-delay:"+p.delay+"s;animation-duration:"+p.dur+"s"}))),
+h("div",{class:"pucont"},
+h("div",{class:"puatom"},"\u269B\uFE0F"),
+h("div",{class:"pubadge"},"Ascension "+ROMAN[prestigeUp-1]),
+h("button",{class:"pudis",onClick:()=>setPrestigeUp(null)},"Continuer")
+),
+h("div",{class:"puline",style:"pointer-events:none"})
+);
+}
+
 // ─── RENDU PRINCIPAL ──────────────────────────────────────────────────
 
 const parts=Array.from({length:15},(_,i)=>({id:i,s:Math.random()*3+1,l:Math.random()*100,dur:Math.random()*10+8,del:Math.random()*10}));
@@ -1136,8 +1204,9 @@ return h(Fragment,null,
 h("div",{id:"app"},
 h("div",{class:"particles"},parts.map(p=>h("div",{key:p.id,class:"particle",style:"width:"+p.s+"px;height:"+p.s+"px;left:"+p.l+"%;bottom:-10px;background:"+rank.color+";box-shadow:0 0 4px "+rank.glow+";animation-duration:"+p.dur+"s;animation-delay:"+p.del+"s"}))),
 h("div",{class:"hdr"},
-h("div",{class:"hdr-top"},
+h("div",{class:"hdr-top",style:"position:relative"},
 h("div",null,h("div",{class:"pname"},"VAL")),
+prestige>0&&h("div",{class:"prestige-badge"},"\u269B\uFE0F Ascension "+ROMAN[prestige-1]),
 h("button",{class:"gbtn",onClick:()=>setShowSet(true)},"\u2699")
 )
 ),
@@ -1154,6 +1223,7 @@ h("span",{class:"nicon"},icon),lbl)
 floats.map(f=>h("div",{key:f.id,class:"xpfloat",style:"top:"+(f.y||"40%")+(typeof f.y==="number"?"px":"")+";left:50%;transform:translateX(-50%)"},f.txt)),
 h(Settings,null),
 h(RankUp,null),
+h(PrestigeUp,null),
 )
 );
 }
