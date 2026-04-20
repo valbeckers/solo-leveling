@@ -155,6 +155,7 @@ const DEFS = [
 {id:"run", name:"Course", unit:"km", xpPer:50, daily:false,weekly:true, optional:false,stat:"Endurance",icon:"\uD83C\uDFC3\uD83C\uDFFB", base:7},
 {id:"med", name:"M\u00e9ditation",unit:"min", xpPer:5, daily:true, weekly:false,optional:true, stat:"Esprit", icon:"\uD83E\uDDD8\uD83C\uDFFB", base:5},
 {id:"flex", name:"Souplesse", unit:"min", xpPer:5, daily:true, weekly:false,optional:true, stat:"Vitalite", icon:"\uD83E\uDD38\uD83C\uDFFB", base:5},
+{id:"walk", name:"Marche", unit:"km", xpPer:25, daily:true, weekly:false,optional:true, stat:"Endurance",icon:"\uD83D\uDEB6\uD83C\uDFFB\u200D\u2642\uFE0F", base:3},
 {id:"grips", name:"Hand grips", unit:"sec", xpPer:0.1,daily:true, weekly:false,optional:true, stat:"Force", icon:"\u270A\uD83C\uDFFB", base:500},
 ];
 
@@ -180,7 +181,7 @@ Endurance:[
 {id:"sp_sprint", name:"Sprints", icon:"\u26A1", unit:"s\u00e9ries",target:10,xp:300,days:1,desc:"10 x 100m sprint/r\u00e9cup"},
 {id:"sp_5km", name:"5km d'une traite", icon:"\uD83C\uDFC3\uD83C\uDFFB",unit:"km", target:5, xp:300, days:1, desc:"5km sans s'arr\u00eater", binary:true},
 {id:"sp_stairs", name:"Escaliers", icon:"\uD83E\uDE9C", unit:"A/R", target:30, xp:300, days:1, desc:"30 mont\u00e9es/descentes"},
-{id:"sp_walk", name:"Marche 30 min", icon:"\uD83D\uDEB6", unit:"jour", target:1, xp:200, days:1, desc:"30 min de marche d'une traite", binary:true},
+{id:"sp_walk", name:"Marche 30 min", icon:"\uD83D\uDEB6\uD83C\uDFFB\u200D\u2642\uFE0F", unit:"jour", target:1, xp:200, days:1, desc:"30 min de marche d'une traite", binary:true},
 {id:"sp_burpees", name:"Burpees", icon:"\uD83D\uDD25", unit:"reps", target:100, xp:300, days:1, desc:"100 burpees en 24h"},
 {id:"sp_calves", name:"Extensions mollets", icon:"\uD83E\uDDBF", unit:"reps", target:200, xp:200, days:1, desc:"200 extensions de mollets"},
 ],
@@ -207,13 +208,22 @@ push: [30, 44, 58, 72, 86, 100],
 abs: [60, 88, 116, 144, 172, 200],
 squats: [15, 22, 29, 36, 43, 50],
 reading: [10, 14, 18, 22, 26, 30],
-run: [7, 10, 12, 15, 17, 20],
+run: [5, 7, 9, 11, 13, 15],
 };
+
+// XP requis pour chaque Ascension (×2 à chaque fois, base = XP rang S)
+function getAscensionXpRequired(prestigeLevel){
+// A1 = 141000, A2 = 282000, A3 = 564000...
+const BASE = 141000;
+return Math.round(BASE * Math.pow(2, prestigeLevel - 1));
+}
 
 function getRankBase(objId, rankIdx, prestige){
 const base = RANK_BASES[objId]?.[rankIdx] ?? (DEFS.find(o=>o.id===objId)?.base ?? 0);
 if(!prestige||prestige===0)return base;
-return Math.round(base * Math.pow(2, prestige));
+// Au rang S : base rang S × 1.2^prestige
+const sBase = RANK_BASES[objId]?.[5] ?? base;
+return Math.round(sBase * Math.pow(1.2, prestige));
 }
 
 const ROMAN = ["I","II","III","IV","V","VI","VII","VIII","IX","X"];
@@ -304,6 +314,8 @@ weeklyLog:saved.weeklyLog||IMPORTED.weeklyLog,
 // Ne jamais garder un totalXp inférieur à ce qu'on a calculé
 totalXp:Math.max(saved.totalXp||0, IMPORTED.totalXp),
 prestige:saved.prestige||IMPORTED.prestige||0,
+restMode:saved.restMode||false,
+walkTarget:saved.walkTarget||0,
 };
 }
 
@@ -334,6 +346,9 @@ const [showSet,setShowSet] = useState(false);
 const [confirmReset,setConfirmReset] = useState(false);
 const [wkOff,setWkOff] = useState(0);
 const inputs = useRef({});
+const walkTargetRef = useRef(state.walkTarget||0);
+// Sync ref from state on mount (after reload)
+useEffect(()=>{ walkTargetRef.current=state.walkTarget||0; },[]);
 
 // Persistance
 useEffect(()=>{ saveState(state); },[state]);
@@ -392,9 +407,9 @@ const rankPct = nextRank ? Math.min(100,(xpInRank/xpToNext)*100) : 100;
 
 // 5b. Prestige disponible : rang S atteint + XP max du rang S
 const S_RANK = RANKS[RANKS.length-1];
-const S_PREV = RANKS[RANKS.length-2];
-const S_XP_MAX = S_RANK.xpRequired + (S_RANK.xpRequired - S_PREV.xpRequired);
-const prestigeAvailable = prestige < MAX_PRESTIGE && !nextRank && effectiveXp >= S_XP_MAX;
+const ASCENSION_XP_NEEDED = prestige > 0 ? getAscensionXpRequired(prestige + 1) : getAscensionXpRequired(1);
+const ASCENSION_XP_START = prestige > 0 ? getAscensionXpRequired(prestige) : S_RANK.xpRequired;
+const prestigeAvailable = prestige < MAX_PRESTIGE && !nextRank && effectiveXp >= ASCENSION_XP_NEEDED;
 
 // 6. XP du jour (journalières uniquement, pas l'hebdo)
 const todayXp = Object.entries(tLog).reduce((s,[id,a])=>{
@@ -427,13 +442,33 @@ return streak;
 })();
 
 // 9. Bonus hebdo
+const restMode = state.restMode||false;
+const walkDef = objs.find(o=>o.id==="walk");
+// En mode blessure : walk passe de bonus daily → hebdo avec objectif adapté
+const walkObj = restMode && walkDef ? (()=>{
+const walkTarget = walkTargetRef.current||state.walkTarget||0;
+return walkTarget>0
+? {...walkDef, daily:false, weekly:true, optional:false, base:walkTarget}
+: null;
+})() : null;
+
+// Semaine validée si : course atteinte OU (restMode ET marche atteinte)
 const weeklyDone = (()=>{
-const weeklyOk=objs.filter(o=>!o.optional&&o.weekly).every(o=>(wLog[o.id]||0)>=getRankBase(o.id,ri,prestige));
-if(!weeklyOk)return false;
 const ws=new Date(); ws.setDate(ws.getDate()-((ws.getDay()+6)%7)); ws.setHours(0,0,0,0);
 const days=Array.from({length:7},(_,i)=>{const d=new Date(ws);d.setDate(ws.getDate()+i);return d.toISOString().slice(0,10);});
 if(days.some(d=>d>today))return false;
-return reqDailyObjs.every(o=>days.every(d=>(state.dailyLog[d]?.[o.id]||0)>=getRankBase(o.id,ri,prestige)));
+const dailyOk=reqDailyObjs.every(o=>days.every(d=>(state.dailyLog[d]?.[o.id]||0)>=getRankBase(o.id,ri,prestige)));
+if(!dailyOk)return false;
+const runBase=getRankBase("run",ri,prestige);
+const runDone=wLog["run"]||0;
+if(runDone>=runBase)return true;
+if(restMode&&walkObj){
+// Crédit course = km marche × 2
+const walkDone=wLog["walk"]||0;
+const runCredit=walkDone*2;
+return (runDone+runCredit)>=runBase || walkDone>=walkObj.base;
+}
+return false;
 })();
 
 // 10. Quete speciale
@@ -555,9 +590,12 @@ if(e&&!silent)spawnFloat("+"+Math.round(amount)+"xp",e);
 }
 
 function validate(obj,e){
+if(e){e.preventDefault();e.stopPropagation();}
+const el=document.getElementById("qi_"+obj.id);
 const raw=(inputs.current[obj.id]||"").toString().replace(",",".");
 const val=parseFloat(raw); if(!val||val<=0)return;
 inputs.current[obj.id]="";
+if(el){el.value="";setTimeout(()=>{try{el.focus();}catch(_){}},50);}
 const cur=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
 let xp=0;
 if(obj.binary){const was=cur>=getRankBase(obj.id,ri,prestige),now2=(cur+val)>=getRankBase(obj.id,ri,prestige); xp=(!was&&now2)?(obj.binaryXp||50):0;}
@@ -605,7 +643,7 @@ if(d>0)return d+"j "+hh+"h"; if(hh>0)return hh+"h "+mm+"min"; return mm+"min";
 // ─── SOUS-COMPOSANTS ──────────────────────────────────────────────────
 
 function QI({obj}){
-const t=getRankBase(obj.id,ri,prestige), d=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
+const t=obj.base&&!RANK_BASES[obj.id]?obj.base:getRankBase(obj.id,ri,prestige), d=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
 const done=obj.binary?(d>=1):(d>=t);
 
 // Quêtes binaires : boutons Échec / Succès
@@ -655,13 +693,19 @@ obj.binaryXp+" XP si succ\u00e8s \u00b7 "+(STAT_LBL[obj.stat]||obj.stat)
 }
 
 const pct=(d/t)*100, over=d>t;
-return h("div",{class:"qi "+(done?"done":"")},
+return h("div",{class:"qi "+(obj.optional&&d>0?"done":"")},
 h("div",{class:"qhdr"},
 h("div",{class:"qname"},h("span",null,obj.icon)," ",obj.name)
 ),
 h("div",{class:"qrow"},
+obj.optional
+? h("div",{style:"flex:1;display:flex;align-items:center;gap:6px"},
+h("div",{class:"qxp",style:"color:"+(d>0?"var(--rc)":"var(--td)")},d>0?d+" "+obj.unit+"/∞":"∞")
+)
+: h(Fragment,null,
 h("div",{class:"qbar"},h("div",{class:"qfill"+(over?" over":done?" done":""),style:"width:"+Math.min(100,pct)+"%"})),
 h("div",{class:"qxp"},d+"/"+t+" "+obj.unit)
+)
 ),
 h("div",{class:"qinrow"},
 h("input",{class:"qin",type:"text",inputMode:"decimal",placeholder:"+ "+obj.unit,id:"qi_"+obj.id,onInput:ev=>{inputs.current[obj.id]=ev.target.value;}}),
@@ -679,7 +723,7 @@ obj.xpPer+" xp/"+obj.unit+" \u00b7 "+(STAT_LBL[obj.stat]||obj.stat)
 }
 
 function RR({obj,isW}){
-const t=getRankBase(obj.id,ri,prestige), d=isW?(wLog[obj.id]||0):(tLog[obj.id]||0);
+const t=obj.base&&!RANK_BASES[obj.id]?obj.base:getRankBase(obj.id,ri,prestige), d=isW?(wLog[obj.id]||0):(tLog[obj.id]||0);
 const pct=Math.min(100,(d/t)*100), done=d>=t, over=d>t;
 const validated=isW?(wLog[obj.id]!==undefined):(tLog[obj.id]!==undefined);
 if(obj.binary){
@@ -698,13 +742,17 @@ validated
 return h("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:8px"},
 h("span",{style:"font-size:16px"},obj.icon),
 h("div",{style:"flex:1"},
-h("div",{style:"font-size:12px;color:"+(over?"#f59e0b":done?"var(--rc)":"var(--tx)")+";margin-bottom:3px;display:flex;justify-content:space-between"},
+h("div",{style:"font-size:12px;color:"+(obj.optional?d>0?"var(--rc)":"var(--tx)":over?"#f59e0b":done?"var(--rc)":"var(--tx)")+";margin-bottom:3px;display:flex;justify-content:space-between"},
 h("span",null,obj.name),
-h("span",{style:"font-family:Orbitron,sans-serif;font-size:10px"},d+"/"+t+" "+obj.unit)
+obj.optional
+? h("span",{style:"font-family:Orbitron,sans-serif;font-size:10px;color:"+(d>0?"var(--rc)":"var(--td)")},d>0?d+" "+obj.unit+"/∞":"∞")
+: h("span",{style:"font-family:Orbitron,sans-serif;font-size:10px"},d+"/"+t+" "+obj.unit)
 ),
-h("div",{class:"qbar"},h("div",{class:"qfill"+(over?" over":done?" done":""),style:"width:"+pct+"%;opacity:"+(done||over?1:0.7)}))
+obj.optional
+? h("div",{class:"qbar"},h("div",{class:"qfill",style:"width:"+(d>0?Math.min(100,(d/t)*100):0)+"%;opacity:"+(d>0?0.6:0.15)}))
+: h("div",{class:"qbar"},h("div",{class:"qfill"+(over?" over":done?" done":""),style:"width:"+pct+"%;opacity:"+(done||over?1:0.7)}))
 ),
-done&&h("span",{style:"font-size:22px"},"✅")
+!obj.optional&&done&&h("span",{style:"font-size:22px"},"✅")
 );
 }
 
@@ -764,10 +812,13 @@ done&&showInput&&h("div",{style:"text-align:center;padding:8px 0;font-size:12px;
 // ─── ONGLET ACCUEIL ───────────────────────────────────────────────────
 
 function Home(){
+const weeklyObjs = restMode && walkObj
+? [...objs.filter(o=>o.weekly), walkObj]
+: objs.filter(o=>o.weekly);
 const secs=[
-{lb:"\uD83D\uDCC5 Qu\u00eates hebdomadaires",ob:sortStat(objs.filter(o=>o.weekly)), iw:true},
+{lb:"\uD83D\uDCC5 Qu\u00eates hebdomadaires",ob:sortStat(weeklyObjs), iw:true},
 {lb:"\u2694 Qu\u00eates journali\u00e8res",ob:sortStat(objs.filter(o=>o.daily&&!o.optional)),iw:false},
-{lb:"\u2728 Qu\u00eates bonus", ob:sortStat(objs.filter(o=>o.daily&&o.optional)), iw:false},
+{lb:"\u2728 Qu\u00eates bonus", ob:sortStat(objs.filter(o=>o.daily&&o.optional&&!(restMode&&o.id==="walk"))), iw:false},
 ];
 return h("div",{class:"tab"},
 missedDays>=2&&h("div",{class:"warn"},"\u26A0\uFE0F P\u00e9nalit\u00e9 : -"+(missedDays*10)+" XP ("+missedDays+" jours manqu\u00e9s)"),
@@ -795,23 +846,23 @@ h("div",{style:"font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;c
 h("div",{style:"font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-top:2px"},"Prestige")
 )
 ),
-h("div",{class:"xpbar",style:"height:8px"},h("div",{class:"xpfill",style:"width:"+(nextRank?rankPct:Math.min(100,((effectiveXp-S_RANK.xpRequired)/(S_XP_MAX-S_RANK.xpRequired))*100))+"%"})),
+h("div",{class:"xpbar",style:"height:8px"},h("div",{class:"xpfill",style:"width:"+(nextRank?rankPct:Math.min(100,((effectiveXp-ASCENSION_XP_START)/(ASCENSION_XP_NEEDED-ASCENSION_XP_START))*100))+"%"})),
 h("div",{style:"display:flex;justify-content:space-between;font-size:10px;color:var(--td);margin-top:5px;font-family:Orbitron,sans-serif"},
 h("span",null,state.totalXp.toFixed(0)+" XP"),
 nextRank
 ? h("span",{style:"color:var(--rc)"},(nextRank.xpRequired-state.totalXp).toFixed(0)+" XP manquants")
 : prestigeAvailable
 ? h("span",{style:"color:#a855f7"},"Ascension disponible !")
-: h("span",{style:"color:var(--rc)"},(S_XP_MAX-effectiveXp).toFixed(0)+" XP avant Ascension")
+: h("span",{style:"color:var(--rc)"},(ASCENSION_XP_NEEDED-effectiveXp).toFixed(0)+" XP avant Ascension "+(ROMAN[prestige]||"I"))
 ),
 prestigeAvailable&&h("button",{
 onClick:()=>{
 const newPrestige=(state.prestige||0)+1;
-setState(s=>({...s,totalXp:0,streak:0,lastActiveDay:null,streakBonusDay:null,weeklyBonusWk:null,streakMilestones:[],penaltyDay:null,dailyLog:{},weeklyLog:{},specialQuests:[],prestige:newPrestige}));
+setState(s=>({...s,streak:0,streakBonusDay:null,weeklyBonusWk:null,streakMilestones:[],penaltyDay:null,dailyLog:{},weeklyLog:{},specialQuests:[],prestige:newPrestige}));
 setPrestigeUp(newPrestige);
 },
 style:"width:100%;margin-top:12px;padding:12px;background:rgba(168,85,247,0.1);border:1px solid #a855f7;border-radius:10px;color:#a855f7;font-family:Orbitron,sans-serif;font-size:12px;letter-spacing:3px;cursor:pointer;text-transform:uppercase;text-shadow:0 0 12px #a855f7"
-},"\u269B\uFE0F Montée en Ascension"),
+},"\u269B\uFE0F Mont\u00e9e en Ascension"),
 h("div",{style:"display:grid;grid-template-columns:1fr 1px 1fr;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06)"},
 h("div",{style:"text-align:center"},
 h("div",{style:"font-family:Orbitron,sans-serif;font-size:16px;font-weight:700;color:var(--rc)"},"\uD83D\uDD25 "+state.streak),
@@ -840,8 +891,10 @@ h("div",{key:lb,class:"card"},h("div",{class:"ctitle"},lb),ob.map(o=>h(RR,{key:o
 
 function Quests(){
 const req=sortStat(objs.filter(o=>o.daily&&!o.optional));
-const bon=sortStat(objs.filter(o=>o.daily&&o.optional));
-const wkq=sortStat(objs.filter(o=>o.weekly));
+const bon=sortStat(objs.filter(o=>o.daily&&o.optional&&!(restMode&&o.id==="walk")));
+const wkq=restMode&&walkObj
+? [...sortStat(objs.filter(o=>o.weekly)), walkObj]
+: sortStat(objs.filter(o=>o.weekly));
 return h("div",{class:"tab"},
 h("div",{class:"card",style:"border-color:#ef444444"},
 h("div",{class:"shdr"},
@@ -925,7 +978,7 @@ const tots={...dt,...(state.weeklyLog[wKey]||{})};
 const we=new Date(ws); we.setDate(ws.getDate()+6);
 const fmt=d=>d.getDate().toString().padStart(2,"0")+"/"+(d.getMonth()+1).toString().padStart(2,"0");
 const lbl=wkOff===0?"Cette semaine":wkOff===1?"Semaine derni\u00e8re":fmt(ws)+" \u2013 "+fmt(we);
-const ordered=[...sortStat(objs.filter(o=>o.weekly)),...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>o.daily&&o.optional))];
+const ordered=[...(restMode&&walkObj?[...sortStat(objs.filter(o=>o.weekly)),walkObj]:sortStat(objs.filter(o=>o.weekly))),...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>o.daily&&o.optional&&!(restMode&&o.id==="walk")))];
 
 // ── 7 derniers jours ──
 const last7=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return localDate(d);});
@@ -1049,7 +1102,7 @@ ordered.every(o=>!(tots[o.id]>0))&&h("div",{style:"text-align:center;font-size:1
 // Records personnels
 h("div",{class:"card"},
 h("div",{class:"ctitle"},"\uD83C\uDFC6 Records personnels"),
-[...sortStat(objs.filter(o=>o.weekly&&!o.binary)),...sortStat(objs.filter(o=>o.daily&&!o.optional&&!o.binary)),...sortStat(objs.filter(o=>o.daily&&o.optional&&!o.binary))].map(o=>{
+[...(restMode&&walkObj?[...sortStat(objs.filter(o=>o.weekly&&!o.binary)),walkObj]:sortStat(objs.filter(o=>o.weekly&&!o.binary))),...sortStat(objs.filter(o=>o.daily&&!o.optional&&!o.binary)),...sortStat(objs.filter(o=>o.daily&&o.optional&&!o.binary&&!(restMode&&o.id==="walk")))].map(o=>{
 const rec=records[o.id];
 if(!rec)return h("div",{key:o.id,style:"display:flex;align-items:center;gap:10px;margin-bottom:8px;opacity:.4"},
 h("span",{style:"font-size:16px"},o.icon),
@@ -1075,7 +1128,7 @@ h("span",{style:"font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;
 
 function Settings(){
 if(!showSet)return null;
-const ordered=[...sortStat(objs.filter(o=>o.weekly)),...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>o.daily&&o.optional))];
+const ordered=[...(restMode&&walkObj?[...sortStat(objs.filter(o=>o.weekly)),walkObj]:sortStat(objs.filter(o=>o.weekly))),...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>o.daily&&o.optional&&!(restMode&&o.id==="walk")))];
 function applyEdit(){
 setState(s=>{
 let xpD=0;
@@ -1100,6 +1153,31 @@ h("div",{style:"display:flex;justify-content:space-between;align-items:center;ma
 h("div",{class:"mtitle",style:"margin-bottom:0"},"\u2699 R\u00e9glages"),
 h("button",{style:"background:none;border:none;color:var(--td);font-size:22px;cursor:pointer",onClick:()=>{setShowSet(false);setConfirmReset(false);}},"\u2715")
 ),
+h("div",{class:"msec"},
+h("div",{class:"mlbl"},"\uD83E\uDE79 Mode blessure \u2014 Course"),
+h("div",{style:"font-size:11px;color:var(--td);margin-bottom:10px;line-height:1.5"},
+restMode
+? "Mode blessure actif \u2014 la marche remplace la course cette semaine."
+: "Active ce mode si tu es bless\u00e9. La marche remplace la course avec un objectif adapt\u00e9."
+),
+!restMode
+? h("button",{class:"mbtn",style:"width:100%;background:#ef444411;border:1px solid #ef444466;color:#ef4444",onClick:()=>{
+const currentWk=wkStr();
+const runDone=(state.weeklyLog[currentWk]||{})["run"]||0;
+const runBase=getRankBase("run",ri,prestige);
+const remaining=Math.max(0,runBase-runDone);
+const walkTarget=Math.max(1,Math.ceil(remaining*0.5));
+walkTargetRef.current=walkTarget;
+setState(s=>({...s,restMode:true,walkTarget}));
+setShowSet(false);
+}},"\uD83E\uDE79 Blessure \u2014 activer la marche")
+: h("button",{class:"mbtn",style:"width:100%;background:#4ade8011;border:1px solid #4ade8066;color:#4ade80",onClick:()=>{
+walkTargetRef.current=0;
+setState(s=>({...s,restMode:false,walkTarget:0}));
+setShowSet(false);
+}},"\u2705 R\u00e9tablissement \u2014 reprendre la course")
+),
+h("div",{class:"divider"}),
 h("div",{class:"msec"},
 h("div",{class:"mlbl"},"\uD83D\uDCDD Corriger les donn\u00e9es du jour"),
 ordered.map(obj=>{
