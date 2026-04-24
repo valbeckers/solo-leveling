@@ -4,6 +4,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+<meta name="screen-orientation" content="portrait">
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Kaizen"/>
@@ -160,7 +161,7 @@ const DEFS = [
   {id:"med",    name:"M\u00e9ditation",unit:"min",  xpPer:5,  daily:true, weekly:false,optional:true, stat:"Esprit",   icon:"\uD83E\uDDD8\uD83C\uDFFB",  base:5},
   {id:"flex",   name:"Souplesse",      unit:"min",  xpPer:5,  daily:true, weekly:false,optional:true, stat:"Vitalite", icon:"\uD83E\uDD38\uD83C\uDFFB",  base:5},
   {id:"walk",   name:"Marche",         unit:"km",   xpPer:25, daily:true, weekly:false,optional:true, stat:"Endurance",icon:"\uD83D\uDEB6\uD83C\uDFFB\u200D\u2642\uFE0F",              base:3},
-  {id:"grips",  name:"Hand grips",     unit:"sec",  xpPer:0.1,daily:true, weekly:false,optional:true, stat:"Force",    icon:"\u270A\uD83C\uDFFB",        base:500},
+  {id:"grips",  name:"Hand grips",     unit:"min",  xpPer:10, daily:true, weekly:false,optional:true, stat:"Force",    icon:"\u270A\uD83C\uDFFB",        base:500},
 ];
 
 // Quetes speciales — par stat
@@ -290,12 +291,12 @@ const IMPORTED = {
     "2026-04-12":{water:8,sleep:1,reading:29,push:64,abs:99,squats:37,flex:3,nosugar:1},
     "2026-04-13":{water:11,push:45,sleep:1,abs:110,squats:23,reading:14,nosugar:1},
     "2026-04-14":{push:65,abs:108,squats:25,water:10,sleep:1,reading:20,nosugar:1},
-    "2026-04-15":{water:9,sleep:1,push:90,abs:111,squats:22,med:10,reading:19,nosugar:0,grips:250,flex:0},
-    "2026-04-16":{water:12,push:106,abs:190,squats:34,reading:27,sleep:1,nosugar:1,grips:750,med:5},
-    "2026-04-17":{water:9,push:68,abs:130,squats:42,reading:21,sleep:1,nosugar:1,grips:540},
+    "2026-04-15":{water:9,sleep:1,push:90,abs:111,squats:22,med:10,reading:19,nosugar:0,grips:4.2,flex:0},
+    "2026-04-16":{water:12,push:106,abs:190,squats:34,reading:27,sleep:1,nosugar:1,grips:12.5,med:5},
+    "2026-04-17":{water:9,push:68,abs:130,squats:42,reading:21,sleep:1,nosugar:1,grips:9},
     "2026-04-18":{water:13,sleep:1,push:75,abs:126,squats:36,nosugar:0},
-    "2026-04-19":{sleep:1,water:9,nosugar:1,reading:18,push:88,abs:134,squats:32,grips:518,med:5},
-    "2026-04-20":{sleep:1,push:68,abs:128,squats:34,water:12,nosugar:1,protein:1,reading:29,grips:540,walk:0.5}
+    "2026-04-19":{sleep:1,water:9,nosugar:1,reading:18,push:88,abs:134,squats:32,grips:8.6,med:5},
+    "2026-04-20":{sleep:1,push:68,abs:128,squats:34,water:12,nosugar:1,protein:1,reading:29,grips:9,walk:0.5}
   },
   weeklyLog:{"2026-W15":{run:13},"2026-W16":{run:8.52},"2026-W17":{walk:0.5}},
   stats:{Vitalite:5,Force:5,Esprit:4,Endurance:4,Discipline:3},
@@ -803,7 +804,6 @@ function App(){
       showInput&&!done&&(
         sq.binary
           ?h("div",{style:"display:flex;gap:8px;margin-top:8px"},
-              h("button",{onClick:e=>completeBinary(0,e),style:"flex:1;padding:10px;border-radius:8px;border:1px solid #ef444444;background:rgba(255,255,255,0.03);color:#ef4444;font-family:Orbitron,sans-serif;font-size:11px;cursor:pointer;letter-spacing:1px"},"\u274C \u00c9chec"),
               h("button",{onClick:e=>completeBinary(1,e),style:"flex:1;padding:10px;border-radius:8px;border:1px solid #4ade8044;background:rgba(255,255,255,0.03);color:#4ade80;font-family:Orbitron,sans-serif;font-size:11px;cursor:pointer;letter-spacing:1px"},"\u2705 Succ\u00e8s")
             )
           :h("div",{class:"qinrow",style:"margin-top:8px"},
@@ -1084,7 +1084,7 @@ function App(){
               complete&&h("span",{style:"font-size:22px"},"✅")
             );
           }
-          const val=tots[obj.id]||0, wt=obj.weekly?getRankBase(obj.id,ri):getRankBase(obj.id,ri,prestige)*7;
+          const val=tots[obj.id]||0, wt=obj.weekly?(obj.id==="walk"&&restMode&&walkObj?walkObj.base:getRankBase(obj.id,ri)):getRankBase(obj.id,ri,prestige)*7;
           const pct=Math.min(100,(val/wt)*100), complete=val>=wt, over=val>wt;
           return h("div",{key:obj.id,style:"display:flex;align-items:center;gap:10px;margin-bottom:10px"},
             h("span",{style:"font-size:18px"},obj.icon),
@@ -1327,6 +1327,10 @@ function App(){
 }
 
 render(h(App,null),document.getElementById("app"));
+  // Verrouillage portrait
+  if(screen.orientation&&screen.orientation.lock){
+    screen.orientation.lock('portrait').catch(()=>{});
+  }
 
 </script>
 </body>
