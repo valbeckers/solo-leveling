@@ -376,6 +376,7 @@ function App(){
   const walkTargetRef = useRef(state.walkTarget||0);
   // Sync ref from state on mount (after reload)
   useEffect(()=>{ walkTargetRef.current=state.walkTarget||0; },[]);
+
   // Migration grips sec→min sur le state en mémoire (au cas où localStorage non migré)
   useEffect(()=>{
     const needsMigration=Object.values(state.dailyLog).some(log=>log.grips!=null&&log.grips>60);
@@ -555,14 +556,18 @@ function App(){
       if(s.lastStreakDay!==t)next={...next,lastStreakDay:t};
       if(s.streakBonusDay!==t){
         const sx={...next.statXp,Discipline:(next.statXp.Discipline||0)+100};
+        const rkBefore=getRank(next.totalXp);
         next={...next,totalXp:next.totalXp+100,statXp:sx,stats:{...next.stats,Discipline:getLvl(sx.Discipline)},streakBonusDay:t};
+        if(getRank(next.totalXp).id!==rkBefore.id)setTimeout(()=>setRankUp(getRank(next.totalXp)),300);
         // Vérifier milestone streak
         const newStreak=next.streak;
         const milestoneXp=STREAK_MILESTONES[newStreak];
         const milestones=next.streakMilestones||[];
         if(milestoneXp&&!milestones.includes(newStreak)){
           const sx2={...sx,Discipline:(sx.Discipline||0)+milestoneXp};
+          const rkBefore2=getRank(next.totalXp-milestoneXp);
           next={...next,totalXp:next.totalXp+milestoneXp,statXp:sx2,stats:{...next.stats,Discipline:getLvl(sx2.Discipline)},streakMilestones:[...milestones,newStreak]};
+          if(getRank(next.totalXp).id!==rkBefore2.id)setTimeout(()=>setRankUp(getRank(next.totalXp)),300);
           setTimeout(()=>{
             const id1=Date.now()+Math.random(),id2=id1+0.1;
             setFloats(f=>[...f,{id:id1,y:"30%",txt:"\uD83C\uDFC6 MILESTONE "+newStreak+" JOURS !"},{id:id2,y:"35%",txt:"+"+milestoneXp+" XP Discipline"}]);
@@ -585,7 +590,10 @@ function App(){
     if(!weeklyDone||weeklyBonusGiven)return;
     setState(s=>{
       const sx={...s.statXp,Discipline:(s.statXp.Discipline||0)+150};
-      return {...s,totalXp:s.totalXp+150,statXp:sx,stats:{...s.stats,Discipline:getLvl(sx.Discipline)},weeklyBonusWk:wk};
+      const rkW=getRank(s.totalXp);
+      const newTotalW=s.totalXp+150;
+      if(getRank(newTotalW).id!==rkW.id)setTimeout(()=>setRankUp(getRank(newTotalW)),300);
+      return {...s,totalXp:newTotalW,statXp:sx,stats:{...s.stats,Discipline:getLvl(sx.Discipline)},weeklyBonusWk:wk};
     });
     // Animation floater hebdo
     setTimeout(()=>{
@@ -863,7 +871,7 @@ function App(){
           h("div",{style:"display:flex;align-items:center;gap:10px"},
             h("div",{style:"font-family:Orbitron,sans-serif;font-size:36px;font-weight:900;color:var(--rc);text-shadow:0 0 20px var(--rg);line-height:1"},rank.id),
             h("div",null,
-              h("div",{style:"font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:var(--rc);text-shadow:0 0 12px var(--rg)"},rank.label),
+              
               h("div",{style:"font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-top:2px"},"Rang actuel")
             )
           ),
@@ -871,7 +879,7 @@ function App(){
           nextRank
             ? h("div",{style:"display:flex;align-items:center;gap:10px"},
                 h("div",{style:"text-align:right"},
-                  h("div",{style:"font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:var(--td)"},nextRank.label),
+                  
                   h("div",{style:"font-size:10px;color:var(--td);letter-spacing:1px;text-transform:uppercase;margin-top:2px"},"Rang suivant")
                 ),
                 h("div",{style:"font-family:Orbitron,sans-serif;font-size:36px;font-weight:900;color:var(--td);line-height:1"},nextRank.id)
@@ -971,7 +979,7 @@ function App(){
           return h(Fragment,{key:r.id},
             h("div",{class:"rnode"},
               h("div",{class:"rcirc",style:"border-color:"+(reached?r.color:"#333")+";color:"+(reached?r.color:"#444")+";background:"+(cur?r.color+"22":"transparent")+";box-shadow:"+(cur?"0 0 15px "+r.glow:"none")},r.id),
-              h("div",{class:"rname",style:"color:"+(reached?r.color:"#444")},r.label)
+              
             ),
             i<RANKS.length-1&&h("div",{class:"rconn",style:"background:"+(effectiveXp>=RANKS[i+1].xpRequired?r.color:"#222")})
           );
@@ -1275,7 +1283,7 @@ function App(){
       h("div",{class:"rucont"},
         h("div",{class:"ruevol"},"\u00c9volution de rang"),
         h("div",{class:"rurank",style:"data-r:"+rankUp.id,"data-r":rankUp.id},rankUp.id),
-        h("div",{class:"rulabel"},rankUp.label),
+        
         h("button",{class:"rudis",onClick:()=>setRankUp(null)},"Continuer")
       )
     );
