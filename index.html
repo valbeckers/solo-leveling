@@ -1043,12 +1043,14 @@ function App(){
 
     // ── Suggestions intelligentes (quêtes bonus non faites depuis X jours) ──
     const suggestions=[];
-    objs.filter(o=>o.optional&&o.daily&&!o.binary).forEach(o=>{
+    objs.filter(o=>(o.optional||o.id==="walk")&&o.daily&&!o.binary).forEach(o=>{
       let lastDone=null;
       for(let i=0;i<30;i++){
         const d=new Date();d.setDate(d.getDate()-i);
         const dk=localDate(d);
-        if((state.dailyLog[dk]?.[o.id]||0)>0){lastDone=i;break;}
+        const dval=state.dailyLog[dk]?.[o.id]||0;
+        const wval=o.id==="walk"?(state.weeklyLog[wkStr(new Date(dk))]||{}).walk||0:0;
+        if(dval>0||wval>0){lastDone=i;break;}
       }
       if(lastDone===null||lastDone>=3){
         const days=lastDone===null?30:lastDone;
