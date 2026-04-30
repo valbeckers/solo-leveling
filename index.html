@@ -245,7 +245,7 @@ const wk=Math.ceil(((dt-yearStart)/86400000+1)/7);
 return dt.getUTCFullYear()+"-W"+String(wk).padStart(2,"0");
 };
 const sortStat = arr => [...arr].sort((a,b)=>STATS.indexOf(a.stat)-STATS.indexOf(b.stat));
-const xpForLvl = l => Math.round(100*Math.pow(2,l));
+const xpForLvl = l => Math.round(323*Math.pow(1.07,l));
 const totForLvl = l => { let t=0; for(let i=0;i<l;i++)t+=xpForLvl(i); return t; };
 const getLvl = xp => { let l=0; while(xp>=totForLvl(l+1))l++; return l; };
 
