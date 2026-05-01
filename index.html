@@ -161,7 +161,7 @@ const DEFS = [
   {id:"run",    name:"Course",         unit:"km",   xpPer:50, daily:false,weekly:true, optional:false,stat:"Endurance",icon:"\uD83C\uDFC3\uD83C\uDFFB",  base:7},
   {id:"med",    name:"M\u00e9ditation",unit:"min",  xpPer:5,  daily:true, weekly:false,optional:true, stat:"Esprit",   icon:"\uD83E\uDDD8\uD83C\uDFFB",  base:15},
   {id:"flex",   name:"Souplesse",      unit:"min",  xpPer:5,  daily:true, weekly:false,optional:true, stat:"Vitalite", icon:"\uD83E\uDD38\uD83C\uDFFB",  base:15},
-  {id:"walk",   name:"Marche",         unit:"km",   xpPer:25, daily:true, weekly:false,optional:true, stat:"Endurance",icon:"\uD83D\uDEB6\uD83C\uDFFB\u200D\u2642\uFE0F",              base:5},
+  {id:"walk",   name:"Marche",         unit:"km",   xpPer:25, daily:false,weekly:false,optional:true, stat:"Endurance",icon:"\uD83D\uDEB6\uD83C\uDFFB\u200D\u2642\uFE0F",              base:5},
   {id:"grips",  name:"Hand grips",     unit:"min",  xpPer:10, daily:true, weekly:false,optional:true, stat:"Force",    icon:"\u270A\uD83C\uDFFB",        base:10},
 ];
 
@@ -272,7 +272,7 @@ function pickRandomSq(usedIds,restMode){
   return {...avail[Math.floor(Math.random()*avail.length)],stat};
 }
 
-const IMPORTED_VERSION = "2026-04-30b";
+const IMPORTED_VERSION = "2026-05-01d";
 const loadState  = () => {
   try{
     const ver=localStorage.getItem("sl_version");
@@ -290,9 +290,9 @@ const saveState  = s  => {
 // ─── DONNEES IMPORTEES ─────────────────────────────────────────────────────
 
 const IMPORTED = {
-  totalXp:25038.2, streak:0, lastActiveDay:"2026-04-30",
-  streakBonusDay:"2026-04-28", weeklyBonusWk:"2026-W15", lastStreakDay:"2026-04-28",
-  streakMilestones:[5,10], penaltyDay:"2026-04-30",
+  totalXp:26985.2, streak:1, lastActiveDay:"2026-05-01",
+  streakBonusDay:"2026-04-30", weeklyBonusWk:"2026-W15", lastStreakDay:"2026-04-30",
+  streakMilestones:[5,10], penaltyDay:"2026-05-01",
   prestige:0, restMode:false, walkTarget:0,
   dailyLog:{
     "2026-04-06":{water:8,push:36,abs:72,sleep:1},
@@ -309,21 +309,22 @@ const IMPORTED = {
     "2026-04-17":{water:9,push:68,abs:130,squats:42,reading:21,sleep:1,nosugar:1,grips:9},
     "2026-04-18":{water:13,sleep:1,push:75,abs:126,squats:36,nosugar:0},
     "2026-04-19":{sleep:1,water:9,nosugar:1,reading:18,push:88,abs:134,squats:32,grips:8.6,med:5},
-    "2026-04-20":{sleep:1,push:68,abs:128,squats:34,water:12,nosugar:1,protein:1,reading:29,grips:9,walk:0.5,med:5},
+    "2026-04-20":{sleep:1,push:68,abs:128,squats:34,water:12,nosugar:1,protein:1,reading:29,grips:9,med:5},
     "2026-04-21":{water:12,sleep:1,push:68,abs:125,squats:38,reading:22,protein:1,nosugar:1,grips:11},
     "2026-04-22":{water:8,sleep:1,push:114,abs:247,squats:46,reading:24,grips:16.7,nosugar:1,protein:1,med:5},
     "2026-04-23":{water:8,sleep:1,push:60,abs:118,squats:36,reading:7,nosugar:0,protein:1,flex:0,grips:0,med:8},
     "2026-04-24":{sleep:0,push:90,abs:126,squats:40,water:8,protein:1,grips:10.5,nosugar:1,reading:26,flex:0,med:0},
-    "2026-04-25":{water:8,sleep:0,nosugar:1,protein:1,push:90,abs:126,squats:40,reading:26,grips:10.5,walk:3.5},
+    "2026-04-25":{water:8,sleep:0,nosugar:1,protein:1,push:90,abs:126,squats:40,reading:26,grips:10.5},
     "2026-04-26":{water:10,sleep:1,nosugar:1,protein:1,push:124,abs:164,squats:46,reading:28,grips:10.5},
     "2026-04-27":{water:11,sleep:1,nosugar:0,protein:0,push:75,abs:153,squats:40,reading:31,grips:0,flex:0,med:15},
     "2026-04-28":{sleep:1,push:77,abs:155,squats:41,water:10,reading:26,protein:1,nosugar:1},
     "2026-04-29":{sleep:1,med:15,push:240,abs:213,squats:62,water:9,nosugar:0,reading:22,protein:0},
-    "2026-04-30":{sleep:1,push:82,abs:150,squats:40,water:2}
+    "2026-04-30":{sleep:1,push:82,abs:150,squats:40,water:10,protein:1,reading:21,nosugar:1,grips:15},
+    "2026-05-01":{sleep:1,push:70,water:9,abs:147,squats:20,grips:16,protein:0,reading:20,med:5,nosugar:0}
   },
-  weeklyLog:{"2026-W15":{run:13},"2026-W16":{run:8.52},"2026-W17":{walk:6.5,run:0},"2026-W18":{run:8.91,walk:0}},
-  stats:{Vitalite:12,Force:15,Esprit:8,Endurance:6,Discipline:3},
-  statXp:{Vitalite:6327.5,Force:8118.2,Esprit:3595,Endurance:2559,Discipline:1350},
+  weeklyLog:{"2026-W15":{run:13},"2026-W16":{run:8.52},"2026-W17":{walk:6.5,run:0},"2026-W18":{run:8.91,walk:5}},
+  stats:{Vitalite:13,Force:15,Esprit:9,Endurance:6,Discipline:4},
+  statXp:{Vitalite:6862.5,Force:8955.2,Esprit:3925,Endurance:2704,Discipline:1450},
   specialQuests:[],
   objectives:DEFS,
 };
@@ -633,7 +634,7 @@ function App(){
     const val=parseFloat(raw); if(!val||val<=0)return;
     inputs.current[obj.id]="";
     if(el){el.value="";setTimeout(()=>{try{el.focus();}catch(_){}},50);}
-    const cur=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
+    const cur=(obj.weekly||obj.id==="walk")?(wLog[obj.id]||0):(tLog[obj.id]||0);
     let xp=0;
     const PALIER_IDS=["push","abs","squats","reading","med","flex","grips","walk"];
     if(obj.binary){const was=cur>=getRankBase(obj.id,ri,prestige),now2=(cur+val)>=getRankBase(obj.id,ri,prestige); xp=(!was&&now2)?(obj.binaryXp||50):0;}
@@ -669,7 +670,7 @@ function App(){
     }
     else{const nt=cur+val; const b=getRankBase(obj.id,ri,prestige); if(cur>=b)xp=val*obj.xpPer; else if(nt<=b)xp=val*obj.xpPer; else xp=val*obj.xpPer;}
     setState(s=>{
-      if(obj.weekly){const w={...s.weeklyLog};w[wk]={...(w[wk]||{}),[obj.id]:(w[wk]?.[obj.id]||0)+val};return{...s,weeklyLog:w,lastActiveDay:todayStr()};}
+      if(obj.weekly||obj.id==="walk"){const w={...s.weeklyLog};w[wk]={...(w[wk]||{}),[obj.id]:(w[wk]?.[obj.id]||0)+val};return{...s,weeklyLog:w,lastActiveDay:todayStr()};}
       const d={...s.dailyLog};d[today]={...(d[today]||{}),[obj.id]:(d[today]?.[obj.id]||0)+val};return{...s,dailyLog:d,lastActiveDay:todayStr()};
     });
     if(xp>0){
@@ -719,13 +720,13 @@ function App(){
   // ─── SOUS-COMPOSANTS ──────────────────────────────────────────────────
 
   function QI({obj}){
-    const t=obj.base&&!RANK_BASES[obj.id]?obj.base:getRankBase(obj.id,ri,prestige), d=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
+    const t=obj.base&&!RANK_BASES[obj.id]?obj.base:getRankBase(obj.id,ri,prestige), d=(obj.weekly||obj.id==="walk")?(wLog[obj.id]||0):(tLog[obj.id]||0);
     const done=obj.binary?(d>=1):(d>=t);
 
     // Quêtes binaires : boutons Échec / Succès
     if(obj.binary){
       function setBinary(val,e){
-        const cur=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
+        const cur=(obj.weekly||obj.id==="walk")?(wLog[obj.id]||0):(tLog[obj.id]||0);
         const wasD=cur>=1;
         const xp=(!wasD&&val>=1)?obj.binaryXp:0;
         const cx=e?e.clientX:200, cy=e?e.clientY:300;
@@ -774,14 +775,10 @@ function App(){
         h("div",{class:"qname"},h("span",null,obj.icon)," ",obj.name)
       ),
       h("div",{class:"qrow"},
-        obj.optional
-          ? h("div",{style:"flex:1;display:flex;align-items:center;gap:6px"},
-              h("div",{class:"qxp",style:"color:"+(d>0?"var(--rc)":"var(--td)")},d>0?d+" "+obj.unit+"/∞":"∞")
-            )
-          : h(Fragment,null,
-              h("div",{class:"qbar"},h("div",{class:"qfill"+(over?" over":done?" done":""),style:"width:"+Math.min(100,pct)+"%"})),
-              h("div",{class:"qxp"},d+"/"+t+" "+obj.unit)
-            )
+        h(Fragment,null,
+            h("div",{class:"qbar"},h("div",{class:"qfill"+(over?" over":done?" done":""),style:"width:"+Math.min(100,pct)+"%"})),
+            h("div",{class:"qxp"},d+"/"+t+" "+obj.unit)
+          )
       ),
       h("div",{class:"qinrow"},
         h("input",{class:"qin",type:"text",inputMode:"decimal",placeholder:"+ "+obj.unit,id:"qi_"+obj.id,onInput:ev=>{inputs.current[obj.id]=ev.target.value;}}),
@@ -799,7 +796,7 @@ function App(){
   }
 
   function RR({obj,isW}){
-    const t=obj.base&&!RANK_BASES[obj.id]?obj.base:getRankBase(obj.id,ri,prestige), d=isW?(wLog[obj.id]||0):(tLog[obj.id]||0);
+    const t=obj.base&&!RANK_BASES[obj.id]?obj.base:getRankBase(obj.id,ri,prestige), d=(isW||obj.id==="walk")?(wLog[obj.id]||0):(tLog[obj.id]||0);
     const pct=Math.min(100,(d/t)*100), done=d>=t, over=d>t;
     const validated=isW?(wLog[obj.id]!==undefined):(tLog[obj.id]!==undefined);
     if(obj.binary){
@@ -892,7 +889,7 @@ function App(){
     const secs=[
       {lb:"\uD83D\uDCC5 Qu\u00eates hebdomadaires",ob:sortStat(weeklyObjs), iw:true},
       {lb:"\u2694 Qu\u00eates journali\u00e8res",ob:sortStat(objs.filter(o=>o.daily&&!o.optional)),iw:false},
-      {lb:"\u2728 Qu\u00eates bonus", ob:sortStat(objs.filter(o=>o.daily&&o.optional&&!(restMode&&o.id==="walk"))), iw:false},
+      {lb:"\u2728 Qu\u00eates bonus", ob:sortStat(objs.filter(o=>(o.daily&&o.optional||o.id==="walk")&&!(restMode&&o.id==="walk"))), iw:false},
     ];
     return h("div",{class:"tab"},
       missedDays>=2&&h("div",{class:"warn"},"\u26A0\uFE0F P\u00e9nalit\u00e9 : -"+(missedDays*10)+" XP ("+missedDays+" jours manqu\u00e9s)"),
@@ -965,7 +962,7 @@ function App(){
 
   function Quests(){
     const req=sortStat(objs.filter(o=>o.daily&&!o.optional));
-    const bon=sortStat(objs.filter(o=>o.daily&&o.optional&&!(restMode&&o.id==="walk")));
+    const bon=sortStat(objs.filter(o=>(o.daily&&o.optional||o.id==="walk")&&!(restMode&&o.id==="walk")));
     const wkq=restMode&&walkObj
       ? [...sortStat(objs.filter(o=>o.weekly)), walkObj]
       : sortStat(objs.filter(o=>o.weekly));
@@ -1048,11 +1045,12 @@ function App(){
     const wKey=wkStr(ws);
     const dt={};
     weekDays.forEach(dk=>Object.entries(state.dailyLog[dk]||{}).forEach(([id,v])=>{dt[id]=(dt[id]||0)+v;}));
-    const tots={...dt,...(state.weeklyLog[wKey]||{})};
+    const wkLogEntry=state.weeklyLog[wKey]||{};
+    const tots={...dt,...wkLogEntry};
     const we=new Date(ws); we.setDate(ws.getDate()+6);
     const fmt=d=>d.getDate().toString().padStart(2,"0")+"/"+(d.getMonth()+1).toString().padStart(2,"0");
     const lbl=wkOff===0?"Cette semaine":wkOff===1?"Semaine derni\u00e8re":fmt(ws)+" \u2013 "+fmt(we);
-    const ordered=[...(restMode&&walkObj?[...sortStat(objs.filter(o=>o.weekly)),walkObj]:sortStat(objs.filter(o=>o.weekly))),...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>o.daily&&o.optional&&!(restMode&&o.id==="walk")))];
+    const ordered=[...(restMode&&walkObj?[...sortStat(objs.filter(o=>o.weekly)),walkObj]:sortStat(objs.filter(o=>o.weekly))),...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>(o.daily&&o.optional||o.id==="walk")&&!(restMode&&o.id==="walk")))];
 
     // ── 7 derniers jours ──
     const last7=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return localDate(d);});
@@ -1074,7 +1072,7 @@ function App(){
 
     // ── Suggestions intelligentes (quêtes bonus non faites depuis X jours) ──
     const suggestions=[];
-    objs.filter(o=>(o.optional||o.id==="walk")&&o.daily&&!o.binary).forEach(o=>{
+    objs.filter(o=>(o.optional||o.id==="walk")&&(o.daily||o.id==="walk")&&!o.binary).forEach(o=>{
       let lastDone=null;
       for(let i=0;i<30;i++){
         const d=new Date();d.setDate(d.getDate()-i);
@@ -1145,7 +1143,7 @@ function App(){
                 h("div",{style:"font-size:12px;color:"+(complete?"var(--rc)":"var(--tx)")+";margin-bottom:3px;display:flex;justify-content:space-between"},
                   h("span",{style:"display:flex;align-items:center;gap:6px"},
                     obj.name,
-                    obj.optional&&h("span",{style:"font-size:9px;color:#fbbf24;font-family:Orbitron,sans-serif;border:1px solid #fbbf2455;border-radius:4px;padding:1px 4px"},"BONUS")
+  
                   ),
                   h("span",{style:"font-family:Orbitron,sans-serif;font-size:10px"},successes+"/7 "+(obj.id==="sleep"?"nuits":"jours"))
                 ),
@@ -1154,7 +1152,7 @@ function App(){
               complete&&h("span",{style:"font-size:22px"},"✅")
             );
           }
-          const val=tots[obj.id]||0, wt=obj.weekly?(obj.id==="walk"&&restMode&&walkObj?walkObj.base:getRankBase(obj.id,ri)):getRankBase(obj.id,ri,prestige)*7;
+          const val=tots[obj.id]||0, wt=obj.weekly?(obj.id==="walk"&&restMode&&walkObj?walkObj.base:getRankBase(obj.id,ri)):obj.id==="walk"?obj.base:getRankBase(obj.id,ri,prestige)*7;
           const pct=Math.min(100,(val/wt)*100), complete=val>=wt, over=val>wt;
           return h("div",{key:obj.id,style:"display:flex;align-items:center;gap:10px;margin-bottom:10px"},
             h("span",{style:"font-size:18px"},obj.icon),
@@ -1163,14 +1161,12 @@ function App(){
                 h("span",{style:"display:flex;align-items:center;gap:6px"},
                   obj.name,
                   obj.weekly&&h("span",{style:"font-size:9px;color:#818cf8;font-family:Orbitron,sans-serif;border:1px solid #818cf855;border-radius:4px;padding:1px 4px"},"SEMAINE"),
-                  obj.optional&&h("span",{style:"font-size:9px;color:#fbbf24;font-family:Orbitron,sans-serif;border:1px solid #fbbf2455;border-radius:4px;padding:1px 4px"},"BONUS")
+
                 ),
                 h("span",{style:"font-family:Orbitron,sans-serif;font-size:10px"},
-                  obj.optional
-                    ? (val%1===0?val:val.toFixed(1))+(val>0?" "+obj.unit:"")+" /∞"
-                    : (val%1===0?val:val.toFixed(1))+"/"+wt+" "+obj.unit)
+                  (val%1===0?val:val.toFixed(1))+"/"+wt+" "+obj.unit)
               ),
-              h("div",{class:"qbar"},h("div",{class:"qfill"+(obj.optional?"":over?" over":complete?" done":""),style:"width:"+(obj.optional?Math.min(100,(val/wt)*100):pct)+"%;opacity:"+(val>0?1:0.15)}))
+              h("div",{class:"qbar"},h("div",{class:"qfill"+(over?" over":complete?" done":""),style:"width:"+pct+"%;opacity:"+(val>0?1:0.15)}))
             ),
             complete&&h("span",{style:"font-size:22px"},"✅")
           );
@@ -1195,7 +1191,7 @@ function App(){
               h("div",{style:"font-size:10px;color:var(--td);margin-top:1px"},fmt2(rec.date))
             ),
             h("span",{style:"font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:var(--rc)"+(rec.val>0?";text-shadow:0 0 8px var(--rg)":"")},
-              (rec.val%1===0?rec.val:rec.val.toFixed(1))+" "+o.unit+(o.optional?" /∞":""))
+              (rec.val%1===0?rec.val:rec.val.toFixed(1))+" "+o.unit)
           );
         })
       )
@@ -1206,7 +1202,7 @@ function App(){
 
   function Settings(){
     if(!showSet)return null;
-    const ordered=[...(restMode&&walkObj?[...sortStat(objs.filter(o=>o.weekly)),walkObj]:sortStat(objs.filter(o=>o.weekly))),...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>o.daily&&o.optional&&!(restMode&&o.id==="walk")))];
+    const ordered=[...(restMode&&walkObj?[...sortStat(objs.filter(o=>o.weekly)),walkObj]:sortStat(objs.filter(o=>o.weekly))),...sortStat(objs.filter(o=>o.daily&&!o.optional)),...sortStat(objs.filter(o=>(o.daily&&o.optional||o.id==="walk")&&!(restMode&&o.id==="walk")))];
     function applyEdit(){
       setState(s=>{
         let xpD=0;
@@ -1259,7 +1255,7 @@ function App(){
         h("div",{class:"msec"},
           h("div",{class:"mlbl"},"\uD83D\uDCDD Corriger les donn\u00e9es du jour"),
           ordered.map(obj=>{
-            const cur=obj.weekly?(wLog[obj.id]||0):(tLog[obj.id]||0);
+            const cur=(obj.weekly||obj.id==="walk")?(wLog[obj.id]||0):(tLog[obj.id]||0);
             return h("div",{key:obj.id,style:"display:flex;align-items:center;gap:10px;margin-bottom:8px"},
               h("span",{style:"font-size:16px;min-width:24px"},obj.icon),
               h("span",{style:"flex:1;font-size:13px"},obj.name),
