@@ -769,7 +769,7 @@ function App(){
     }
 
     const pct=(d/t)*100, over=d>t;
-    return h("div",{class:"qi "+(obj.optional&&d>0?"done":"")},
+    return h("div",{class:"qi "+(d>=t&&t>0?"done":"")},
       h("div",{class:"qhdr"},
         h("div",{class:"qname"},h("span",null,obj.icon)," ",obj.name)
       ),
