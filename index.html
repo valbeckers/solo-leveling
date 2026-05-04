@@ -1178,7 +1178,7 @@ function App(){
                   ),
                   h("span",{style:"font-family:Orbitron,sans-serif;font-size:10px"},successes+"/7 "+(obj.id==="sleep"?"nuits":"jours"))
                 ),
-                h("div",{class:"qbar"},h("div",{class:"qfill"+(complete?" done":""),style:"width:"+pct+"%;opacity:"+(successes>0?1:0.15)}))
+                h("div",{class:"qbar"},h("div",{class:"qfill"+(complete?" done":successes>0?" partial":""),style:"width:"+pct+"%"}))
               ),
               complete&&h("span",{style:"font-size:22px"},"✅")
             );
