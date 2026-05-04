@@ -831,9 +831,12 @@ function App(){
         h("div",{style:"flex:1"},
           h("div",{style:"font-size:12px;color:var(--tx);display:flex;justify-content:space-between;align-items:center"},
             h("span",null,obj.name),
-            validated
-              ?h("span",{style:"font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;color:"+(done?"#4ade80":"#ef4444")},done?"Succ\u00e8s \u2713":"\u00c9chec \u2718")
-              :h("span",{style:"font-size:10px;color:var(--td)"},"non valid\u00e9")
+            h("div",{style:"display:flex;align-items:center;gap:6px"},
+              validated
+                ?h("span",{style:"font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;color:"+(done?"#4ade80":"#ef4444")},done?"Succ\u00e8s":"\u00c9chec")
+                :h("span",{style:"font-size:10px;color:var(--td)"},""),
+              h("span",{style:"font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;width:10px;text-align:center;color:"+(done?"#4ade80":"#ef4444")},validated?(done?"\u2713":"\u2718"):"")
+            )
           )
         )
       );
@@ -841,15 +844,17 @@ function App(){
     return h("div",{style:"display:flex;align-items:center;gap:10px;margin-bottom:8px"},
       h("span",{style:"font-size:16px"},obj.icon),
       h("div",{style:"flex:1"},
-        h("div",{style:"font-size:12px;color:var(--tx);margin-bottom:3px;display:flex;justify-content:space-between"},
+        h("div",{style:"font-size:12px;color:var(--tx);margin-bottom:3px;display:flex;justify-content:space-between;align-items:center"},
           h("span",null,obj.name),
-          h("span",{style:"font-family:Orbitron,sans-serif;font-size:10px;color:"+(d>=t?"var(--rc)":d>0?"var(--tx)":"var(--td)")},d+"/"+t+" "+obj.unit)
+          h("div",{style:"display:flex;align-items:center;gap:6px"},
+            h("span",{style:"font-family:Orbitron,sans-serif;font-size:10px;color:"+(d>=t?"var(--rc)":d>0?"var(--tx)":"var(--td)")},d+"/"+t+" "+obj.unit),
+            h("span",{style:"font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;color:#4ade80;width:10px;text-align:center"},done?"\u2713":"")
+          )
         ),
         obj.optional
           ? h("div",{class:"qbar"},h("div",{class:"qfill"+(d>t?" over":d>=t?" done":d>0?" partial":""),style:"width:"+(d>0?Math.min(100,(d/t)*100):0)+"%"}))
           : h("div",{class:"qbar"},h("div",{class:"qfill"+(over?" over":done?" done":pct>0?" partial":""),style:"width:"+pct+"%"}))
-      ),
-      !obj.optional&&done&&h("span",{style:"font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;color:#4ade80"},"\u2713")
+      )
     );
   }
 
